@@ -1,0 +1,16 @@
+... make a distributable dmg:
+
+May 2025 = cleaner way:
+
+rm -rf out/
+
+npm run package
+
+create-dmg --overwrite out/storygrind-darwin-arm64/storygrind.app out/
+
+
+(base) cleesmith:~$ which create-dmg
+/Users/cleesmith/.nvm/versions/node/v22.14.0/bin/create-dmg
+(base) cleesmith:~$ create-dmg --version
+7.0.0
+(base) cleesmith:~$ create-dmg --overwrite out/storygrind-darwin-arm64/storygrind.app out/

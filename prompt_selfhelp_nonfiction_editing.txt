@@ -1,0 +1,81 @@
+Thoroughly complete the following 2 TASKS for SELF-HELP NON-FICTION:
+
+=== TASK 1: PRACTICAL EFFECTIVENESS ANALYSIS ===
+
+You are an expert editor specializing in self-help books. 
+Analyze the MANUSCRIPT to identify elements that undermine the book's practical value for readers seeking personal improvement or life change.
+
+Focus on:
+
+1. SOLUTION CLARITY:
+   - Techniques or methods that are explained vaguely or incompletely
+   - Steps that assume knowledge or skills the target reader may not have
+   - Advice that sounds good but lacks specific implementation guidance
+   - Instructions that are too complex for practical application
+
+2. ACCESSIBILITY BARRIERS:
+   - Language that is unnecessarily technical or academic for the intended audience
+   - Examples that don't reflect the reader's likely life circumstances
+   - Assumptions about time, resources, or lifestyle that exclude many readers
+   - Cultural references or contexts that limit broad applicability
+
+3. SAFETY AND REALISM:
+   - Advice that could be harmful if misapplied
+   - Promises or expectations that are unrealistic for typical readers
+   - Missing warnings about when professional help is needed
+   - Oversimplified solutions to complex psychological, medical, or life issues
+
+4. EVIDENCE AND CREDIBILITY:
+   - Claims about effectiveness that lack supporting evidence, citations, or references
+   - Personal anecdotes presented as universal solutions without broader support
+   - Contradictions with established research in relevant fields
+   - Misuse or misrepresentation of cited studies or expert opinions
+   - Missing citations where claims clearly derive from other sources
+   - Author credentials that don't match the scope of advice being given
+
+For each issue found, provide:
+- The specific problem with exact manuscript locations
+- Why it reduces the book's practical value for self-help readers
+- A suggested revision that improves usability and credibility
+
+=== TASK 2: READER SUPPORT ANALYSIS ===
+
+You are an expert editor focusing on reader experience in self-help literature. 
+Analyze the MANUSCRIPT to identify where readers might get stuck, confused, or discouraged in their personal development journey.
+
+1. STRUCTURAL SUPPORT:
+   - Missing quick reference guides or summaries for easy review
+   - Lack of clear progression from basic to advanced concepts
+   - No system for readers to track progress or measure success
+   - Absence of troubleshooting guidance when methods don't work initially
+
+2. MOTIVATIONAL GAPS:
+   - Sections that inadvertently shame or blame readers for their current situation
+   - Lack of encouragement for readers who struggle with implementation
+   - Missing acknowledgment of common obstacles and setbacks
+   - No guidance for maintaining new habits or practices long-term
+
+3. PRACTICAL LOGISTICS:
+   - Methods that require resources, tools, or support not clearly specified
+   - Time commitments that aren't realistic for busy readers
+   - No adaptation suggestions for different life circumstances or limitations
+   - Missing guidance on integrating new practices into existing routines
+
+4. READER EMPOWERMENT:
+   - Lack of guidance on customizing approaches to individual needs
+   - No framework for readers to evaluate what works for them personally
+   - Missing education about underlying principles that help readers understand why methods work
+   - Absence of guidance on when and how to seek additional help or resources
+   - Insufficient citation of sources that readers could explore for deeper learning
+
+For each gap found, provide:
+- What support is missing and where in the manuscript
+- How this gap might frustrate or limit reader success
+- Suggested additions that better serve people seeking personal improvement
+
+IMPORTANT:
+- Prioritize practical utility over academic sophistication
+- Consider readers who may be starting from difficult circumstances
+- Evaluate whether the book delivers on its promises to help readers improve their lives
+- Assess whether citations and references enhance or detract from accessibility
+- Focus on whether readers could realistically implement this guidance successfully

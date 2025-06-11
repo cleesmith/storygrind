@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>StoryGrind - Editor</title>
+  <!-- Link to main application styles -->
+  <!-- <link rel="stylesheet" href="../../styles.css"> -->
+  <!-- Additional editor-specific styles -->
+  <link rel="stylesheet" href="editor-specific.css">
+</head>
+<body class="dark-mode">
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <button id="theme-toggle" class="icon-button">
+        <!-- Sun icon - shown in dark mode -->
+        <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        
+        <!-- Moon icon - shown in light mode -->
+        <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="toolbar-center">
+      <button id="btnNew" class="action-button">New</button>
+      <button id="btnOpen" class="action-button">Open</button>
+      <button id="btnSave" class="action-button">Save</button>
+      <button id="btnSaveAs" class="action-button">Save As</button>
+      
+      <div class="select-wrapper">
+        <select id="fontSize">
+          <option value="12">12px</option>
+          <option value="14" selected>14px</option>
+          <option value="16">16px</option>
+          <option value="18">18px</option>
+          <option value="20">20px</option>
+        </select>
+      </div>
+      
+      <div class="select-wrapper">
+        <select id="wordWrap">
+          <option value="on" selected>Wrap: On</option>
+          <option value="off">Wrap: Off</option>
+        </select>
+      </div>
+      
+      <div class="find-container">
+        <input type="text" id="find-input" placeholder="Find..." class="find-input">
+        <button id="find-next-btn" class="action-button">search</button>
+        <button id="clear-search-btn" class="action-button">clear</button>
+      </div>
+    </div>
+    
+    <div class="toolbar-right">
+      <button id="quit-button" class="text-button">Quit</button>
+    </div>
+  </div>
+  
+  <main>
+    <div class="editor-container">
+      <textarea id="editor" spellcheck="false">// Start typing here...</textarea>
+      <div class="status-bar">
+        <span id="position">Line: 1, Column: 1</span>
+        <span id="currentFile" class="current-file-display">No file opened</span>
+        <span id="statistics">Words: 4 & Characters: 23</span>
+      </div>
+    </div>
+  </main>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

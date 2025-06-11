@@ -1,0 +1,40 @@
+const { FusesPlugin } = require('@electron-forge/plugin-fuses');
+const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+
+module.exports = {
+  packagerConfig: {
+    asar: false,
+    name: 'storygrind',
+    executableName: 'storygrind',
+    icon: './resources/icon',
+    osxSign: false, // Explicitly disable signing
+    osxNotarize: false, // Explicitly disable notarization
+  },
+  rebuildConfig: {},
+  makers: [
+    {
+      name: '@electron-forge/maker-zip',
+      platforms: ['darwin', 'win32'],
+    },
+    {
+      name: '@electron-forge/maker-dmg',
+      icon: './resources/storygrind.icns',
+      // background: './resources/dmg-background.png',
+      platforms: ['darwin'],
+    },
+    {
+      name: '@electron-forge/maker-squirrel',
+      config: {
+        name: 'storygrind',
+        exe: 'storygrind.exe',
+        authors: 'Chris Smith',
+        description: "A desktop application for creative fiction writers with AI-powered manuscript analysis and editing tools",
+        setupIcon: './resources/icons/win/icon.ico',
+        setupExe: 'storygrind-${version} Setup.exe',
+        noMsi: true,
+        remoteReleases: false
+      },
+      platforms: ['win32'],
+    }
+  ]
+};

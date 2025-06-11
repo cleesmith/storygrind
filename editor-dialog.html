@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="edit-mode">
+<head>
+  <meta charset="UTF-8">
+  <title>StoryGrind - Editor</title>
+  
+  <!-- CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/matchesonscrollbar.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css">
+
+  <style>
+    /* One Dark theme for CodeMirror 5 - converted from the CodeMirror 6 theme */
+    .cm-s-one-dark.CodeMirror {
+      background: #282c34;
+      color: #abb2bf;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    }
+    
+    .cm-s-one-dark div.CodeMirror-selected {
+      background: #3E4451;
+    }
+    
+    .cm-s-one-dark .CodeMirror-line::selection,
+    .cm-s-one-dark .CodeMirror-line > span::selection,
+    .cm-s-one-dark .CodeMirror-line > span > span::selection {
+      background: #3E4451;
+    }
+    
+    .cm-s-one-dark .CodeMirror-line::-moz-selection,
+    .cm-s-one-dark .CodeMirror-line > span::-moz-selection,
+    .cm-s-one-dark .CodeMirror-line > span > span::-moz-selection {
+      background: #3E4451;
+    }
+    
+    .cm-s-one-dark .CodeMirror-gutters {
+      background: #282c34;
+      border-right: 1px solid #3E4451;
+    }
+    
+    .cm-s-one-dark .CodeMirror-guttermarker {
+      color: #abb2bf;
+    }
+    
+    .cm-s-one-dark .CodeMirror-guttermarker-subtle {
+      color: #7d8799;
+    }
+    
+    .cm-s-one-dark .CodeMirror-linenumber {
+      color: #7d8799;
+    }
+    
+    .cm-s-one-dark .CodeMirror-cursor {
+      border-left: 1px solid #528bff;
+    }
+    
+    .cm-s-one-dark .CodeMirror-activeline-background {
+      background: #2c313a;
+    }
+    
+    .cm-s-one-dark .CodeMirror-matchingbracket {
+      text-decoration: underline;
+      color: #abb2bf !important;
+      background-color: #bad0f847;
+    }
+    
+    .cm-s-one-dark .CodeMirror-nonmatchingbracket {
+      color: #e06c75;
+    }
+    
+    /* Search match highlighting */
+    .cm-s-one-dark .CodeMirror-searching {
+      background-color: #72a1ff59;
+      outline: 1px solid #457dff;
+    }
+    
+    .cm-s-one-dark .CodeMirror-search-match {
+      background-color: #72a1ff59;
+      outline: 1px solid #457dff;
+    }
+    
+    .cm-s-one-dark .CodeMirror-search-match-selected {
+      background-color: #6199ff2f;
+    }
+    
+    /* Dialog styling for One Dark */
+    .cm-s-one-dark .CodeMirror-dialog {
+      background-color: #21252b;
+      color: #abb2bf;
+      border-bottom: 1px solid #181a1f;
+    }
+    
+    .cm-s-one-dark .CodeMirror-dialog input {
+      background-color: #3E4451;
+      color: #abb2bf;
+      border: 1px solid #181a1f;
+    }
+    
+    /* Placeholder styling */
+    .cm-s-one-dark .CodeMirror-placeholder {
+      color: #7d8799;
+    }
+    
+    /* For light theme, we'll use default CodeMirror theme */
+    /* You can keep your existing light theme styles */
+    
+    :root[data-theme="light"] { 
+      --bg:#fff; 
+      --text:#000; 
+      --code-bg:#f0f0f0; 
+      --link:#0366d6; 
+      --blockquote-border:#ccc; 
+      --blockquote-text:#555; 
+      --hr:#ccc; 
+      --popup-bg:#fff; 
+      --popup-shadow:rgba(0,0,0,0.2);
+      --button-hover:#e0e0e0;
+      --close-button:#f44336;
+      --close-button-hover:#e53935;
+      --button-tooltip-bg:rgba(0,0,0,0.8);
+      --button-tooltip-text:#fff;
+      --toolbar-bg:rgba(245,245,245,0.9);
+      --filepath-text:#555;
+      --find-highlight:#ffeb3b;
+      --find-current:#ffeb3b;
+    }
+    :root[data-theme="dark"] { 
+      --bg:#1e1e1e; 
+      --text:#ddd; 
+      --code-bg:#2d2d2d; 
+      --link:#58a6ff; 
+      --blockquote-border:#444; 
+      --blockquote-text:#aaa; 
+      --hr:#444; 
+      --popup-bg:#333; 
+      --popup-shadow:rgba(0,0,0,0.5);
+      --button-hover:#444;
+      --close-button:#f44336;
+      --close-button-hover:#e53935;
+      --button-tooltip-bg:rgba(255,255,255,0.9);
+      --button-tooltip-text:#000;
+      --toolbar-bg:rgba(32,32,32,0.9);
+      --filepath-text:#aaa;
+      --find-highlight:#ffc107;
+      --find-current:#ff5722;
+    }
+    body { 
+      margin:0; 
+      padding-top:38px;
+      font-family:system-ui, -apple-system, sans-serif; 
+      background:var(--bg); 
+      color:var(--text); 
+      transition:background 0.3s, color 0.3s; 
+    }
+    #toolbar {
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      height:38px;
+      background:var(--toolbar-bg);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 10px;
+      box-shadow:0 1px 3px rgba(0,0,0,0.1);
+      z-index:1000;
+      backdrop-filter:blur(5px);
+    }
+    #filepath {
+      flex-grow:1;
+      margin-right:10px;
+      font-size:13px;
+      color:var(--filepath-text);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      padding:0 8px;
+    }
+    #controls { 
+      display:flex; 
+      gap:8px;
+      align-items: center;
+    }
+    .control-button { 
+      width:32px; 
+      height:32px; 
+      padding:4px; 
+      border:none; 
+      background:var(--code-bg); 
+      border-radius:50%; 
+      cursor:pointer; 
+      display:flex; 
+      align-items:center; 
+      justify-content:center; 
+      transition:all 0.2s; 
+      position:relative;
+    }
+    .control-button:hover { 
+      transform: scale(1.1); 
+      background:var(--button-hover);
+    }
+    .control-button svg { 
+      width:18px; 
+      height:18px; 
+      fill:var(--text); 
+    }
+    #close-button {
+      background:var(--code-bg);
+    }
+    #close-button:hover {
+      background:var(--button-hover);
+    }
+    #close-button svg {
+      fill:var(--text);
+    }
+    #edit-icon { display:none; }
+    .edit-mode #view-icon { display:none; }
+    .edit-mode #edit-icon { display:inline; }
+    [data-theme="light"] #moon-icon { display:none; }
+    [data-theme="dark"] #sun-icon { display:none; }
+    #preview { 
+      padding:8px 20px;
+      overflow-y:auto; 
+      height:calc(100vh - 38px);
+    }
+    
+    /* CodeMirror container styles */
+    .editor-container {
+      display: none;
+      width: 100%;
+      height: calc(100vh - 62px);
+      box-sizing: border-box;
+    }
+    
+    .edit-mode .editor-container {
+      display: block;
+    }
+    
+    /* CodeMirror styling */
+    .CodeMirror {
+      width: 100%;
+      height: 100%;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .edit-mode #preview { display:none; }
+    
+    /* Tooltip styles */
+    .tooltip {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 10px;
+      border-radius: 4px;
+      background-color: var(--button-tooltip-bg);
+      color: var(--button-tooltip-text);
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+      pointer-events: none;
+      z-index: 1001;
+      margin-top: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .control-button:hover .tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* Markdown styles */
+    #preview h1, #preview h2 { 
+      border-bottom: 1px solid var(--hr); 
+      padding-bottom: 0.3em; 
+      margin-top: 1.2em;
+      margin-bottom: 0.6em;
+    }
+    #preview h1:first-child {
+      margin-top: 0.4em;
+    }
+    #preview pre { 
+      background: var(--code-bg); 
+      padding: 16px; 
+      border-radius: 6px; 
+      overflow: auto; 
+    }
+    #preview code { 
+      background: var(--code-bg); 
+      padding: 0.2em 0.4em; 
+      border-radius: 3px; 
+      font-family: monospace; 
+    }
+    #preview a { 
+      color: var(--link); 
+      text-decoration: none; 
+    }
+    #preview a:hover { 
+      text-decoration: underline; 
+    }
+    #preview blockquote { 
+      border-left: 4px solid var(--blockquote-border); 
+      margin-left: 0; 
+      padding-left: 16px; 
+      color: var(--blockquote-text); 
+    }
+    
+    /* Custom popup notification */
+    #notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--popup-bg);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px var(--popup-shadow);
+      display: none;
+      z-index: 2000;
+      transition: opacity 0.3s, transform 0.3s;
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    #notification.visible {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Lists styling */
+    #preview ul, #preview ol {
+      padding-left: 2em;
+    }
+    #preview li {
+      margin: 0.3em 0;
+    }
+
+    /* Word wrap toggle and Remove Markdown button */
+    .text-control {
+      display: flex;
+      align-items: center;
+    }
+
+    .text-control-button {
+      background-color: var(--code-bg);
+      color: var(--text);
+      border: 1px solid transparent;
+      border-radius: 4px;
+      font-size: 12px;
+      padding: 2px 6px;
+      cursor: pointer;
+      height: 22px;
+      margin-right: 8px;
+    }
+
+    .text-control-button:hover {
+      background-color: var(--button-hover);
+    }
+
+    /* Status bar */
+    .status-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 24px;
+      background: var(--toolbar-bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      font-size: 12px;
+      color: var(--filepath-text);
+      border-top: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* Hide Find button unless we are in edit‑mode */
+    #find-button { display:none; }
+    .edit-mode #find-button { display:flex; }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <div id="filepath">Untitled</div>
+    <div id="controls">
+
+      <div class="text-control">
+        <button id="font-size-decrease" class="text-control-button" title="Decrease Font Size">A-</button>
+        <span id="font-size-display" style="font-size: 11px; color: var(--filepath-text); margin: 0 4px;">14px</span>
+        <button id="font-size-increase" class="text-control-button" title="Increase Font Size">A+</button>
+      </div>
+      <div class="text-control">
+        <button id="word-wrap-toggle" class="text-control-button">Wrap: On</button>
+      </div>
+      <div class="text-control">
+        <button id="remove-markdown-button" class="text-control-button">Remove Markdown</button>
+      </div>
+
+      <button id="find-button" class="control-button" title="Open Find Dialog">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <span class="tooltip">Find</span>
+      </button>
+
+      <button id="mode-toggle" class="control-button">
+        <svg id="view-icon" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"></path></svg>
+        <svg id="edit-icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg>
+        <span class="tooltip" id="mode-tooltip">go Preview</span>
+      </button>
+
+      <button id="open-button" class="control-button">
+        <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"></path></svg>
+        <span class="tooltip">Open File</span>
+      </button>
+      <button id="save-button" class="control-button">
+        <svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm2 16H5V5h11.17L19 7.83V19zM12 12c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm-5-6h8v2H7z"></path></svg>
+        <span class="tooltip">Save</span>
+      </button>
+      <button id="save-as-button" class="control-button">
+        <svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm2 16H5V5h11.17L19 7.83V19zM12 12c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm-5-6h8v2H7z"></path></svg>
+        <span class="tooltip">Save As</span>
+      </button>
+      <button id="close-button" class="control-button">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
+        <span class="tooltip">Close</span>
+      </button>
+    </div>
+  </div>
+  
+  <div id="preview"></div>
+  
+  <!-- CodeMirror editor container -->
+  <div class="editor-container">
+    <div id="editor"></div>
+  </div>
+  
+  <div class="status-bar">
+    <span id="position">Line: 1, Column: 1</span>
+    <span id="statistics">Words: 0, Characters: 0</span>
+  </div>
+  
+  <!-- Custom notification popup -->
+  <div id="notification">File saved successfully</div>
+
+  <!-- CodeMirror JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js"></script>
+
+</body>
+
+<!-- Load the script at the end to ensure DOM is loaded -->
+<script src="editor-dialog.js" defer></script>
+</html>

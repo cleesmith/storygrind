@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Select Project</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .card {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      border: 1px solid #333333;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .card-header {
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+    
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      background-color: #2a2a2a;
+      color: #ffffff;
+      border: 1px solid #333333;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      background-color: #2a2a2a;
+      color: #ffffff;
+      border: 1px solid #333333;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    
+    .button-container {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .primary-button {
+      background-color: #4a89dc;
+      color: white;
+    }
+    
+    .primary-button:hover {
+      background-color: #5c9ce6;
+    }
+    
+    .primary-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .secondary-button {
+      background-color: transparent;
+      color: #4a89dc;
+      border: 1px solid #4a89dc;
+    }
+    
+    .secondary-button:hover {
+      background-color: rgba(74, 137, 220, 0.1);
+    }
+    
+    .info-text {
+      font-size: 12px;
+      color: #888888;
+      margin-top: 10px;
+    }
+    /* Light mode styles */
+    body.light-mode {
+      background-color: #f5f5f5;
+      color: #222222;
+    }
+
+    body.light-mode .card {
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+    }
+
+    body.light-mode select, 
+    body.light-mode input {
+      background-color: #ffffff;
+      color: #222222;
+      border: 1px solid #cccccc;
+    }
+
+    body.light-mode .info-text {
+      color: #666666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Select or Create a Project</h1>
+    
+    <div class="card">
+      <div class="card-header">Select Existing Project</div>
+      <select id="project-select">
+        <option value="">Select a project...</option>
+        <!-- Projects will be populated here by JavaScript -->
+      </select>
+      <div class="button-container">
+        <button id="open-project-btn" class="primary-button">Open Selected Project</button>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">Create New Project</div>
+      <input type="text" id="new-project-name" placeholder="Enter new project name...">
+      <div class="button-container">
+        <button id="create-project-btn" class="primary-button">Create Project</button>
+      </div>
+    </div>
+    
+    <div class="info-text">
+      All projects are stored in the "~/writing_with_storygrind" directory. You must select or create a project to continue.
+    </div>
+    
+    <div class="button-container" style="margin-top: 20px;">
+      <button id="cancel-btn" class="secondary-button">Cancel</button>
+    </div>
+  </div>
+
+  <script src="project-dialog.js"></script>
+</body>
+</html>

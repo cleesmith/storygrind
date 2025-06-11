@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>StoryGrind - Welcome</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    
+    .welcome-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    
+    .welcome-dialog {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      border: 1px solid #333;
+      padding: 20px;
+      width: 90%;
+      max-width: 550px;
+      height: 80vh;
+      max-height: 600px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    body.light-mode .welcome-dialog {
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .welcome-content {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    
+    .welcome-title {
+      font-size: 22px;
+      font-weight: 500;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    
+    .welcome-subtitle {
+      font-size: 14px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #888;
+    }
+    
+    body.light-mode .welcome-subtitle {
+      color: #666;
+    }
+    
+    .provider-option {
+      background-color: #2a2a2a;
+      border: 2px solid #444;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    body.light-mode .provider-option {
+      background-color: #ffffff;
+      border: 2px solid #ddd;
+    }
+    
+    .provider-option:hover {
+      border-color: #4a89dc;
+      transform: translateY(-1px);
+    }
+    
+    .provider-option.selected {
+      border-color: #4a89dc;
+      background-color: rgba(74, 137, 220, 0.1);
+    }
+    
+    .provider-name {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    
+    .provider-description {
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+    
+    body.light-mode .provider-description {
+      color: #666;
+    }
+    
+    .provider-features {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    body.light-mode .provider-features {
+      color: #555;
+    }
+    
+    .welcome-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      gap: 10px;
+      flex-shrink: 0;
+      border-top: 1px solid #333;
+      padding-top: 15px;
+    }
+    
+    body.light-mode .welcome-actions {
+      border-top: 1px solid #ddd;
+    }
+    
+    .skip-button {
+      background-color: transparent;
+      color: #888;
+      border: 1px solid #444;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+    
+    body.light-mode .skip-button {
+      color: #666;
+      border: 1px solid #ccc;
+    }
+    
+    .skip-button:hover {
+      background-color: rgba(136, 136, 136, 0.1);
+      border-color: #666;
+    }
+    
+    .action-button {
+      background-color: #4a89dc;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+    
+    .action-button:hover:not(:disabled) {
+      background-color: #5c9ce6;
+    }
+    
+    .action-button:disabled {
+      background-color: #666;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    
+    /* Scrollbar styling */
+    .welcome-content::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .welcome-content::-webkit-scrollbar-track {
+      background: #2a2a2a;
+      border-radius: 3px;
+    }
+    
+    .welcome-content::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 3px;
+    }
+    
+    .welcome-content::-webkit-scrollbar-thumb:hover {
+      background: #666;
+    }
+    
+    body.light-mode .welcome-content::-webkit-scrollbar-track {
+      background: #f0f0f0;
+    }
+    
+    body.light-mode .welcome-content::-webkit-scrollbar-thumb {
+      background: #ccc;
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <div class="welcome-overlay">
+    <div class="welcome-dialog">
+      <div class="welcome-content">
+        <h1 class="welcome-title">Welcome to storygrind</h1>
+        <p class="welcome-subtitle">Choose an AI provider to unlock powerful writing tools</p>
+        
+        <div class="provider-option" data-provider="gemini">
+          <div class="provider-name">🟢 Gemini by Google</div>
+        </div>
+        
+        <div class="provider-option" data-provider="openai">
+          <div class="provider-name">🔵 ChatGPT by OpenAI</div>
+        </div>
+        
+        <div class="provider-option" data-provider="claude">
+          <div class="provider-name">🟠 Claude by Anthropic</div>
+        </div>
+      </div>
+      
+      <div class="welcome-actions">
+        <button id="skip-setup-btn" class="skip-button">Cancel</button>
+        <button id="continue-btn" class="action-button" disabled>Select a Provider</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="welcome-screen.js"></script>
+</body>
+</html>

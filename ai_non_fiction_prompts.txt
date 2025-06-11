@@ -1,0 +1,51 @@
+> there are 3 new files starting with: prompt_*.txt in the repo, which will become six new 
+  non-fiction prompts = Tools for writers to use: 
+  AI Tools for non-fiction writers:
+  1. Artistic Integrity Analysis
+  2. Resonance and Completion Analysis
+  3. Conceptual Consistency Analysis
+  4. Incomplete Development Analysis
+  5. Practical Effectiveness Analysis
+  6. Reader Support Analysis
+  ... so i need a brief blurb about each new Tool
+
+
+AI Tools for Non-Fiction Writers
+
+1. Artistic Integrity Analysis (Creative/Literary Non-Fiction)
+Identifies elements that undermine a work's artistic authenticity, 
+voice consistency, or emotional resonance. Examines forced language, 
+artificial insights, metaphorical integrity, and structural coherence 
+to ensure genuine creative expression.
+
+2. Resonance and Completion Analysis (Creative/Literary Non-Fiction) 
+Evaluates emotional and spiritual impact, identifying unrealized 
+potential in metaphorical exploration, personal revelations, and 
+cumulative meaning. Suggests ways to deepen reader engagement and 
+achieve greater artistic completeness.
+
+3. Conceptual Consistency Analysis (General Non-Fiction)
+Checks for internal contradictions, argumentative integrity, and 
+intellectual rigor. Identifies inconsistent claims, inadequate evidence, 
+logical fallacies, and voice authority issues that undermine credibility.
+
+4. Incomplete Development Analysis (General Non-Fiction)
+Finds concepts, claims, or themes that are introduced but not fully developed. 
+Examines underdeveloped arguments, incomplete examples, thematic threads, 
+and structural gaps that leave readers unsatisfied.
+
+5. Practical Effectiveness Analysis (Self-Help Non-Fiction)
+Evaluates practical value for readers seeking personal improvement. 
+Reviews solution clarity, accessibility barriers, safety concerns, and 
+evidence credibility to ensure advice is implementable and trustworthy.
+
+6. Reader Support Analysis (Self-Help Non-Fiction)
+Identifies where readers might struggle, get confused, or lose motivation. 
+Examines structural support, motivational gaps, practical logistics, and 
+reader empowerment to optimize the personal development journey.
+
+
+
+
+
+

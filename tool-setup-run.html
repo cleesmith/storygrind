@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>StoryGrind Tool Setup</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .tool-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .tool-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0px 0px;
+      border-bottom: 1px solid #333;
+    }
+
+    #tool-title {
+      font-size: 12px; /* Reduce from likely 24px */
+      margin: 0; /* Remove any margin */
+    }    
+    
+    .tool-close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #fff;
+    }
+    
+    .tool-body {
+      flex: 1;
+      overflow: auto;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tool-output {
+      background-color: #121824;
+      border-radius: 6px;
+      padding: 15px;
+      font-family: monospace;
+      font-size: 20px;
+      color: #e2e2e2;
+      flex: 1;
+      overflow: auto;
+      white-space: pre-wrap;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .button-row button {
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .setup-btn {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    .run-btn {
+      background-color: #22c55e;
+      color: white;
+    }
+    
+    .clear-btn {
+      background-color: #6b7280;
+      color: white;
+    }
+    
+    .force-quit-btn {
+      background-color: #ef4444;
+      color: white;
+    }
+    
+    .elapsed-time {
+      color: #9ca3af;
+      margin-left: 15px;
+      display: flex;
+      align-items: center;
+      margin-right: 20px;
+    }
+    
+    /* Setup dialog styles */
+    .setup-dialog-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .setup-dialog {
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      border: 1px solid #333;
+      padding: 20px;
+      width: 80%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    .setup-dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #333;
+    }
+    
+    .setup-dialog-title {
+      font-size: 20px;
+      font-weight: 500;
+    }
+    
+    .setup-dialog-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: inherit;
+    }
+    
+    .setup-dialog-body {
+      margin-bottom: 20px;
+    }
+    
+    .setup-dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #374151;
+      background-color: #1f2937;
+      color: #e5e7eb;
+    }
+
+    .option-heading {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .option-description {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .checkbox-wrapper {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+      margin-top: 20px;
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    .checkbox-label {
+      font-weight: normal;
+      margin-bottom: 0;
+    }
+
+    .file-input-container {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    
+    .file-input-container input {
+      flex-grow: 1;
+      margin-right: 8px;
+    }
+    
+    .browse-button {
+      min-width: 90px;
+      padding: 6px 12px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    
+    .browse-button:hover {
+      background-color: #2563eb;
+    }
+    
+    .error-message {
+      color: #ef4444;
+      font-size: 12px;
+      margin-top: 4px;
+      display: block;
+    }
+
+    /* Target the specific buttons when disabled */
+    #setup-btn:disabled,
+    #run-btn:disabled, 
+    #clear-btn:disabled {
+      cursor: not-allowed !important;
+    }
+    
+    /* Light mode styles */
+    body.light-mode .setup-dialog {
+      background-color: #f5f5f5;
+      border: 1px solid #ddd;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    body.light-mode .setup-dialog-header {
+      border-bottom: 1px solid #ddd;
+    }
+    
+    body.light-mode .form-group input[type="text"],
+    body.light-mode .form-group input[type="number"],
+    body.light-mode .form-group textarea,
+    body.light-mode .form-group select {
+      border: 1px solid #cccccc;
+      background-color: #ffffff;
+      color: #222222;
+    }
+    
+    body.light-mode .option-description {
+      color: #666666;
+    }
+    
+    body.light-mode .tool-output {
+      background-color: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+    
+    body.light-mode .browse-button {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    body.light-mode .browse-button:hover {
+      background-color: #2563eb;
+    }
+    
+    body.light-mode .elapsed-time {
+      color: #64748b;
+    }
+    
+    /* Dialog buttons */
+    .cancel-button {
+      background-color: transparent;
+      color: #aaaaaa;
+      border: 1px solid #444444;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    .action-button {
+      background-color: #4a89dc;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    
+    body.light-mode .cancel-button {
+      color: #666666;
+      border: 1px solid #cccccc;
+    }
+
+    /* Fix for the main tool close button in the header */
+    body.light-mode .tool-close-btn {
+      color: #333; /* Dark gray color for visibility against light background */
+    }
+
+    /* Fix for the setup dialog close button */
+    body.light-mode .setup-dialog-close {
+      color: #333; /* Dark gray color for visibility against light background */
+    }
+
+    .native-select {
+      max-width: 250px;
+      font-size: 13px;
+      appearance: auto;
+    }
+
+    body.dark-mode .native-select {
+      color: #ffffff;
+    }
+
+    body.light-mode .native-select {
+      color: #333333;
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <div class="tool-container">
+    <div class="tool-header">
+      <h2 id="tool-title">Writing Tool: <span id="tool-name"></span></h2>
+      <button class="tool-close-btn" id="close-btn">×</button>
+    </div>
+    
+    <div class="tool-body">
+      <div class="button-row">
+        <button id="setup-btn" class="setup-btn">Setup</button>
+        <button id="run-btn" class="run-btn" disabled>Run</button>
+        <span id="elapsed-time" class="elapsed-time">elapsed: 0m 0s</span>
+        <div style="flex-grow: 1;"></div>
+        <button id="clear-btn" class="clear-btn">Clear</button>
+        <button id="force-quit-btn" class="force-quit-btn">Force Quit</button>
+      </div>
+      
+      <div id="output" class="tool-output">
+Tool output will appear here...
+Please click 'Setup' before running the tool.
+      </div>
+    </div>
+  </div>
+  
+  <!-- Setup Dialog Overlay -->
+  <div id="setup-dialog-overlay" class="setup-dialog-overlay" style="display: none;">
+    <div class="setup-dialog">
+      <div class="setup-dialog-header">
+        <div class="setup-dialog-title">Configure Tool: <span id="dialog-tool-name"></span></div>
+        <button id="setup-dialog-close" class="setup-dialog-close">×</button>
+      </div>
+      <div class="setup-dialog-body">
+        <div id="dialog-options-container">
+          <!-- Tool options will be dynamically generated here -->
+        </div>
+      </div>
+      <div class="setup-dialog-footer">
+        <button id="setup-dialog-cancel" class="cancel-button">Cancel</button>
+        <button id="setup-dialog-apply" class="action-button">Apply</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="tool-setup-run.js"></script>
+</body>
+</html>

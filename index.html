@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>StoryGrind</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+  <header>
+
+    <div class="header-left">
+      <button id="theme-toggle" class="icon-button">
+        <!-- Sun icon - shown in dark mode -->
+        <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        
+        <!-- Moon icon - shown in light mode -->
+        <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+    </div>    
+
+    <div class="header-center">
+      <img src="resources/storygrind.svg" alt="storygrind Logo" style="height: 40px; vertical-align: middle; margin-right: 10px;" 
+      title="v2.0.1 -- story is Human ... AI is grinder">
+      <h1 style="display: inline-block; vertical-align: middle;" 
+      title="v2.0.1">StoryGrind</h1>
+      <div id="ai-model-display" class="ai-model-info">AI model?</div>
+    </div>
+    
+    <div class="header-right">
+      <button id="switch-provider-btn" class="action-button">Settings</button>
+      <button id="open-editor-btn">Editor</button>
+      <button id="quit-button" class="action-button quit-button">Quit</button>
+    </div>
+  </header>
+
+  
+<main>
+  <!-- Project section -->
+  <section class="card">
+    <div class="card-header">
+      <h2><b>Writing Project</b>:</h2>
+      <button id="select-project-btn" class="action-button">Select Project</button>
+      <button id="import-docx-btn" class="action-button">IMPORT .docx - convert to .txt</button>
+      <button id="export-txt-btn" class="action-button">EXPORT .txt - convert to .docx</button>
+    </div>
+    <div class="project-info">
+      <h3 id="current-project-name">No project selected</h3>
+      <p id="current-project-path" class="project-path"></p>
+    </div>
+  </section>
+  
+  <!-- AI Tools section -->
+  <section class="card">
+    <h2>Run an AI based tool:</h2>
+    
+    <div class="form-group">
+      <label for="ai-tool-select">&nbsp;</label>
+      <div class="select-wrapper">
+        <select id="ai-tool-select">
+          <!-- AI Tools will be populated by JavaScript -->
+        </select>
+      </div>
+    </div>
+    
+    <p id="ai-tool-description" class="tool-description">
+      Select a tool to see its description.
+    </p>
+
+    <div class="button-container">
+      <button id="ai-setup-run-btn" class="action-button center-button">Setup & Run</button>
+    </div>
+  </section>
+
+  <!-- Non-AI Tools section -->
+  <section class="card">
+    <h2>Run a non-AI tool:</h2>
+    
+    <div class="form-group">
+      <label for="non-ai-tool-select">&nbsp;</label>
+      <div class="select-wrapper">
+        <select id="non-ai-tool-select">
+          <!-- Non-AI Tools will be populated by JavaScript -->
+        </select>
+      </div>
+    </div>
+    
+    <p id="non-ai-tool-description" class="tool-description">
+      Select a tool to see its description.
+    </p>
+
+    <div class="button-container">
+      <button id="non-ai-setup-run-btn" class="action-button center-button">Setup & Run</button>
+    </div>
+  </section>
+</main>
+  
+  <script src="renderer.js"></script>
+</body>
+</html>

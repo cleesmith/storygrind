@@ -1,0 +1,541 @@
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+:root {
+  --primary-color: #4a89dc;
+  --primary-hover: #5c9ce6;
+  --text-color-light: #ffffff;
+  --text-color-dark: #222222;
+  --bg-color-light: #ffffff;
+  --bg-color-dark: #121212;
+  --card-bg-light: #f5f5f5;
+  --card-bg-dark: #1e1e1e;
+  --border-color-light: #e0e0e0;
+  --border-color-dark: #333333;
+}
+
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+body.light-mode {
+  background-color: var(--bg-color-light);
+  color: var(--text-color-dark);
+}
+
+body.dark-mode {
+  background-color: var(--bg-color-dark);
+  color: var(--text-color-light);
+}
+
+/* Header styles */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+}
+
+.header-left, .header-right {
+  flex: 1;
+}
+
+.header-right {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 500;
+}
+
+.header-center {
+  flex: 2;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+}
+
+.header-center h1 {
+  font-size: 32px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.timestamp {
+  font-size: 14px;
+  color: #888;
+  white-space: nowrap;
+  margin-top: 10px;
+}
+
+body.dark-mode .timestamp {
+  color: #aaa;
+}
+
+body.light-mode .timestamp {
+  color: #666;
+}
+
+/* Button styles */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: all 0.2s ease;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--primary-color);
+  background-color: rgba(74, 137, 220, 0.1);
+}
+
+body.light-mode .icon-button {
+  color: var(--primary-color);
+  background-color: rgba(74, 137, 220, 0.1);
+}
+
+body.dark-mode .icon-button {
+  color: var(--primary-color);
+}
+
+.icon-button:hover {
+  background-color: rgba(74, 137, 220, 0.2);
+}
+
+.text-button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--primary-color);
+}
+
+.text-button:hover {
+  color: var(--primary-hover);
+}
+
+.action-button {
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 16px;
+  color: white;
+  background-color: var(--primary-color);
+  transition: background-color 0.2s ease;
+  min-width: 150px;
+  text-align: center;
+}
+
+.action-button:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 15%;
+  box-sizing: border-box;
+  margin-top: 20px;
+}
+
+.center-button {
+  margin: 20px auto;
+  display: block;
+}
+
+/* Card styles */
+.card {
+  margin-bottom: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color-dark);
+  background-color: var(--card-bg-dark);
+}
+
+body.light-mode .card {
+  border: 1px solid var(--border-color-light);
+  background-color: var(--card-bg-light);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.project-info h3 {
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 5px;
+}
+
+.project-path {
+  font-size: 14px;
+  color: #888;
+}
+
+/* Form elements */
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color-dark);
+  background-color: #2a2a2a;
+  color: var(--text-color-light);
+  appearance: none;
+  font-size: 16px;
+}
+
+body.light-mode select {
+  border: 1px solid var(--border-color-light);
+  background-color: #f0f0f0;
+  color: var(--text-color-dark);
+}
+
+.select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.tool-description {
+  margin: 20px 0;
+  font-size: 14px;
+  color: #999;
+  line-height: 1.5;
+}
+
+body.light-mode .tool-description {
+  color: #555;
+}
+
+/* Add these to your existing styles.css file */
+
+/* Theme toggle icon styles */
+.icon-button svg {
+  color: var(--primary-color);
+}
+
+/* Adjust icon visibility based on theme */
+body.dark-mode #sun-icon {
+  display: block;
+}
+
+body.dark-mode #moon-icon {
+  display: none;
+}
+
+body.light-mode #sun-icon {
+  display: none;
+}
+
+body.light-mode #moon-icon {
+  display: block;
+}
+
+/* Make sure the button itself has good contrast in both modes */
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: rgba(74, 137, 220, 0.1);
+  transition: background-color 0.2s ease;
+}
+
+.icon-button:hover {
+  background-color: rgba(74, 137, 220, 0.2);
+}
+
+/* Project info styles */
+.project-info h3 {
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 5px;
+}
+
+.project-info h3.no-project {
+  color: #f44336;
+  font-weight: bold;
+}
+
+.project-path {
+  font-size: 14px;
+  color: #888;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* Improved Select Styles */
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #888;
+}
+
+.action-button, #setup-run-btn {
+  width: 210px; /* Fixed width for all buttons */
+  text-align: center;
+  padding: 10px 0; /* Vertical padding only */
+  margin: 0; /* Remove any existing margins */
+  flex: 0 0 auto; /* Prevent flex growth/shrinking */
+}
+
+/* Add styling for the project actions container */
+.project-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* Style the import button in its new location */
+.project-actions .action-button {
+  background-color: #7e57c2;
+  margin-top: 5px;
+}
+
+.project-actions .action-button:hover {
+  background-color: #6a43b5;
+}
+
+/* Style the header buttons container */
+.header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+#select-project-btn {
+  background-color: firebrick;
+}
+#select-project-btn:hover {
+  background-color: indianred;
+}
+
+#import-docx-btn {
+  background-color: #7e57c2;
+  font-size: 11px;
+  padding: 6px 10px;
+  width: auto;
+  min-width: 0;
+  display: inline-block;
+}
+#import-docx-btn:hover {
+  background-color: #6a43b5;
+}
+
+#export-txt-btn {
+  background-color: #7e57c2;
+  font-size: 11px;
+  padding: 6px 10px;
+  width: auto;
+  min-width: 0;
+  display: inline-block;
+}
+#export-txt-btn:hover {
+  background-color: #6a43b5;
+}
+
+#ai-setup-run-btn {
+  background-color: goldenrod;
+}
+#ai-setup-run-btn:hover {
+  background-color: darkgoldenrod;
+}
+
+#non-ai-setup-run-btn {
+  background-color: forestgreen;
+}
+#non-ai-setup-run-btn:hover {
+  background-color: green;
+}
+
+#open-editor-btn {
+  margin-left: 10px;
+  background-color: #3b82f6; /* Blue color matching the Setup button */
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  border: none;
+  width: auto; /* Allow button to size to content */
+  min-width: 0; /* Remove minimum width */
+  display: inline-block; /* Prevent full-width expansion */
+}
+
+#open-editor-btn:hover {
+  background-color: #4a89dc;
+}
+
+#quit-button.quit-button {
+  background-color: #dc4a4a; /* Slightly softer red than Force Quit */
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  border: none;
+  width: auto;
+  min-width: 0;
+  display: inline-block;
+}
+
+/* Make this selector more specific to override other hover styles */
+#quit-button.quit-button:hover {
+  background-color: #e53935 !important; /* Darker red on hover with !important */
+}
+
+.quit-button:hover {
+  background-color: #e53935; /* Darker red on hover */
+}
+
+
+/* Desktop-only AI Model Display Styling */
+/* Optimized specifically for desktop/laptop usage */
+
+.ai-model-info {
+  font-size: 9px;           /* Perfect size for desktop reference information */
+  font-weight: 300;         /* Light weight for subtle appearance */
+  margin-top: 3px;          /* Clean spacing from main title */
+  padding: 2px 6px;         /* Compact but readable padding */
+  border-radius: 8px;       /* Subtle rounded corners */
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: help;             /* Indicates additional info available on hover */
+  white-space: nowrap;      /* Prevents text wrapping */
+  opacity: 0.8;             /* Subtle by default */
+  letter-spacing: 0.5px;    /* Improves readability at small size */
+}
+
+/* Available AI service - green indication */
+.ai-model-info.available {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Unavailable AI service - red indication */
+.ai-model-info.unavailable {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Error state - amber indication */
+.ai-model-info.error {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Desktop hover effects - precise mouse interaction */
+.ai-model-info:hover {
+  opacity: 1;                           /* Full visibility when user shows interest */
+  transform: translateY(-0.5px);        /* Subtle lift effect */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);  /* Clean shadow for depth */
+}
+
+/* Light mode adjustments for desktop displays */
+body.light-mode .ai-model-info {
+  opacity: 0.7;             /* Even more subtle in light mode */
+}
+
+body.light-mode .ai-model-info.available {
+  background-color: rgba(34, 197, 94, 0.08);
+  color: #16a34a;
+  border: 1px solid rgba(34, 197, 94, 0.15);
+}
+
+body.light-mode .ai-model-info.unavailable {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+body.light-mode .ai-model-info.error {
+  background-color: rgba(245, 158, 11, 0.08);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+body.light-mode .ai-model-info:hover {
+  opacity: 0.9;             /* Appropriate hover visibility for light backgrounds */
+}
+
+#switch-provider-btn {
+  background-color: #666666;
+  font-size: 8px;
+  padding: 4px 8px;
+  width: auto;
+  min-width: 0;
+}
+
+#switch-provider-btn:hover {
+  background-color: #777777;
+}

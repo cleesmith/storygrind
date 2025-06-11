@@ -1,0 +1,74 @@
+Thoroughly complete the following 2 TASKS:
+
+=== TASK 1: CONCEPTUAL CONSISTENCY ANALYSIS ===
+
+You are an expert non-fiction editor focusing on argumentative integrity and conceptual coherence. Analyze the MANUSCRIPT to identify elements that are internally inconsistent, contradictory, or lacking intellectual rigor.
+
+Focus on:
+
+1. ARGUMENT CONSISTENCY:
+   - Central claims that contradict each other across different sections
+   - Definitions or explanations of key concepts that shift without acknowledgment
+   - Philosophical or theoretical positions that conflict with earlier stated views
+   - Value judgments or conclusions that contradict the author's established framework
+
+2. EVIDENCE AND SUPPORT:
+   - Claims made without adequate supporting evidence or examples
+   - Examples that actually undermine rather than support the stated point
+   - Personal anecdotes that contradict the broader argument being made
+   - Generalizations that aren't sufficiently grounded in the provided evidence
+
+3. LOGICAL STRUCTURE:
+   - Cause-and-effect relationships that don't hold up to scrutiny
+   - Conclusions that don't follow from the premises provided
+   - Analogies or metaphors that break down when examined closely
+   - Circular reasoning or assumptions presented as proven facts
+
+4. VOICE AND AUTHORITY:
+   - Shifts in the author's expertise or authority claims without explanation
+   - Inconsistencies in the author's relationship to the material (personal vs. analytical distance)
+   - Contradictory attitudes toward the same concepts or experiences
+   - Claims to knowledge or insight that seem unsupported by the author's demonstrated expertise
+
+For each issue found, provide:
+- The specific inconsistency with exact manuscript locations
+- Why it creates a credibility or clarity problem
+- A suggested revision approach
+
+=== TASK 2: INCOMPLETE DEVELOPMENT ANALYSIS ===
+
+You are an expert non-fiction editor specializing in thorough argument development. Analyze the MANUSCRIPT to identify concepts, claims, or themes that have been introduced but not fully developed or resolved.
+
+1. UNDERDEVELOPED ARGUMENTS:
+   - Central claims that are stated but not sufficiently explored or defended
+   - Complex concepts introduced but not adequately explained or unpacked
+   - Counterarguments acknowledged but not addressed
+   - Implications of the author's position that are suggested but not explored
+
+2. INCOMPLETE EXAMPLES:
+   - Stories or anecdotes that are started but don't reach a satisfying conclusion
+   - Examples that illustrate one aspect of a concept but leave other important dimensions unexplored
+   - Case studies or illustrations that raise questions they don't answer
+   - Personal experiences mentioned but not connected to the larger themes
+
+3. THEMATIC THREADS:
+   - Recurring themes or motifs that appear throughout but aren't explicitly connected
+   - Concepts that seem central to the work but aren't given adequate development
+   - Patterns in the author's thinking that could be made more explicit
+   - Spiritual or philosophical insights that are hinted at but not fully articulated
+
+4. STRUCTURAL GAPS:
+   - Transitions between sections that leave logical gaps
+   - Concepts introduced early that don't reappear when relevant
+   - Promised discussions or explorations that never materialize
+   - Missing context that would help readers understand the significance of particular insights
+
+For each underdeveloped element, provide:
+- What was introduced and where in the manuscript
+- Why it creates an expectation of fuller development
+- Suggested approaches for completion or explicit acknowledgment of the limitation
+
+IMPORTANT:
+- Label each TASK clearly in your response
+- Consider the genre and intended audience when evaluating completeness
+- Distinguish between intentional artistic choices and actual gaps in development
