@@ -141,7 +141,7 @@ timestamped generated analysis files.
 
 * **World Writer** - Develops comprehensive world-building documents from your outline
 
-* **Chapter Writer** - Drafts new chapters based on your outline plus any existing manuscript, and appends chapters as it writes them
+* **Chapter Writer** - Drafts (very **iffy** prose) new chapters based on your outline plus any existing manuscript, and appends chapters as it writes them
 
 ---
 
