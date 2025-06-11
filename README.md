@@ -1,6 +1,6 @@
 # StoryGrind
 
-StoryGrind is a desktop application that helps fiction writers analyze and improve their manuscripts using AI-powered tools. Your manuscripts stay on your computer, and you control when and how A.I. (AI) assistance is applied to your work.
+StoryGrind is a desktop application that helps writers/authors/editors analyze and improve their manuscripts using AI-powered tools. Your manuscripts stay on your computer, and you control when and how A.I. (AI) assistance is applied to your work.
 
 ## Installation
 
@@ -21,20 +21,20 @@ StoryGrind is a desktop application that helps fiction writers analyze and impro
 
 storygrind uses AI to analyze your manuscripts. You'll need at least one API key from these providers:
 
-1. Create a file named `.env` in your home directory:
+1. Create a file named `.env` in your **home directory**:
    - Mac: `~/.env`
    - Windows: `C:\Users\YourUsername\.env`
 
 2. Open the file with TextEdit (Mac) or Notepad (Windows)
 
-3. Add one or more of these lines:
+3. Add at least one of these lines:
    ```
    GEMINI_API_KEY=your_gemini_api_key_here
    ANTHROPIC_API_KEY=your_anthropic_api_key_here
    OPENAI_API_KEY=your_openai_api_key_here
    ```
 
-4. Save the file and start storygrind
+4. Save the file and launch storygrind
 
 #### Getting API Keys:
 
