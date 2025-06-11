@@ -1,6 +1,6 @@
 # StoryGrind
 
-storygrind is a desktop application that helps fiction writers analyze and improve their manuscripts using AI-powered tools. Your manuscripts stay on your computer, and you control when and how AI assistance is applied to your work.
+StoryGrind is a desktop application that helps fiction writers analyze and improve their manuscripts using AI-powered tools. Your manuscripts stay on your computer, and you control when and how A.I. (AI) assistance is applied to your work.
 
 ## Installation
 
