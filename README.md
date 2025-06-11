@@ -74,13 +74,14 @@ You'll need at least one API key from these providers:
 
 5. Add your manuscript file (`.txt` or `.docx`)
 > You have to use either Explorer (windows) or Finder (mac) to manage your writing projects in:  
-> `~/writing_with_storygrind/` 
+> - `~/writing_with_storygrind/` 
 > - such as copying manuscripts from Vellum, Google Docs, Word, Pages, Reedsy, or whatever.
 
 6. Select a Tool from the dropdown menu
 7. click "Setup & Run"
 
 Your projects are stored in `~/writing_with_storygrind/` on your computer. 
+
 Each project gets its own folder with your manuscript(s) and all 
 timestamped generated analysis files.
 
@@ -140,7 +141,7 @@ timestamped generated analysis files.
 
 * **World Writer** - Develops comprehensive world-building documents from your outline
 
-* **Chapter Writer** - Drafts new chapters based on your outline and existing manuscript
+* **Chapter Writer** - Drafts new chapters based on your outline plus any existing manuscript, and appends chapters as it writes them
 
 ---
 
