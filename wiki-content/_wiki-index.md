@@ -1,6 +1,7 @@
 # StoryGrind Wiki Content Preview
 
-This folder contains the draft wiki pages for the StoryGrind GitHub Wiki. Review these locally before publishing to GitHub.
+This folder contains the draft wiki pages for the StoryGrind GitHub Wiki. 
+Review these locally before publishing to GitHub.
 
 ## Created Pages
 
