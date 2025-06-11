@@ -19,7 +19,7 @@ StoryGrind is a desktop application that helps writers/authors/editors analyze a
 
 ### Setting Up Your API Key
 
-StoryGrind uses AI to analyze your manuscripts. You'll need at least one API key from these providers:
+StoryGrind uses AI to analyze your manuscripts.
 
 1. Create a file named `.env` in your **home directory**:
    - Mac: `~/.env`
@@ -37,6 +37,8 @@ StoryGrind uses AI to analyze your manuscripts. You'll need at least one API key
 4. Save the file and launch storygrind
 
 #### Getting API Keys:
+
+You'll need at least one API key from these providers:
 
 **Google Gemini (Inexpensive)**
 - Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
