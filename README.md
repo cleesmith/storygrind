@@ -19,7 +19,7 @@ StoryGrind is a desktop application that helps writers/authors/editors analyze a
 
 ### Setting Up Your API Key
 
-storygrind uses AI to analyze your manuscripts. You'll need at least one API key from these providers:
+StoryGrind uses AI to analyze your manuscripts. You'll need at least one API key from these providers:
 
 1. Create a file named `.env` in your **home directory**:
    - Mac: `~/.env`
@@ -70,9 +70,11 @@ storygrind uses AI to analyze your manuscripts. You'll need at least one API key
 > - ~/writing_with_storygrind/MyNovel
 > - copy a .docx of .txt of your book/novel/manuscript
 
-#### You have to use either Explorer (windows) or Finder (mac) to manage your writing projects in:  `~/writing_with_storygrind/` ... such as copying manuscripts from Vellum, Google Docs, Word, Reedsy, or whatever.
-
 5. Add your manuscript file (`.txt` or `.docx`)
+> You have to use either Explorer (windows) or Finder (mac) to manage your writing projects in:  
+> `~/writing_with_storygrind/` 
+> ... such as copying manuscripts from Vellum, Google Docs, Word, Reedsy, or whatever.
+
 6. Select a Tool from the dropdown menu
 7. click "Setup & Run"
 
