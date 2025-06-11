@@ -1,4 +1,4 @@
-# storygrind
+# StoryGrind
 
 storygrind is a desktop application that helps fiction writers analyze and improve their manuscripts using AI-powered tools. Your manuscripts stay on your computer, and you control when and how AI assistance is applied to your work.
 
@@ -60,17 +60,17 @@ storygrind uses AI to analyze your manuscripts. You'll need at least one API key
 1. Launch storygrind
 2. click "Select Project"
 2. glick "Create New Project" 
-3. Give your project a name (e.g., "Moby Dick")
+3. Give your project a name (e.g., "MyNovel")
 
 > Note: 
-> storygrind can NOT access any files outside of the directory
+> StoryGrind can NOT access any files outside of the directory
 > /writing_with_storygrind, so initially you will have to copy or 
 > move your .docx or .txt files into a project folder, for example:
-> - create a new folder named: Moby Dick
-> - ~/writing_with_storygrind/MobyDick
+> - create a new folder named: MyNovel
+> - ~/writing_with_storygrind/MyNovel
 > - copy a .docx of .txt of your book/novel/manuscript
 
-#### You have to use either Explorer (windows) or Finder (mac) to manage your writing projects in:  `~/writing_with_storygrind/` ... such as copying manuscripts from Vellum, google Docs, Word, Atticus, Reedsy, or whatever.
+#### You have to use either Explorer (windows) or Finder (mac) to manage your writing projects in:  `~/writing_with_storygrind/` ... such as copying manuscripts from Vellum, Google Docs, Word, Reedsy, or whatever.
 
 5. Add your manuscript file (`.txt` or `.docx`)
 6. Select a Tool from the dropdown menu
@@ -158,4 +158,4 @@ Having issues or suggestions? Please visit our [GitHub Issues page](https://gith
 
 ## About
 
-storygrind speaks directly to the writer's experience of struggling to identify issues in their own work. This app makes the painful process more manageable, and is an integral part of creating great writing. It's honest about the process without being negative—editing is about improvement, after all.
+StoryGrind speaks directly to the writer's experience of struggling to identify issues in their own work. This app makes the painful process more manageable, and is an integral part of creating great writing. It's honest about the process without being negative—editing is about improvement, after all.
