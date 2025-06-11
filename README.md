@@ -75,7 +75,7 @@ You'll need at least one API key from these providers:
 5. Add your manuscript file (`.txt` or `.docx`)
 > You have to use either Explorer (windows) or Finder (mac) to manage your writing projects in:  
 > `~/writing_with_storygrind/` 
-> ... such as copying manuscripts from Vellum, Google Docs, Word, Reedsy, or whatever.
+> - such as copying manuscripts from Vellum, Google Docs, Word, Pages, Reedsy, or whatever.
 
 6. Select a Tool from the dropdown menu
 7. click "Setup & Run"
