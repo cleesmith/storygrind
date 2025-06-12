@@ -93,7 +93,8 @@ class AiApiService {
   }
 
   async clearFilesAndCaches() {
-    console.log('OpenAI API: No files or caches to clear');
+    // console.log('OpenAI API: No files or caches to clear');
+    return;
   }
 
   /**

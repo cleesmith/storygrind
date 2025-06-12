@@ -23,10 +23,10 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 
 **StoryGrind is FREE** - but AI features require an API key from one of these providers:
 - **Anthropic Claude** - Known for detailed analysis  
-- **Google Gemini** - Easy to get started
+- **Google Gemini** - Easy to get started and less expensive
 - **OpenAI** **GPT**'s and **o**'s - Widely used and familiar
 
-**Non-AI tools** (fast spell check, file conversion: .docx ↔️ .txt) work without any AI API key.
+**Non-AI tools** (fast spell check, file conversion: .docx ↔️ .txt) work without any AI (free).
 
 ## 📋 Documentation Quick Links
 
