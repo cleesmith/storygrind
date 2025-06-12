@@ -576,8 +576,8 @@
 
 > i use Sublime Text, can i view them there?
 
-⏺ Yes! Sublime Text can view the markdown files, though you'll see the raw markdown syntax
-  rather than formatted output.
+⏺ Yes! Sublime Text can view the markdown files, though you'll 
+  see the raw markdown syntax rather than formatted output.
 
   To view in Sublime Text:
 

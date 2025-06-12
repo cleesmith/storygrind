@@ -14,27 +14,27 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 
 - **Free App** - No subscriptions to StoryGrind itself
 - **You Control Your AI Usage** - Use your own API keys with the provider of your choice
-- **Your Words Stay Yours** - Everything runs locally on your computer
+- **Your Words Stay Yours** - Everything is stored locally on your computer
 - **Professional-Grade Tools** - 25+ editing and analysis tools
 - **Multiple AI Providers** - Choose from Claude, Gemini, or OpenAI
-- **Writer-Friendly** - Built by writers, for writers
+- **Writer-Friendly** - Built by a writer, for writers
 
 ## 🔑 AI Provider Options
 
 **StoryGrind is FREE** - but AI features require an API key from one of these providers:
-- **Google Gemini** - Easy to get started
 - **Anthropic Claude** - Known for detailed analysis  
-- **OpenAI** - Widely used and familiar
+- **Google Gemini** - Easy to get started
+- **OpenAI** **GPT**'s and **o**'s - Widely used and familiar
 
-**Non-AI tools** (spell check, file conversion, word counting) work without any API key.
+**Non-AI tools** (fast spell check, file conversion: .docx ↔️ .txt) work without any AI API key.
 
 ## 📋 Documentation Quick Links
 
 ### Getting Started
 - [Installation Guide](Installation-Guide) - Download and install StoryGrind
-- [API Setup Guide](API-Setup-Guide) - Connect your AI provider & understand costs
+- [API Setup Guide](API-Setup-Guide) - Connect your AI provider
 - [Your First Project](Getting-Started) - Create and manage projects
-- [Understanding the Interface](User-Interface-Guide) - Navigate like a pro
+- [Understanding the Interface](User-Interface-Guide)
 
 ### Tools & Features
 - [AI Editing Tools](AI-Editing-Tools) - Developmental, line, and copy editing
@@ -43,15 +43,10 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 - [Customizing AI Prompts](Customizing-Prompts) - Make the tools work your way
 
 ### Workflow & Tips
-- [Best Practices](Best-Practices) - Get the most from StoryGrind
-- [Working with Large Manuscripts](Large-Manuscripts) - Handle novel-length works
 - [File Management](File-Management) - Organize your projects
-- [API Usage Tips](API-Usage-Tips) - Make the most of your API usage
 
 ### Help & Support
-- [Troubleshooting](Troubleshooting) - Common issues and solutions
 - [FAQ](FAQ) - Frequently asked questions
-- [Getting Help](Getting-Help) - Where to find support
 
 ## 💡 Why StoryGrind?
 
@@ -62,20 +57,20 @@ StoryGrind exists because:
 - **Your creativity deserves freedom** from platform lock-in
 - **AI can excel at editing** when given clear, precise prompts
 - **Every story matters** and deserves professional-quality tools
-- **You should control your costs** and choose your AI provider
+- **You control your costs** and choose your AI provider
 
 ## 🎯 Who This Is For
 
-- **Fiction Writers** crafting novels, short stories, and novellas
+- **Fiction Writers** crafting short stories, novellas, and novels
 - **Authors** preparing manuscripts for publication
 - **Editors** looking for AI-powered analysis tools
 - **Writing Groups** who want to share editing resources
-- **Budget-Conscious Writers** who want professional editing at AI prices
+- **Budget-Conscious Writers** who want professional editing at AI prices with fast thorough responses
 
 ## 🔧 What You'll Need
 
 - A Mac or Windows computer
-- One AI API key from [Claude](https://console.anthropic.com/), [Gemini](https://aistudio.google.com/app/apikey), or [OpenAI](https://platform.openai.com/) (if using AI tools)
+- One AI API key from [Claude](https://console.anthropic.com/), [Gemini](https://aistudio.google.com/app/apikey), or [OpenAI](https://platform.openai.com/)
 - Your manuscript in .txt or .docx format
 
 Ready to transform your writing? **[Start here!](Getting-Started)**
