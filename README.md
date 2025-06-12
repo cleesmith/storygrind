@@ -3,7 +3,7 @@
 StoryGrind is a desktop application that helps writers/authors/editors analyze and improve their manuscripts using AI-powered tools. Your manuscripts stay on your computer, and you control when and how A.I. (AI) assistance is applied to your work.
 
 ## See Wiki for details:
-[Releases page](https://github.com/cleesmith/storygrind/wiki)
+[Wiki](https://github.com/cleesmith/storygrind/wiki)
 
 ## Installation
 
