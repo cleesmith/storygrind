@@ -2,6 +2,9 @@
 
 StoryGrind is a desktop application that helps writers/authors/editors analyze and improve their manuscripts using AI-powered tools. Your manuscripts stay on your computer, and you control when and how A.I. (AI) assistance is applied to your work.
 
+## See Wiki for details:
+[Releases page](https://github.com/cleesmith/storygrind/wiki)
+
 ## Installation
 
 ### For Mac Users
@@ -56,100 +59,6 @@ You'll need at least one API key from these providers:
 - Create new secret key
 
 ---
-
-### Your First Project
-
-1. Launch storygrind
-2. click "Select Project"
-2. glick "Create New Project" 
-3. Give your project a name (e.g., "MyNovel")
-
-> Note: 
-> StoryGrind can NOT access any files outside of the directory
-> /writing_with_storygrind, so initially you will have to copy or 
-> move your .docx or .txt files into a project folder, for example:
-> - create a new folder named: MyNovel
-> - ~/writing_with_storygrind/MyNovel
-> - copy a .docx of .txt of your book/novel/manuscript
-
-5. Add your manuscript file (`.txt` or `.docx`)
-> You have to use either Explorer (windows) or Finder (mac) to manage your writing projects in:  
-> - `~/writing_with_storygrind/` 
-> - such as copying manuscripts from Vellum, Google Docs, Word, Pages, Reedsy, or whatever.
-
-6. Select a Tool from the dropdown menu
-7. click "Setup & Run"
-
-Your projects are stored in `~/writing_with_storygrind/` on your computer. 
-
-Each project gets its own folder with your manuscript(s) and all 
-timestamped generated analysis files.
-
----
-
-## Available Tools
-
-### Manuscript Analysis & Editing
-
-* **Tokens & Words Counter** - Counts words and tokens in your manuscript
-
-* **Narrative Integrity Checker** - Verifies your story stays consistent with your world-building and outline
-
-* **Developmental Editing** - Deep structural analysis of plot, character arcs, pacing, and themes
-
-* **Line Editing** - Detailed sentence-level improvements for specific chapters
-
-* **Copy Editing** - Grammar, syntax, punctuation, and consistency corrections
-
-* **Proofreader Spelling** - This is not an AI Tool, but blazing fast spell checker (watch out for false positives)
-
-* **Proofreader Punctuation** - Finds run-on sentences, missing commas, and other punctuation issues
-
-* **Proofreader Plot Consistency** - Specifically checks for plot holes and world-building inconsistencies
-
-* **Manuscript to Outline/Characters/World** - Extracts structure from an existing manuscript to create planning documents
-
-* **Plot Thread Tracker** - Maps how your various plot lines interconnect, converge, and resolve
-
-* **Tense Consistency Checker** - Catches unintended tense shifts that could confuse readers
-
-* **Character Analyzer** - Tracks character appearances and ensures consistency across your manuscript
-
-* **Adjective & Adverb Optimizer** - Suggests stronger verbs and nouns to replace weak modifiers
-
-* **Dangling Modifier Checker** - Identifies confusing or unintentionally humorous modifier placement
-
-* **Rhythm Analyzer** - Checks sentence variety and whether your prose rhythm matches the mood
-
-* **Crowding & Leaping Evaluator** - Analyzes pacing using Ursula K. Le Guin's concepts of dense detail vs. time jumps
-
-* **Conflict Analyzer** - Examines conflict patterns at scene, chapter, and story arc levels
-
-* **Foreshadowing Tracker** - Ensures your planted clues and hints have proper payoffs
-
-* **KDP Publishing Prep** - Generates Amazon KDP metadata like descriptions, categories, and keywords
-
-* **Drunken** - Provides brutally honest (and slightly tipsy) manuscript critique
-
----
-
-### Content Generation & Organization
-
-* **Brainstorm Tool** - Generates story ideas and creative angles based on your prompts
-
-* **Outline Writer** - Creates a detailed plot outline from your premise or brainstorming notes
-
-* **World Writer** - Develops comprehensive world-building documents from your outline
-
-* **Chapter Writer** - Drafts (very **iffy** prose) new chapters based on your outline plus any existing manuscript, and appends chapters as it writes them
-
----
-
-### Utility Tools
-
-* **DOCX Comments Extractor** - Pulls out all comments from Word documents for easy review
-
-* **EPUB to TXT Converter** - Converts ebook files to plain text for analysis
 
 ## Privacy & Security
 

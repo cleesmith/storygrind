@@ -13,8 +13,9 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 ## 📖 What Makes StoryGrind Special?
 
 - **Free App** - No subscriptions to StoryGrind itself
+- **Your Words Stay Yours** - Everything is stored locally on your computer, no cloud lock-in
+- **100% Plain Text** - All the way down, it's about **words** (*yours*), easy for AI eyes 👀, portable to everywhere
 - **You Control Your AI Usage** - Use your own API keys with the provider of your choice
-- **Your Words Stay Yours** - Everything is stored locally on your computer
 - **Professional-Grade Tools** - 25+ editing and analysis tools
 - **Multiple AI Providers** - Choose from Claude, Gemini, or OpenAI
 - **Writer-Friendly** - Built by a writer, for writers
@@ -34,7 +35,7 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 - [Installation Guide](Installation-Guide) - Download and install StoryGrind
 - [API Setup Guide](API-Setup-Guide) - Connect your AI provider
 - [Your First Project](Getting-Started) - Create and manage projects
-- [Understanding the Interface](User-Interface-Guide)
+- [Quick View of App's Interface](User-Interface-Guide)
 
 ### Tools & Features
 - [AI Editing Tools](AI-Editing-Tools) - Developmental, line, and copy editing

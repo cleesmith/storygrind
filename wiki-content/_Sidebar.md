@@ -2,6 +2,7 @@
 - [Installation Guide](Installation-Guide)
 - [API Setup](API-Setup-Guide)
 - [Getting Started](Getting-Started)
+- [Quick View of App's Interface](User-Interface-Guide)
 
 ## 🛠️ Tools & Features
 - [AI Editing Tools](AI-Editing-Tools)
