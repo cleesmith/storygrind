@@ -11,6 +11,50 @@ class NarrativeIntegrity extends ToolBase {
     super('narrative_integrity', config);
     this.apiService = apiService;
   }
+
+  async execute(options) {
+    // Store special instructions in the config so getPrompt can access them
+    if (options.special_instructions) {
+      this.config.special_instructions = options.special_instructions;
+    }
+    
+    // Call the parent execute method
+    return await super.execute(options);
+  }
+
+  async getPrompt() {
+    try {
+      // Get the base prompt from the parent class
+      const basePrompt = await super.getPrompt();
+      
+      if (!basePrompt) {
+        return null; // Let the parent class handle the error
+      }
+
+      // Check if special instructions were provided in the options
+      const specialInstructions = this.config.special_instructions;
+      
+      if (specialInstructions && specialInstructions.trim()) {
+        // Add special instructions to the end of the prompt
+        const enhancedPrompt = basePrompt + '\n\n' +
+          '=== SPECIAL INSTRUCTIONS ===\n' +
+          'In addition to the standard analysis above, pay special attention to the following:\n\n' +
+          specialInstructions.trim() + '\n\n' +
+          'Incorporate these special focus areas into your analysis where relevant, ensuring they are addressed alongside the standard narrative integrity review.';
+        
+        this.emitOutput(`\nUsing special instructions:\n${specialInstructions.trim()}\n\n`);
+        
+        return enhancedPrompt;
+      }
+      
+      // No special instructions, return the base prompt
+      return basePrompt;
+      
+    } catch (error) {
+      console.error(`Error getting prompt for ${this.name}:`, error);
+      return null;
+    }
+  }
 }
 
 module.exports = NarrativeIntegrity;
