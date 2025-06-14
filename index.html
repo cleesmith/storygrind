@@ -66,7 +66,17 @@
     <h2>Run an AI based tool:</h2>
     
     <div class="form-group">
-      <label for="ai-tool-select">&nbsp;</label>
+      <label for="ai-category-select">Category:</label>
+      <div class="select-wrapper">
+        <select id="ai-category-select">
+          <option value="">Select a category...</option>
+          <!-- Categories will be populated by JavaScript -->
+        </select>
+      </div>
+    </div>
+    
+    <div class="form-group" id="ai-tool-group" style="display: none;">
+      <label for="ai-tool-select">Tool:</label>
       <div class="select-wrapper">
         <select id="ai-tool-select">
           <!-- AI Tools will be populated by JavaScript -->
@@ -75,7 +85,7 @@
     </div>
     
     <p id="ai-tool-description" class="tool-description">
-      Select a tool to see its description.
+      Select a category to see available tools.
     </p>
 
     <div class="button-container">

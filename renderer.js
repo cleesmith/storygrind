@@ -91,7 +91,9 @@ const currentProjectName = document.getElementById('current-project-name');
 const currentProjectPath = document.getElementById('current-project-path');
 
 // Tool selection functionality
+const aiCategorySelect = document.getElementById('ai-category-select');
 const aiToolSelect = document.getElementById('ai-tool-select');
+const aiToolGroup = document.getElementById('ai-tool-group');
 const aiToolDescription = document.getElementById('ai-tool-description');
 const aiSetupRunBtn = document.getElementById('ai-setup-run-btn');
 
@@ -158,6 +160,9 @@ function isAiTool(tool) {
   return result;
 }
 
+// Store all AI tools globally for category filtering
+let allAiTools = [];
+
 async function loadAiTools() {
   console.log('*** loadAiTools: Checking AI service availability...');
   
@@ -166,26 +171,22 @@ async function loadAiTools() {
   console.log('AI Model Info:', aiModelInfo);
   
   // Clear any existing options
+  aiCategorySelect.innerHTML = '<option value="">Select a category...</option>';
   aiToolSelect.innerHTML = '';
+  aiToolGroup.style.display = 'none';
   
   if (!aiModelInfo.available) {
     console.log('AI service not available, showing disabled state');
     const option = document.createElement('option');
     option.disabled = true;
     option.textContent = 'No AI provider configured - AI tools unavailable';
-    aiToolSelect.appendChild(option);
+    aiCategorySelect.appendChild(option);
     
     // Update the description to explain why AI tools are unavailable
-    const aiToolDescription = document.getElementById('ai-tool-description');
-    if (aiToolDescription) {
-      aiToolDescription.textContent = 'AI tools require an API provider. Click "Settings" to configure one.';
-    }
+    aiToolDescription.textContent = 'AI tools require an API provider. Click "Settings" to configure one.';
     
     // Disable the AI setup & run button since no AI tools are available
-    const aiSetupRunBtn = document.getElementById('ai-setup-run-btn');
-    if (aiSetupRunBtn) {
-      aiSetupRunBtn.disabled = true;
-    }
+    aiSetupRunBtn.disabled = true;
     return;
   }
   
@@ -194,107 +195,90 @@ async function loadAiTools() {
   console.log(`Received ${tools.length} tools from main process:`, tools);
   
   // Filter to only include AI tools
-  const aiTools = tools.filter(tool => isAiTool(tool));
+  allAiTools = tools.filter(tool => isAiTool(tool));
   
-  if (!aiTools || aiTools.length === 0) {
+  if (!allAiTools || allAiTools.length === 0) {
     const option = document.createElement('option');
     option.disabled = true;
     option.textContent = 'No AI tools found';
-    aiToolSelect.appendChild(option);
+    aiCategorySelect.appendChild(option);
+    return;
+  }
+  
+  // Add categories to the category select
+  const coreOption = document.createElement('option');
+  coreOption.value = 'core';
+  coreOption.textContent = 'Core Editing Tools';
+  aiCategorySelect.appendChild(coreOption);
+  
+  const otherOption = document.createElement('option');
+  otherOption.value = 'other';
+  otherOption.textContent = 'Other Editing Tools';
+  aiCategorySelect.appendChild(otherOption);
+  
+  const writingOption = document.createElement('option');
+  writingOption.value = 'writing';
+  writingOption.textContent = 'AI Writing Tools';
+  aiCategorySelect.appendChild(writingOption);
+  
+  // Enable the AI setup & run button since AI tools are available
+  aiSetupRunBtn.disabled = false;
+}
+
+function loadToolsForCategory(category) {
+  // Clear existing tool options
+  aiToolSelect.innerHTML = '';
+  
+  if (!category) {
+    aiToolGroup.style.display = 'none';
+    aiToolDescription.textContent = 'Select a category to see available tools.';
     return;
   }
   
   // Define tool categories
-  const topTools = ["tokens_words_counter", "narrative_integrity", "developmental_editing", "line_editing", "copy_editing", "proofreader_spelling", "proofreader_punctuation", "proofreader_plot_consistency"];
-  const roughDraftTools = ["brainstorm", "outline_writer", "world_writer", "chapter_writer"];
+  const coreTools = ["tokens_words_counter", "narrative_integrity", "developmental_editing", "line_editing", "copy_editing", "proofreader_spelling", "proofreader_punctuation", "proofreader_plot_consistency"];
+  const writingTools = ["brainstorm", "outline_writer", "world_writer", "chapter_writer"];
   
-  // Track which tools have been added to avoid duplicates
-  const addedTools = new Set();
+  let categoryTools = [];
   
-  // Add the top tools to select
-  aiTools.forEach(tool => {
-    if (topTools.includes(tool.name)) {
-      const option = document.createElement('option');
-      option.value = tool.name;
-      option.textContent = tool.title;
-      option.dataset.description = tool.description;
-      aiToolSelect.appendChild(option);
-      addedTools.add(tool.name);
-    }
+  switch (category) {
+    case 'core':
+      categoryTools = allAiTools.filter(tool => coreTools.includes(tool.name));
+      break;
+    case 'writing':
+      categoryTools = allAiTools.filter(tool => writingTools.includes(tool.name));
+      break;
+    case 'other':
+      categoryTools = allAiTools.filter(tool => 
+        !coreTools.includes(tool.name) && !writingTools.includes(tool.name)
+      );
+      break;
+  }
+  
+  if (categoryTools.length === 0) {
+    const option = document.createElement('option');
+    option.disabled = true;
+    option.textContent = 'No tools available in this category';
+    aiToolSelect.appendChild(option);
+    aiToolGroup.style.display = 'block';
+    aiToolDescription.textContent = 'No tools available in this category.';
+    return;
+  }
+  
+  // Add tools to the tool select
+  categoryTools.forEach(tool => {
+    const option = document.createElement('option');
+    option.value = tool.name;
+    option.textContent = tool.title;
+    option.dataset.description = tool.description;
+    aiToolSelect.appendChild(option);
   });
   
-  // Add the "Editor Tools" header
-  const editorHeader = document.createElement('option');
-  editorHeader.disabled = true;
-  editorHeader.value = '';
-  editorHeader.textContent = '- Other Editing Tools:';
-  editorHeader.style.color = '#999';
-  editorHeader.style.fontWeight = 'bold';
-  editorHeader.style.backgroundColor = '#252525';
-  editorHeader.style.padding = '2px';
-  aiToolSelect.appendChild(editorHeader);
-  
-  // Filter out the rough draft tools
-  const relevantTools = aiTools.filter(tool => 
-    !roughDraftTools.includes(tool.name) && !addedTools.has(tool.name)
-  );
-
-  // Then process only the tools we care about
-  relevantTools.forEach(tool => {
-  // aiTools.forEach(tool => {
-    if (roughDraftTools.includes(tool.name)) {
-      return; // skip rough-draft tools
-    }
-
-    if (!addedTools.has(tool.name)) {
-      const option = document.createElement('option');
-      option.value = tool.name;
-      option.textContent = tool.title;
-      option.dataset.description = tool.description;
-      aiToolSelect.appendChild(option);
-    }
-  });
-  
-  // Now, append to the end the "Rough Draft Writing Tools" header
-  const roughDraftHeader = document.createElement('option');
-  roughDraftHeader.disabled = true;
-  roughDraftHeader.value = '';
-  roughDraftHeader.textContent = '- AI Rough Draft Writing Tools:';
-  roughDraftHeader.style.color = '#999';
-  roughDraftHeader.style.fontWeight = 'bold';
-  roughDraftHeader.style.backgroundColor = '#252525';
-  roughDraftHeader.style.padding = '2px';
-  aiToolSelect.appendChild(roughDraftHeader);
-  
-  // Then add the rough draft tools
-  aiTools.forEach(tool => {
-    if (roughDraftTools.includes(tool.name)) {
-      const option = document.createElement('option');
-      option.value = tool.name;
-      option.textContent = tool.title;
-      option.dataset.description = tool.description;
-      aiToolSelect.appendChild(option);
-      addedTools.add(tool.name);
-    }
-  });
-  
-  // Count the actual options (excluding headers)
-  const actualOptions = Array.from(aiToolSelect.options).filter(opt => !opt.disabled).length;
-  
-  // Select the first tool by default
-  if (actualOptions > 0) {
-    // Find first non-disabled option
-    const firstOption = Array.from(aiToolSelect.options).find(opt => !opt.disabled);
-    if (firstOption) {
-      aiToolSelect.value = firstOption.value;
-      aiToolDescription.textContent = firstOption.dataset.description;
-    }
-    
-    // Enable the AI setup & run button since AI tools are available
-    const aiSetupRunBtn = document.getElementById('ai-setup-run-btn');
-    if (aiSetupRunBtn) {
-      aiSetupRunBtn.disabled = false;
-    }
+  // Show the tool select and update description with first tool
+  aiToolGroup.style.display = 'block';
+  if (categoryTools.length > 0) {
+    aiToolSelect.value = categoryTools[0].name;
+    aiToolDescription.textContent = categoryTools[0].description;
   }
 }
 
@@ -421,6 +405,12 @@ async function loadNonAiTools() {
   }
 }
 
+// Handle category selection
+aiCategorySelect.addEventListener('change', () => {
+  const selectedCategory = aiCategorySelect.value;
+  loadToolsForCategory(selectedCategory);
+});
+
 // Update the AI tool description when a different tool is selected
 aiToolSelect.addEventListener('change', () => {
   const selectedOption = aiToolSelect.options[aiToolSelect.selectedIndex];
@@ -439,7 +429,14 @@ nonAiToolSelect.addEventListener('change', () => {
 
 // Handle the AI Setup & Run button
 aiSetupRunBtn.addEventListener('click', () => {
+  const selectedCategory = aiCategorySelect.value;
   const selectedTool = aiToolSelect.value;
+  
+  if (!selectedCategory) {
+    alert('Please select a category first.');
+    return;
+  }
+  
   if (!selectedTool) {
     alert('Please select a tool first.');
     return;
