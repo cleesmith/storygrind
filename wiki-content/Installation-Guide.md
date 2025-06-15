@@ -30,7 +30,7 @@ Getting StoryGrind up and running on your computer is straightforward. Follow th
 ### Install
 1. Double-click the downloaded `.dmg` file
 2. Drag StoryGrind to your Applications folder
-3. Open Applications and find StoryGrind
+3. Open Applications and find storygrind.app *(or similar)*
 
 ### First Launch (Important!)
 When you first open the app (or after downloading an update), macOS will show a security message saying "Apple checked it for malicious software and none was detected." This is normal for any app downloaded outside the Mac App Store that has been signed and notarized using the Apple Developer Program.
