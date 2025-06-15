@@ -33,17 +33,13 @@ Getting StoryGrind up and running on your computer is straightforward. Follow th
 3. Open Applications and find StoryGrind
 
 ### First Launch (Important!)
-Since StoryGrind isn't code-signed by Apple:
+When you first open the app (or after downloading an update), macOS will show a security message saying "Apple checked it for malicious software and none was detected." This is normal for any app downloaded outside the Mac App Store that has been signed and notarized using the Apple Developer Program.
 
-1. **Right-click** on StoryGrind in Applications
-2. Choose **"Open"** from the context menu
-3. Click **"Open"** in the security dialog
-4. This only needs to be done once
+Simply click "Open" and the app will launch. You'll see this message each time you download a new version of the app, but it's always safe to click "Open."
 
-**Alternative method if right-click doesn't work:**
-1. Try to open StoryGrind normally (it will be blocked)
-2. Go to **System Preferences > Security & Privacy**
-3. Click **"Open Anyway"** next to the StoryGrind message
+![StoryGrind dark](../blob/main/resources/storygrind_dmg_install.png?raw=true)
+
+This message **confirms that Apple has verified the app is safe**, *read the small print*, so you can always click "Open" with confidence.
 
 ## 📁 What Gets Created
 
