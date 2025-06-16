@@ -4,6 +4,8 @@
 
 StoryGrind is a free desktop application that helps writers, authors, and editors improve their manuscripts using AI-powered tools. Your manuscripts stay on your computer, and you control when and how A.I. assistance is applied to your work.
 
+> Built with love by a book lover, for book lovers who write
+
 ## 🚀 Quick Start
 
 1. **[Download & Install](Installation-Guide)** StoryGrind for your platform
