@@ -23,6 +23,9 @@ function createApiService() {
       case 'claude':
         ApiServiceClass = require('./client-claude.js');
         break;
+      case 'openrouter':
+        ApiServiceClass = require('./client-openrouter.js');
+        break;
       case 'skipped':
         // User skipped API setup, return null
         console.log('API setup was skipped by user');

@@ -118,6 +118,8 @@ async function ensureEssentialPathsExist() {
 
 # ANTHROPIC_API_KEY=put-yours-here
 
+# OPENROUTER_API_KEY=put-yours-here
+
       `;
       
       await fs.promises.writeFile(envFilePath, envContent, 'utf8');
@@ -255,7 +257,7 @@ async function initializeApp() {
 
                           const timestamp = new Date().toLocaleString();
                           let newEnvContent = currentEnvContent;
-                          const instructionalComment = `\n# On ${timestamp}, storygrind tried to use AI API key, but failed!\n# Please ensure the appropriate line below is correct and uncommented:\n# GEMINI_API_KEY=your_actual_api_key_here\n# OPENAI_API_KEY=your_actual_api_key_here\n# ANTHROPIC_API_KEY=your_actual_api_key_here\n\n`;
+                          const instructionalComment = `\n# On ${timestamp}, storygrind tried to use AI API key, but failed!\n# Please ensure the appropriate line below is correct and uncommented:\n# GEMINI_API_KEY=your_actual_api_key_here\n# OPENAI_API_KEY=your_actual_api_key_here\n# ANTHROPIC_API_KEY=your_actual_api_key_here\n# OPENROUTER_API_KEY=your_actual_api_key_here\n\n`;
 
                           if (!currentEnvContent.includes("# storygrind tried to use AI API key, but failed!")) {
                               newEnvContent = instructionalComment + currentEnvContent;
@@ -654,6 +656,9 @@ function checkApiProviderConfiguration() {
       break;
     case 'claude':
       apiKeyVar = 'ANTHROPIC_API_KEY';
+      break;
+    case 'openrouter':
+      apiKeyVar = 'OPENROUTER_API_KEY';
       break;
     default:
       console.log('Unknown provider:', selectedProvider);
@@ -1404,6 +1409,9 @@ function setupIPCHandlers() {
           break;
         case 'claude':
           ApiServiceClass = require('./client-claude.js');
+          break;
+        case 'openrouter':
+          ApiServiceClass = require('./client-openrouter.js');
           break;
         default:
           console.error(`Unknown provider: ${provider}`);

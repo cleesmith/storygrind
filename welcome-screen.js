@@ -48,7 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const providerNames = {
         'gemini': 'Gemini',
         'openai': 'OpenAI', 
-        'claude': 'Claude'
+        'claude': 'Claude',
+        'openrouter': 'OpenRouter'
       };
       continueBtn.textContent = `Continue with ${providerNames[selectedProvider]}`;
       

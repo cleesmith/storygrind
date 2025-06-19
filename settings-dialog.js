@@ -110,11 +110,11 @@ document.addEventListener('DOMContentLoaded', function() {
       aiModelSelect.innerHTML = '';
       
       if (models && models.length > 0) {
-        // Sort models by name/id (newest typically have higher version numbers)
+        // Sort models alphabetically A-Z for easier finding
         models.sort((a, b) => {
           const aName = a.id || a.name || '';
           const bName = b.id || b.name || '';
-          return bName.localeCompare(aName);
+          return aName.localeCompare(bName);
         });
         
         models.forEach(model => {
