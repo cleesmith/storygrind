@@ -284,12 +284,9 @@ function loadToolsForCategory(category) {
 
 // This function fetches and displays the current AI model information
 async function loadAndDisplayModelInfo() {
-  console.log(`\n>>> loadAndDisplayModelInfo:`)
   try {
     // Fetch model information from the main process
     const modelInfo = await window.electronAPI.getAiModelInfo();
-    console.log(`>>> modelInfo:`);
-    console.dir(modelInfo);
     
     // Get the model display element (we'll add this to the HTML)
     const modelDisplay = document.getElementById('ai-model-display');
