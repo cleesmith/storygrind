@@ -36,64 +36,30 @@
 
 // security find-identity -v -p codesigning
 
-// node cls_sign_appleDevPgm.mjs
-//  (base) cleesmith:~$ node cls_sign_appleDevPgm.mjs
-//                      Application signed successfully
-//                      Ready for notarization
+// node dist_mac_windows.mjs
 
 // codesign --verify --verbose "out/StoryGrind-darwin-arm64/StoryGrind.app"
 // codesign --display --verbose "out/StoryGrind-darwin-arm64/StoryGrind.app"
-// spctl --assess --verbose "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
-// open "out/StoryGrind-darwin-arm64/StoryGrind.app"
+// Finder: double click on: "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // ditto -c -k --keepParent "out/StoryGrind-darwin-arm64/StoryGrind.app" "StoryGrind.zip"
 
 // xcrun notarytool submit "StoryGrind.zip" --keychain-profile "notarytool-profile"
-//     (base) cleesmith:~$ xcrun notarytool submit "StoryGrind.zip" --keychain-profile "notarytool-profile" 
-//     Conducting pre-submission checks for StoryGrind.zip and initiating connection to the Apple notary service...
-//     Submission ID received
-//       id: 77ecb5fb-2e38-4ffa-bc0c-bf4a6756d92e
-//     Upload progress: 100.00% (140 MB of 140 MB)   
-//     Successfully uploaded file
-//       id: 77ecb5fb-2e38-4ffa-bc0c-bf4a6756d92e
-//       path: /Users/cleesmith/storygrind/StoryGrind.zip
-//     (base) cleesmith:~$ time
-//     shell  0.60s user 1.00s system 0% cpu 144:10:47.80 total
-//     children  756.54s user 242.52s system 0% cpu 144:10:47.80 total
-//     (base) cleesmith:~$ date 
-//     Thu Jun 12 11:21:11 EDT 2025
 
 // xcrun notarytool history --keychain-profile "notarytool-profile"
-//   (base) cleesmith:~$ xcrun notarytool history --keychain-profile "notarytool-profile"
-//   Successfully received submission history.
-//     history
-//       --------------------------------------------------
-//       createdDate: 2025-06-12T15:19:08.776Z
-//       id: 77ecb5fb-2e38-4ffa-bc0c-bf4a6756d92e
-//       name: StoryGrind.zip
-//       status: Accepted
-//       --------------------------------------------------
-//       createdDate: 2025-06-06T13:51:05.235Z
-//       id: 46623cae-a024-4101-8567-1b29dd07909b
-//       name: StoryGrinder.zip
-//       status: Accepted
-// ... very fast today: Thu Jun 12, 2025 11:19 AM EDT
 
-// Stapler automatically retrieves the notarization ticket from Apple's servers based on the app's signature and attaches it to the .app bundle. No IDs needed.
 // xcrun stapler staple "out/StoryGrind-darwin-arm64/StoryGrind.app"
-//   (base) cleesmith:~$ xcrun stapler staple "out/StoryGrind-darwin-arm64/StoryGrind.app"
-//   Processing: /Users/cleesmith/storygrind/out/StoryGrind-darwin-arm64/StoryGrind.app
-//   Processing: /Users/cleesmith/storygrind/out/StoryGrind-darwin-arm64/StoryGrind.app
-//   The staple and validate action worked!
 
-// create-dmg out/StoryGrind-darwin-arm64/StoryGrind.app"
-//   (base) cleesmith:~$ create-dmg  "out/StoryGrind-darwin-arm64/StoryGrind.app" 
-//   ℹ Code signing identity: Developer ID Application: Chris Smith (Y9HNT7R2W4)
-//   ✔ Created “storygrind 2.0.1.dmg”
+// create-dmg --version
+// create-dmg 1.2.1
 
-// put .dmg on github Releases
-// ###
+// npx create-dmg out/storygrind-darwin-arm64/storygrind.app
+
+// to test .dmg thoroughly delete anything to do with: storygrind
+// mdfind storygrind
+// then download .dmg and install/run it
+
 
 import { sign } from '@electron/osx-sign'
 
