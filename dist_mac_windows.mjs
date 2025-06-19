@@ -1,4 +1,5 @@
-// ... for Windows:
+
+// === WINDOWS ===
 // npm run package
 // tar -a -c -f StoryGrind-Windows.zip -C out storygrind-win32-x64
 
@@ -27,10 +28,12 @@
 // - No registry entries or system changes
 
 // This is how most free/open source Windows software distributes - simple zip with executable inside.
-// ###
 
 
-// ... for Mac:
+// === MAC ===
+// node -v = v24.2.0
+// node -v = v24.2.0
+
 // rm -rf out/
 // npm run package
 
@@ -51,14 +54,14 @@
 
 // xcrun stapler staple "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
-// create-dmg --version
-// create-dmg 1.2.1
+// npm install --save-dev create-dmg
+// create-dmg --version = create-dmg 1.2.1
 
 // npx create-dmg out/storygrind-darwin-arm64/storygrind.app
 
 // to test .dmg thoroughly delete anything to do with: storygrind
 // mdfind storygrind
-// then download .dmg and install/run it
+// then download .dmg and install/run it = what most users will see
 
 
 import { sign } from '@electron/osx-sign'
