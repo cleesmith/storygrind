@@ -11,7 +11,7 @@ const fs = require('fs/promises');
 class AiApiService {
   constructor(config = {}) {
     this.config = {
-      model_name: 'anthropic/claude-sonnet-4',
+      model_name: null,
       ...config,
     };
 
@@ -91,9 +91,11 @@ class AiApiService {
       }
       
       console.error('OpenRouter API: No models available');
+      this.apiKeyMissing = true; // Treat as API unavailable
       return false;
     } catch (err) {
       console.error('OpenRouter API verify error:', err.message);
+      this.apiKeyMissing = true; // Treat API failures as unavailable
       return false;
     }
   }

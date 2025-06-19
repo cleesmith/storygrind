@@ -85,9 +85,11 @@ class AiApiService {
         return true;
       }
       console.error('Model not found:', this.config.model_name);
+      this.apiKeyMissing = true; // Treat model not found as unavailable
       return false;
     } catch (err) {
       console.error('OpenAI API verify error:', err.message);
+      this.apiKeyMissing = true; // Treat API failures as unavailable
       return false;
     }
   }

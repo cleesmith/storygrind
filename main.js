@@ -1963,37 +1963,58 @@ function setupIPCHandlers() {
   // Get current AI model information
   ipcMain.handle('get-ai-model-info', () => {
     try {
+      // Get the selected provider from app state first
+      const selectedProvider = appState.store ? appState.store.get('selectedApiProvider') : null;
+      
+      // Check if no provider is selected
+      if (!selectedProvider) {
+        return {
+          available: false,
+          provider: 'None',
+          model: 'Missing AI model - Use Settings to select provider and model',
+          reason: 'No AI provider selected'
+        };
+      }
+      
       // Check if we have an AI service instance
       if (!AiApiServiceInstance) {
         return {
           available: false,
           provider: 'None',
-          model: 'No AI Service',
+          model: 'Missing AI model',
           reason: 'No AI service initialized'
         };
       }
-      
-      // Get the selected provider from app state
-      const selectedProvider = appState.store ? appState.store.get('selectedApiProvider') : null;
       
       // Check if service is missing API key
       if (AiApiServiceInstance.apiKeyMissing) {
         return {
           available: false,
           provider: selectedProvider || 'Unknown',
-          model: 'API Key Missing',
-          reason: 'API key not configured'
+          model: 'API Key Missing or Provider Issues',
+          reason: 'API key not configured or provider having temporary issues'
         };
       }
       
       // Get model name from the service config
       const modelName = AiApiServiceInstance.config?.model_name || 'Unknown Model';
       
+      // Handle deprecated/unknown models
+      if (modelName === 'unknown' || modelName === 'Unknown Model') {
+        return {
+          available: false,
+          provider: selectedProvider,
+          model: 'Model No Longer Available',
+          reason: 'Selected model has been deprecated or is no longer available'
+        };
+      }
+      
       // Create a user-friendly provider name
       const providerNames = {
         'gemini': 'Gemini',
         'openai': 'OpenAI', 
-        'claude': 'Claude'
+        'claude': 'Claude',
+        'openrouter': 'OpenRouter'
       };
       
       const friendlyProvider = providerNames[selectedProvider] || selectedProvider || 'Unknown';
@@ -2009,7 +2030,7 @@ function setupIPCHandlers() {
       return {
         available: false,
         provider: 'Error',
-        model: 'Service Error',
+        model: 'Missing AI model',
         reason: error.message
       };
     }

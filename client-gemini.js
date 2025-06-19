@@ -14,7 +14,7 @@ const {
 class AiApiService {
   constructor(config = {}) {
     this.config = {
-      model_name: 'gemini-2.5-pro-preview-05-06',
+      model_name: 'gemini-2.5-pro', // default?
       ...config
     };
 
@@ -99,9 +99,11 @@ class AiApiService {
       }
       
       console.error(`Gemini model not found: ${this.config.model_name}`);
+      this.apiKeyMissing = true; // Treat model not found as unavailable
       return false;
     } catch (error) {
       console.error(`Gemini API verification failed: ${error.message}`);
+      this.apiKeyMissing = true; // Treat API failures as unavailable
       return false;
     }
   }

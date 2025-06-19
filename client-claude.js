@@ -104,9 +104,11 @@ class AiApiService {
       }
       
       console.error(`Claude model not found: ${this.config.model_name}`);
+      this.apiKeyMissing = true; // Treat model not found as unavailable
       return false;
     } catch (error) {
       console.error(`Claude API verification failed: ${error.message}`);
+      this.apiKeyMissing = true; // Treat API failures as unavailable
       return false;
     }
   }
