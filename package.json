@@ -47,6 +47,7 @@
     "@electron/fuses": "^1.8.0",
     "@electron/osx-sign": "^2.0.0",
     "@types/node": "^22.15.17",
+    "create-dmg": "^7.0.0",
     "electron": "^26.0.0",
     "png-to-ico": "^2.1.8"
   },
@@ -54,7 +55,11 @@
     "appId": "com.slipthetrap.storygrind",
     "productName": "storygrind",
     "files": [
-      "**/*",
+      "*.js",
+      "*.html",
+      "*.css",
+      "resources/**/*",
+      "!*.txt",
       "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
       "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
       "!**/node_modules/.bin",
