@@ -57,9 +57,9 @@
 
 // xcrun notarytool history --keychain-profile "notarytool-profile"
 
-// xcrun stapler staple "out/StoryGrinder-darwin-arm64/storygrinder.app"
+// xcrun stapler staple "out/StoryGrind-darwin-arm64/storygrind.app"
 
-// xcrun stapler validate "out/StoryGrinder-darwin-arm64/storygrinder.app"
+// xcrun stapler validate "out/StoryGrind-darwin-arm64/storygrind.app"
 
 // create-dmg  "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
