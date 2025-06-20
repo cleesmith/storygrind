@@ -30,7 +30,7 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 - **100% Plain Text** - All the way down, it's about **words** (*yours*), easy for AI eyes 👀, portable to everywhere
 - **You Control Your AI Usage** - Use your own API keys with the provider of your choice
 - **Professional-Grade Tools** - 25+ editing and analysis tools
-- **Multiple AI Providers** - Choose from Claude, Gemini, or OpenAI
+- **Multiple AI Providers** - Choose from Claude, Gemini, OpenAI, or OpenRouter
 - **Writer-Friendly** - Built by a writer, for writers
 
 ## 🔑 AI Provider Options
@@ -39,6 +39,7 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 - **Anthropic Claude** - Known for detailed analysis  
 - **Google Gemini** - Easy to get started and less expensive
 - **OpenAI** **GPT**'s and **o**'s - Widely used and familiar
+- **OpenRouter** - Access to multiple models from various providers
 
 **Non-AI tools** (fast spell check, file conversion: .docx ↔️ .txt) work without any AI (free).
 
@@ -84,7 +85,7 @@ StoryGrind exists because:
 ## 🔧 What You'll Need
 
 - A Mac or Windows computer
-- One AI API key from [Claude](https://console.anthropic.com/), [Gemini](https://aistudio.google.com/app/apikey), or [OpenAI](https://platform.openai.com/)
+- One AI API key from [Claude](https://console.anthropic.com/), [Gemini](https://aistudio.google.com/app/apikey), [OpenAI](https://platform.openai.com/), or [OpenRouter](https://openrouter.ai/)
 - Your manuscript in .txt or .docx format
 
 Ready to transform your writing? **[Start here!](Getting-Started)**

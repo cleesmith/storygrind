@@ -3,7 +3,7 @@
 ## 🆓 About StoryGrind
 
 ### Is StoryGrind really free?
-Yes! StoryGrind itself is completely free and open source. However, AI-powered tools require an API key from a provider (Anthropic, Google, or OpenAI), and those providers charge for usage. Non-AI tools (spell check, file conversion) work without any API key.
+Yes! StoryGrind itself is completely free and open source. However, AI-powered tools require an API key from a provider (Anthropic, Google, OpenAI, or OpenRouter), and those providers charge for usage. Non-AI tools (spell check, file conversion) work without any API key.
 
 ### What file formats does StoryGrind support?
 StoryGrind works with plain text only- `.txt` files, and the Tools only use `.txt`. For convenience, it can also convert between these formats: `.docx` to `.txt` and vice versa. All output files are saved as `.txt` for maximum compatibility.
@@ -33,13 +33,14 @@ No, not really, as it's the AI that's providing the editing 🪄 magic.
 ## 🔑 API Keys & Setup
 
 ### Which AI provider should I choose?
-All three providers (Anthropic Claude, Google Gemini, OpenAI) work well with StoryGrind. Given you have multiple AI API keys, you can switch providers anytime.
+All four providers (Anthropic Claude, Google Gemini, OpenAI, OpenRouter) work well with StoryGrind. Given you have multiple AI API keys, you can switch providers anytime.
 
 ### How do I get an API key?
 Visit the provider's website:
 - [Anthropic Claude](https://console.anthropic.com/) - money upfront
 - [Google Gemini](https://aistudio.google.com/app/apikey) - pay-as-you-go
 - [OpenAI](https://platform.openai.com/) - money upfront
+- [OpenRouter](https://openrouter.ai/) - pay-as-you-go, access to multiple models
 
 Follow the [API Setup Guide](API-Setup-Guide) for detailed instructions.
 

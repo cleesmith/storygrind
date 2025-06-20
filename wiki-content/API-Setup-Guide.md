@@ -4,7 +4,7 @@ To use StoryGrind's AI-powered editing tools, you'll need an API key from at lea
 
 ## 🤔 Which Provider Should I Choose?
 
-StoryGrind supports three major AI providers. You only need to choose one to get started:
+StoryGrind supports four major AI providers. You only need to choose one to get started:
 
 ### Google Gemini
 - Easy to get started
@@ -16,10 +16,16 @@ StoryGrind supports three major AI providers. You only need to choose one to get
 - Strong with creative writing
 - [Get API Key](https://console.anthropic.com/)
 
-### OpenAI (GPT Models)
+### OpenAI (GPT and o Models)
 - Widely used and familiar to many
 - Good all-around option
 - [Get API Key](https://platform.openai.com/)
+
+### OpenRouter
+- Access to multiple AI models from various providers
+- Pay-as-you-go pricing
+- Good for trying different models
+- [Get API Key](https://openrouter.ai/)
 
 > **💡 Pro Tip**: Pick whichever provider you're most comfortable with. You can always switch later.
 
@@ -29,7 +35,7 @@ StoryGrind supports three major AI providers. You only need to choose one to get
 
 1. **Sign up**: Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. **Create key**: Click "Create API Key"
-3. **Copy key**: Copy the generated key (starts with `AIza...`)
+3. **Copy key**: Copy the generated key
 4. **Save it**: You'll need this for StoryGrind setup
 
 ### Option 2: Anthropic Claude
@@ -37,14 +43,21 @@ StoryGrind supports three major AI providers. You only need to choose one to get
 1. **Sign up**: Go to [Anthropic Console](https://console.anthropic.com/)
 2. **Add credit**: Add funds to your account 
 3. **Create key**: Navigate to API Keys section → Create new key
-4. **Copy key**: Copy the generated key (starts with `sk-ant-...`)
+4. **Copy key**: Copy the generated key
 
 ### Option 3: OpenAI
 
 1. **Sign up**: Go to [OpenAI Platform](https://platform.openai.com/)
 2. **Add credit**: Add funds to your account
 3. **Create key**: Go to API Keys → Create new secret key
-4. **Copy key**: Copy the generated key (starts with `sk-...`)
+4. **Copy key**: Copy the generated key
+
+### Option 4: OpenRouter
+
+1. **Sign up**: Go to [OpenRouter](https://openrouter.ai/)
+2. **Add credit**: Add funds to your account (pay-as-you-go)
+3. **Create key**: Go to Keys → Create new key
+4. **Copy key**: Copy the generated key
 
 ## 🔧 Setting Up StoryGrind
 
@@ -68,6 +81,9 @@ ANTHROPIC_API_KEY=your_actual_api_key_here
 
 # For OpenAI:
 OPENAI_API_KEY=your_actual_api_key_here
+
+# For OpenRouter:
+OPENROUTER_API_KEY=your_actual_api_key_here
 ```
 
 **Important notes:**
