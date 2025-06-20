@@ -34,6 +34,14 @@
 // node -v = v24.2.0
 // node -v = v24.2.0
 
+// ... total clean:
+// rm *.dmg
+// rm *.zip
+// rm -rf out/
+// rm package-lock.json
+// rm -rf node_modules\
+
+// ... clean before signing/notarizing:
 // rm -rf out/
 // npm run package
 
@@ -41,10 +49,7 @@
 
 // node dist_mac_windows.mjs
 
-// codesign --verify --verbose "out/StoryGrind-darwin-arm64/StoryGrind.app"
 // codesign --display --verbose "out/StoryGrind-darwin-arm64/StoryGrind.app"
-
-// Finder: double click on: "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // ditto -c -k --keepParent "out/StoryGrind-darwin-arm64/StoryGrind.app" "StoryGrind.zip"
 
@@ -52,12 +57,13 @@
 
 // xcrun notarytool history --keychain-profile "notarytool-profile"
 
-// xcrun stapler staple "out/StoryGrind-darwin-arm64/StoryGrind.app"
+// xcrun stapler staple "out/StoryGrinder-darwin-arm64/storygrinder.app"
 
-// npm install --save-dev create-dmg
-// create-dmg --version = create-dmg 1.2.1
+// xcrun stapler validate "out/StoryGrinder-darwin-arm64/storygrinder.app"
 
-// npx create-dmg out/storygrind-darwin-arm64/storygrind.app
+// create-dmg  "out/StoryGrind-darwin-arm64/StoryGrind.app"
+
+// open out/storygrind-darwin-arm64/storygrind.app
 
 // to test .dmg thoroughly delete anything to do with: storygrind
 // mdfind storygrind

@@ -1,7 +1,6 @@
 // client-openrouter.js
 const path = require('path');
 const { OpenAI } = require('openai');
-const tiktoken = require('tiktoken-node');
 const fs = require('fs/promises');
 
 /**
@@ -26,12 +25,6 @@ class AiApiService {
       apiKey: apiKeyFromEnv,
       baseURL: "https://openrouter.ai/api/v1"
     });
-
-    try {
-      this._localEncoder = tiktoken.getEncoding('cl100k_base');
-    } catch (err) {
-      this._localEncoder = tiktoken.getEncoding('cl100k_base');
-    }
 
     this.prompt = null;
 
@@ -175,14 +168,24 @@ class AiApiService {
   }
 
   /**
-   * Count tokens in a text string using tiktoken-node for generic tokenization.
+   * Count tokens in a text string using OpenRouter API (no extra dependencies).
    * @param {string} text - Text to count tokens in
-   * @returns {number} - Token count (returns -1 on error)
+   * @returns {Promise<number>} - Token count (returns -1 on error)
    */
-  countTokens(text) {
+  async countTokens(text) {
     try {
-      if (!this._localEncoder) throw new Error('Encoder not initialized');
-      return this._localEncoder.encode(text).length;
+      if (!this.client || this.apiKeyMissing || !this.config.model_name) {
+        throw new Error('OpenRouter client not initialized or model not set');
+      }
+      
+      const response = await this.client.chat.completions.create({
+        model: this.config.model_name,
+        messages: [{ role: 'user', content: text }],
+        max_tokens: 1, // Minimal generation to save costs
+        temperature: 0
+      });
+      
+      return response.usage.prompt_tokens;
     } catch (error) {
       console.error('Token counting error:', error);
       return -1;

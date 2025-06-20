@@ -34,20 +34,17 @@
     "mime": "^4.0.7",
     "openai": "^4.103.0",
     "simple-spellchecker": "^1.0.2",
-    "tiktoken-node": "^0.0.7",
     "uuid": "^11.1.0",
     "xpath": "^0.0.34"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.8.0",
-    "@electron-forge/maker-dmg": "^7.8.0",
     "@electron-forge/maker-zip": "^7.8.0",
     "@electron-forge/plugin-auto-unpack-natives": "^7.8.0",
     "@electron-forge/plugin-fuses": "^7.8.0",
     "@electron/fuses": "^1.8.0",
     "@electron/osx-sign": "^2.0.0",
     "@types/node": "^22.15.17",
-    "create-dmg": "^7.0.0",
     "electron": "^26.0.0",
     "png-to-ico": "^2.1.8"
   },

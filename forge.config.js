@@ -42,11 +42,6 @@ module.exports = {
   rebuildConfig: {},
   makers: [
     {
-      name: '@electron-forge/maker-dmg',
-      icon: './resources/storygrind.icns',
-      platforms: ['darwin'],
-    },
-    {
       name: '@electron-forge/maker-zip',
       platforms: ['win32', 'linux'],
     }

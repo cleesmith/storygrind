@@ -1,7 +1,6 @@
 // client-openai.js
 const path = require('path');
 const { OpenAI } = require('openai');
-const tiktoken = require('tiktoken-node');
 const fs = require('fs/promises');
 
 /**
@@ -23,14 +22,6 @@ class AiApiService {
     }
 
     this.client = new OpenAI({ apiKey: apiKeyFromEnv });
-
-    try {
-      this._localEncoder =
-        tiktoken.encodingForModel(this.config.model_name) ||
-        tiktoken.getEncoding('cl100k_base');
-    } catch (err) {
-      this._localEncoder = tiktoken.getEncoding('cl100k_base');
-    }
 
     this.prompt = null;
 
@@ -162,14 +153,24 @@ class AiApiService {
   }
 
   /**
-   * Count tokens in a text string using tiktoken-node for GPT-4.1-2025-04-14.
+   * Count tokens in a text string using OpenAI API (no extra dependencies).
    * @param {string} text - Text to count tokens in
-   * @returns {number} - Token count (returns -1 on error)
+   * @returns {Promise<number>} - Token count (returns -1 on error)
    */
-  countTokens(text) {
+  async countTokens(text) {
     try {
-      if (!this._localEncoder) throw new Error('Encoder not initialized');
-      return this._localEncoder.encode(text).length;
+      if (!this.client || this.apiKeyMissing) {
+        throw new Error('OpenAI client not initialized');
+      }
+      
+      const response = await this.client.chat.completions.create({
+        model: this.config.model_name,
+        messages: [{ role: 'user', content: text }],
+        max_tokens: 1, // Minimal generation to save costs
+        temperature: 0
+      });
+      
+      return response.usage.prompt_tokens;
     } catch (error) {
       console.error('Token counting error:', error);
       return -1;
