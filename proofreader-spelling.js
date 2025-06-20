@@ -6,6 +6,7 @@ const ToolBase = require('./tool-base');
 const SpellChecker = require('simple-spellchecker');
 const fs = require('fs/promises');
 const path = require('path');
+const { app } = require('electron');
 const appState = require('./state.js');
 
 /**
@@ -112,25 +113,57 @@ class ProofreaderSpelling extends ToolBase {
    */
   async loadDictionary(languageCode, languageName) {
     return new Promise((resolve, reject) => {
-      SpellChecker.getDictionary(languageCode, (err, dictionary) => {
-        if (err) {
-          // Provide helpful error message if dictionary loading fails
-          const errorMessage = `Failed to load ${languageName} dictionary. ` +
-            `This might happen if the dictionary files are missing or corrupted. ` +
-            `Error details: ${err.message}`;
-          reject(new Error(errorMessage));
-          return;
-        }
-        
-        // Verify that the dictionary object has the expected methods
-        if (!dictionary || typeof dictionary.spellCheck !== 'function') {
-          reject(new Error(`Invalid dictionary object received for ${languageName}`));
-          return;
-        }
-        
-        resolve(dictionary);
-      });
+      // Configure dictionary path for packaged apps
+      const dictPath = this.getDictionaryPath();
+      if (dictPath) {
+        SpellChecker.getDictionarySync(languageCode, dictPath, (err, dictionary) => {
+          if (err) {
+            const errorMessage = `Failed to load ${languageName} dictionary from ${dictPath}. ` +
+              `Error details: ${err.message}`;
+            reject(new Error(errorMessage));
+            return;
+          }
+          
+          if (!dictionary || typeof dictionary.spellCheck !== 'function') {
+            reject(new Error(`Invalid dictionary object received for ${languageName}`));
+            return;
+          }
+          
+          resolve(dictionary);
+        });
+      } else {
+        // Fallback to default behavior for development
+        SpellChecker.getDictionary(languageCode, (err, dictionary) => {
+          if (err) {
+            const errorMessage = `Failed to load ${languageName} dictionary. ` +
+              `This might happen if the dictionary files are missing or corrupted. ` +
+              `Error details: ${err.message}`;
+            reject(new Error(errorMessage));
+            return;
+          }
+          
+          if (!dictionary || typeof dictionary.spellCheck !== 'function') {
+            reject(new Error(`Invalid dictionary object received for ${languageName}`));
+            return;
+          }
+          
+          resolve(dictionary);
+        });
+      }
     });
+  }
+
+  /**
+   * Get the dictionary path for packaged apps
+   * @returns {string|null} - Path to dictionary folder or null for default behavior
+   */
+  getDictionaryPath() {
+    if (app.isPackaged) {
+      // In packaged app, extraResource files are in app.getPath('userData')/../Resources/
+      const resourcePath = path.join(process.resourcesPath, 'dict');
+      return resourcePath;
+    }
+    return null; // Use default behavior in development
   }
 
   /**
