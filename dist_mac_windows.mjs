@@ -61,7 +61,7 @@
 
 // xcrun stapler validate "out/StoryGrind-darwin-arm64/storygrind.app"
 
-// create-dmg  "out/StoryGrind-darwin-arm64/StoryGrind.app"
+// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "StoryGrind.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // open out/storygrind-darwin-arm64/storygrind.app
 
