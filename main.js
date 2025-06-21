@@ -12,6 +12,7 @@ const appState = require('./state.js');
 const toolSystem = require('./tool-system');
 const fileCache = require('./file-cache');
 const promptManager = require('./tool-prompts-manager');
+const SpellChecker = require('./lib/spellchecker');
 
 const homeDir = os.homedir();
 const envFilePath = path.join(homeDir, '.env');
@@ -169,6 +170,16 @@ async function initializeApp() {
   try {
     // FIRST: Ensure essential directories and files exist for new users
     const essentialPathsCreated = await ensureEssentialPathsExist();
+
+    // SECOND: Extract spellchecker dictionaries on first run
+    try {
+      const extractResult = SpellChecker.extractDictionariesToUserDir();
+      if (extractResult.extractedCount > 0) {
+        console.log(`Extracted ${extractResult.extractedCount} spell check dictionaries to user directory`);
+      }
+    } catch (dictError) {
+      console.warn('Could not extract spell check dictionaries:', dictError.message);
+    }
 
     await appState.initialize();
 
@@ -1389,6 +1400,24 @@ function setupIPCHandlers() {
         aiProvider: null,
         language: 'en-US'
       };
+    }
+  });
+
+  // Get client default model for a provider
+  ipcMain.handle('get-client-default-model', async (event, provider) => {
+    try {
+      // Define client defaults
+      const clientDefaults = {
+        'gemini': 'models/gemini-2.5-pro',
+        'openai': 'gpt-4.1-2025-04-14',
+        'claude': 'claude-3-7-sonnet-20250219',
+        'openrouter': 'openai/gpt-4o'
+      };
+      
+      return clientDefaults[provider] || null;
+    } catch (error) {
+      console.error('Error getting client default model:', error);
+      return null;
     }
   });
 

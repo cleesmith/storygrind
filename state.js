@@ -120,8 +120,9 @@ class AppState {
     }
     
     // Load AI provider and language settings
-    if (settings.ai_provider) {
-      this.AI_PROVIDER = settings.ai_provider;
+    const selectedProvider = this.store ? this.store.get('selectedApiProvider') : null;
+    if (selectedProvider) {
+      this.AI_PROVIDER = selectedProvider;
     }
     if (settings.language) {
       // Handle migration from old string format to new object format

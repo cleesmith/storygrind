@@ -35,11 +35,14 @@
 // node -v = v24.2.0
 
 // ... total clean:
+// - remove dev settings:
+// rm -rf ~/Library/Application\ Support/storygrind
 // rm *.dmg
 // rm *.zip
-// rm -rf out/
 // rm package-lock.json
-// rm -rf node_modules\
+// rm -rf node_modules/
+// npm install
+// npm list
 
 // ... clean before signing/notarizing:
 // rm -rf out/

@@ -10,7 +10,7 @@ const fs = require('fs/promises');
 class AiApiService {
   constructor(config = {}) {
     this.config = {
-      model_name: null,
+      model_name: 'openai/gpt-4o',
       ...config,
     };
 

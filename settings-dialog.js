@@ -69,11 +69,24 @@ document.addEventListener('DOMContentLoaded', function() {
         await loadModelsForProvider(settings.aiProvider);
       }
       
-      // Set AI model
+      // Set AI model - use user selection or client default
       if (settings.aiModel) {
+        // User has explicitly selected a model
         aiModelSelect.value = settings.aiModel;
         initialModel = settings.aiModel;
         currentModel = settings.aiModel;
+      } else if (settings.aiProvider) {
+        // No user selection, get client default for this provider
+        try {
+          const clientDefault = await window.electronAPI.getClientDefaultModel(settings.aiProvider);
+          if (clientDefault) {
+            aiModelSelect.value = clientDefault;
+            initialModel = null; // Keep as null so we know it's a default, not user selection
+            currentModel = clientDefault;
+          }
+        } catch (error) {
+          console.warn('Could not get client default model:', error);
+        }
       }
       
       // Set language

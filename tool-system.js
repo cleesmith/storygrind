@@ -291,22 +291,6 @@ const TOOL_DEFS = [
         }
       ],
       "group": "Input Files"
-    },
-    {
-      "name": "lang",
-      "label": "Language",
-      "type": "select",
-      "description": "Language for spell checking dictionary",
-      "required": false,
-      "default": "English",
-      "choices": [
-        {"value": "English", "label": "English"},
-        {"value": "Spanish", "label": "Spanish"},
-        {"value": "French", "label": "French"},
-        {"value": "German", "label": "German"},
-        {"value": "Dutch", "label": "Dutch"}
-      ],
-      "group": "Content Configuration"
     }
   ]},
   { id: 'proofreader_punctuation', title: `Proofreader Punctuation`, description: `Manuscript analysis focused on evaluating punctuation effectiveness.\nIt detects issues such as run-on sentences, missing commas, and irregular punctuation patterns that may hinder clarity and flow.\nConfigurable analysis levels, strictness settings, and selectable punctuation elements enable it to generate a detailed report with examples, explanations, and recommendations for enhancing punctuation and overall readability.`, Class: ProofreaderPunctuation, options: [

@@ -9,9 +9,9 @@ module.exports = {
       : './resources/icons/win/icon',
     osxSign: false,
     osxNotarize: false,
-    // Include simple-spellchecker dictionary files
+    // Include embedded spellchecker dictionary files
     extraResource: [
-      'node_modules/simple-spellchecker/dict'
+      'lib/spellchecker/dict'
     ],
     ignore: [
       /^\/out$/,

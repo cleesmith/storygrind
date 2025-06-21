@@ -98,6 +98,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.send('cancel-settings');
   },
   getAvailableModels: (provider) => ipcRenderer.invoke('getAvailableModels', provider),
+  getClientDefaultModel: (provider) => ipcRenderer.invoke('get-client-default-model', provider),
 
 });
 
