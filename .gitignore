@@ -2,12 +2,12 @@
 *.dmg
 *.app
 *.zip
+!lib/spellchecker/dict/*.zip
+
 out/
 dist/
 build/
 
-# allow spellchecker's dictionaries:
-!lib/spellchecker/dict/*.zip
 
 package-lock.json
 count_*
