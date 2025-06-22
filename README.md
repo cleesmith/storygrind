@@ -32,7 +32,7 @@ StoryGrind is a desktop application that helps writers/authors/editors analyze a
 
 	> "*Apple checked it for malicious software and none was detected*"
 
-	> *This small print means StoryGrind was signed and notarized using the Apple Developer Program*
+	> *This small print means StoryGrind was **signed and notarized** using the **Apple Developer Program***
 
 *For example:*
 
