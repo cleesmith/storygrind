@@ -39,6 +39,8 @@ function safeLog(message) {
 // }
 
 const AiApiService = require('./client');
+const toolDiscovery = require('./tool-discovery');
+const GenericAITool = require('./generic-ai-tool');
 
 const toolRegistry = require('./registry');
 
@@ -598,12 +600,24 @@ async function initializeToolSystem(settings) {
       console.warn('No AI API Service - user skipped setup or no provider configured');
     }
     
+    // Discover user-created tools
+    const userTools = await toolDiscovery.discoverUserTools();
+    const builtInToolIds = TOOL_DEFS.map(def => def.id);
+    const filteredUserTools = toolDiscovery.filterConflictingTools(userTools, builtInToolIds);
+    
+    if (typeof global.logToFile === 'function') {
+      global.logToFile(`[tool-system] Discovered ${filteredUserTools.length} user-created tools`);
+    }
+    
+    // Combine built-in and user tools
+    const allToolDefs = [...TOOL_DEFS, ...filteredUserTools];
+    
     // Define which tools are non-AI and don't need AI API service
     const nonAiToolIds = ['docx_comments', 'epub_converter', 'proofreader_spelling'];
     
     // Register each tool with proper configuration
     let toolCount = 0;
-    TOOL_DEFS.forEach(def => {
+    allToolDefs.forEach(def => {
       if (typeof global.logToFile === 'function') {
         global.logToFile(`[tool-system] Registering tool #${toolCount + 1}: ${def.id}`);
       }
@@ -611,9 +625,12 @@ async function initializeToolSystem(settings) {
       // Create tool config with all properties from definition
       const toolConfig = {
         name: def.id,
+        toolId: def.id, // For GenericAITool
         title: def.title,
         description: def.description,
         options: def.options || [],
+        category: def.category,
+        promptPath: def.promptPath, // For user-created tools
         ...settings
       };
       
@@ -622,13 +639,22 @@ async function initializeToolSystem(settings) {
       // Create tool instance
       let instance;
       
-      // Check if this is a non-AI tool
-      if (nonAiToolIds.includes(def.id)) {
+      // Check if this is a user-created tool
+      if (def.isUserCreated) {
+        // User-created tools use GenericAITool
+        if (aiAPIService) {
+          instance = new GenericAITool(aiAPIService, toolConfig);
+          // console.log(`Initialized user-created tool ${def.id} with GenericAITool`);
+        } else {
+          console.warn(`No API service available for user-created tool ${def.id} - creating without service`);
+          instance = new GenericAITool(null, toolConfig);
+        }
+      } else if (nonAiToolIds.includes(def.id)) {
         // Non-AI tools don't get AI API service
         instance = new def.Class(def.id, toolConfig);
         // console.log(`Initialized non-AI tool ${def.id} without AI API service`);
       } else {
-        // AI tools get AI API service as first parameter (if available)
+        // Built-in AI tools get AI API service as first parameter (if available)
         if (aiAPIService) {
           // console.log(`Passing aiAPIService to AI tool ${def.id}`);
           instance = new def.Class(aiAPIService, toolConfig);

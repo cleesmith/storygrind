@@ -68,12 +68,37 @@ class PromptManager {
   }
 
   /**
+   * Gets the categorized prompt path for specific tools (pilot implementation)
+   * @param {string} toolName - Name of the tool
+   * @returns {string|null} - Categorized path if tool supports it, null otherwise
+   */
+  getCategorizedPromptPath(toolName) {
+    // Pilot: Only NarrativeIntegrity uses categorized folders for now
+    if (toolName === 'narrative_integrity') {
+      // Convert tool_name to hyphenated filename for consistency
+      const filename = toolName.replace(/_/g, '-') + '.txt';
+      return path.join(this.promptsDir, 'CoreEditingTools', filename);
+    }
+    return null;
+  }
+
+  /**
    * Gets the prompt for a tool, creating it if it doesn't exist
    * @param {string} toolName - Name of the tool
    * @returns {Promise<string|null>} - Prompt content or null if not available
    */
   async getPrompt(toolName) {
-    const promptPath = path.join(this.promptsDir, `${toolName}.txt`);
+    // Check if this tool has a categorized path (pilot implementation)
+    const categorizedPath = this.getCategorizedPromptPath(toolName);
+    
+    let promptPath;
+    if (categorizedPath) {
+      // Use categorized path for supported tools
+      promptPath = categorizedPath;
+    } else {
+      // Use traditional flat path for other tools
+      promptPath = path.join(this.promptsDir, `${toolName}.txt`);
+    }
     
     try {
       // Try to read existing prompt file
@@ -99,18 +124,28 @@ class PromptManager {
       // console.log(`Retrieved existing prompt for ${toolName}`);
       return content;
     } catch (error) {
-      // If file doesn't exist, create default prompt
+      // If file doesn't exist, handle based on whether it's categorized or not
       if (error.code === 'ENOENT') {
-        // console.log(`Prompt file not found for ${toolName}, creating default...`);
-        const created = await this.createDefaultPrompt(toolName);
-        if (created && toolPrompts[toolName] !== '') {
-          // Read the newly created file
-          try {
-            const content = await fs.readFile(promptPath, 'utf8');
-            return content;
-          } catch (readError) {
-            console.error(`Error reading newly created prompt for ${toolName}:`, readError);
-            return null;
+        if (categorizedPath) {
+          // For categorized tools, fall back to built-in prompt directly
+          // This is the pilot behavior - user file takes precedence, built-in as fallback
+          if (toolPrompts[toolName] && toolPrompts[toolName].trim()) {
+            // console.log(`Categorized prompt file not found for ${toolName}, using built-in prompt`);
+            return toolPrompts[toolName];
+          }
+        } else {
+          // For traditional tools, try to create default prompt
+          // console.log(`Prompt file not found for ${toolName}, creating default...`);
+          const created = await this.createDefaultPrompt(toolName);
+          if (created && toolPrompts[toolName] !== '') {
+            // Read the newly created file
+            try {
+              const content = await fs.readFile(promptPath, 'utf8');
+              return content;
+            } catch (readError) {
+              console.error(`Error reading newly created prompt for ${toolName}:`, readError);
+              return null;
+            }
           }
         }
       } else {
