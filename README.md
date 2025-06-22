@@ -28,9 +28,9 @@ StoryGrind is a desktop application that helps writers/authors/editors analyze a
 - Open Finder, click Applications
 - Double-click  **storygrind.app** 
 - You'll see a dialog asking:
-	"Are you sure you want to open it?"
-	"*Apple checked it for malicious software and none was detected*"
-	*This small print means StoryGrind was signed and notarized using the Apple Developer Program*
+	> "Are you sure you want to open it?"
+	> "*Apple checked it for malicious software and none was detected*"
+	> *This small print means StoryGrind was signed and notarized using the Apple Developer Program*
 
 > The security dialog is normal - it appears for all apps downloaded from the internet, even when Apple has verified them as safe. So it's to click "Open" when you see this message.
 
