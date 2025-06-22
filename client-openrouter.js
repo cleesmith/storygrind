@@ -23,7 +23,11 @@ class AiApiService {
 
     this.client = new OpenAI({ 
       apiKey: apiKeyFromEnv,
-      baseURL: "https://openrouter.ai/api/v1"
+      baseURL: "https://openrouter.ai/api/v1",
+      defaultHeaders: {
+        'HTTP-Referer': 'https://www.slipthetrap.com/storygrind.html',
+        'X-Title': 'StoryGrind'
+      }
     });
 
     this.prompt = null;
