@@ -485,19 +485,14 @@ if (importDocxBtn) {
         return;
       }
       
-      // Configure file selection options for DOCX files
+      // Configure file import options for DOCX files
       const fileOptions = {
-        title: 'Select DOCX File to Convert',
-        buttonLabel: 'Select DOCX',
-        filters: [
-          { name: 'DOCX Files', extensions: ['docx'] },
-          { name: 'All Files', extensions: ['*'] }
-        ],
-        defaultPath: projectInfo.current_project_path
+        title: 'Import DOCX File to Convert',
+        buttonLabel: 'Import DOCX'
       };
       
-      // Open file selection dialog
-      const docxPath = await window.electronAPI.selectFile(fileOptions);
+      // Open file import dialog (allows browsing anywhere on computer)
+      const docxPath = await window.electronAPI.importFile(fileOptions);
       
       // If user cancelled or no file selected
       if (!docxPath) {

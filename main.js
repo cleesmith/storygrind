@@ -1645,6 +1645,62 @@ function setupIPCHandlers() {
     }
   });
   
+  // Import file dialog - allows browsing anywhere on computer, copies to project directory
+  ipcMain.handle('import-file', async (event, options) => {
+    try {
+      // Check if project is selected
+      if (!appState.CURRENT_PROJECT_PATH) {
+        throw new Error('No project selected. Please select a project first.');
+      }
+      
+      const dialogOptions = {
+        title: options.title || 'Import DOCX File',
+        buttonLabel: options.buttonLabel || 'Import',
+        filters: [
+          { name: 'DOCX Files', extensions: ['docx'] }
+        ],
+        properties: ['openFile']
+      };
+      
+      const result = await dialog.showOpenDialog(
+        options.parentWindow || mainWindow, 
+        dialogOptions
+      );
+      
+      if (result.canceled || result.filePaths.length === 0) {
+        return null;
+      }
+      
+      const sourceFilePath = result.filePaths[0];
+      const fileName = path.basename(sourceFilePath);
+      const destinationPath = path.join(appState.CURRENT_PROJECT_PATH, fileName);
+      
+      // Check if file already exists in project directory
+      if (fs.existsSync(destinationPath)) {
+        const response = await dialog.showMessageBox(mainWindow, {
+          type: 'question',
+          title: 'File Already Exists',
+          message: `The file "${fileName}" already exists in your project.`,
+          detail: 'Do you want to overwrite it?',
+          buttons: ['Cancel', 'Overwrite'],
+          defaultId: 0
+        });
+        
+        if (response.response === 0) { // Cancel
+          return null;
+        }
+      }
+      
+      // Copy the file to the project directory
+      await fs.promises.copyFile(sourceFilePath, destinationPath);
+      
+      return destinationPath;
+    } catch (error) {
+      console.error('Error in file import:', error);
+      throw error;
+    }
+  });
+  
   // Directory selection dialog
   ipcMain.handle('select-directory', async (event, options) => {
     try {

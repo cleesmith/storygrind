@@ -37,6 +37,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // File handling
   selectFile: (options) => ipcRenderer.invoke('select-file', options),
   selectDirectory: (options) => ipcRenderer.invoke('select-directory', options),
+  importFile: (options) => ipcRenderer.invoke('import-file', options),
   
   // Tool management
   getTools: () => ipcRenderer.invoke('get-tools'),
