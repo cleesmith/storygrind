@@ -55,7 +55,7 @@ A folder called "**writing_with_storygrind**" in your home folder
 This is where all your writing projects will live
 You'll copy your manuscript files into project folders using Finder
 
-### How to Edit Your API Key (One-Time Setup):
+### How to Edit Your API Key (thankfully, it's a One-Time Setup):
 1. Open Terminal by using Finder, click Applications, click Utilities
 2. Type: **open .env**
 3. Press Enter
