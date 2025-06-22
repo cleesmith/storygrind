@@ -36,9 +36,9 @@ StoryGrind is a desktop application that helps writers/authors/editors analyze a
 
 *For example:*
 
-![Apple's gatekeeper after install](./resources/gatekeeper.png?raw=true)
+![Apple's gatekeeper/security after install](./resources/gatekeeper.png?raw=true)
 
-> This security(gatekeeper) dialog is normal - it appears for all apps downloaded from the internet, even when Apple has verified them as safe. So it's ok to click "Open" when you see this message.
+> This gatekeeper/security dialog is normal - it appears for all apps downloaded from the internet, even when Apple has verified them as safe. So it's ok to click "Open" when you see this message.
 
 - Click "Open"
 	- StoryGrind will open and show a welcome screen asking you to choose an **AI provider**
