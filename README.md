@@ -22,21 +22,21 @@ StoryGrind is a desktop application that helps writers/authors/editors analyze a
 - Find the downloaded .dmg file (probably in your Downloads folder)
 - Double-click it
 - Drag StoryGrind into the Applications folder
-- Close the installer window
+- After dragging to Applications, close the installer window and eject
 
 #### Step 3: Open StoryGrind for the First Time
 - Open Finder, click Applications
-- Double-click StoryGrind
+- Double-click  **storygrind.app** 
 - You'll see a dialog asking:
 	"Are you sure you want to open it?"
 	"Apple checked it for malicious software and none was detected"
-	*This means StoryGrind was signed and notarized by Apple Developer Program*
+	*This small print means StoryGrind was signed and notarized using the Apple Developer Program*
 
-> The security dialog is normal - it appears for all apps downloaded from the internet, even when Apple has verified them as safe. Always click "Open" when you see this message.
+> The security dialog is normal - it appears for all apps downloaded from the internet, even when Apple has verified them as safe. So it's to click "Open" when you see this message.
 
 - Click "Open"
 	StoryGrind will open and show a welcome screen asking you to choose an **AI provider**
-	Pick one (highly recommned **OpenRouter**), and StoryGrind will tell you to restart the app
+	Pick one (highly recommned **OpenRouter**), then click the blue button to quit and restart
 	It will also remind you that you need to add your API key to the **.env** file
 
 > That's it! StoryGrind will now open like any other app.
