@@ -34,7 +34,7 @@ StoryGrind is a desktop application that helps writers/authors/editors analyze a
 
 	> *This small print means StoryGrind was signed and notarized using the Apple Developer Program*
 
-![StoryGrind dark](../blob/main/resources/gatekeeper.png?raw=true)
+![StoryGrind dark](blob/main/resources/gatekeeper.png?raw=true)
 
 > The security dialog is normal - it appears for all apps downloaded from the internet, even when Apple has verified them as safe. So it's to click "Open" when you see this message.
 
