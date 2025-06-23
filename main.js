@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-require('dotenv').config({ path: require('os').homedir() + '/.env' });
+// require('dotenv').config({ path: require('os').homedir() + '/.env' });
 
 const { v4: uuidv4 } = require('uuid');
 const appState = require('./state.js');
@@ -818,7 +818,6 @@ function setupProjectHandlers() {
 
       if (AiApiServiceInstance) {
         try {
-          // console.log(`Calling clearFilesAndCaches (global cleanup for API key)`);
           await AiApiServiceInstance.clearFilesAndCaches(); // No argument needed
         } catch (cleanupError) {
           console.error('Error during global API files and caches cleanup:', cleanupError);
@@ -885,7 +884,6 @@ function setupProjectHandlers() {
 
       if (AiApiServiceInstance) {
         try {
-          // console.log(`Calling clearFilesAndCaches (global cleanup for API key)`);
           await AiApiServiceInstance.clearFilesAndCaches(); // No argument needed
         } catch (cleanupError) {
           console.error('Error during global API files and caches cleanup:', cleanupError);
@@ -2228,26 +2226,27 @@ app.on('activate', () => {
   }
 });
 
-app.on('before-quit', async (event) => {
-  // console.log('Application is quitting, cleaning up resources...');
-  // Close any active AI API clients
-  for (const toolId of toolSystem.toolRegistry.getAllToolIds()) {
-    const tool = toolSystem.toolRegistry.getTool(toolId);
-    if (tool && tool.apiService) {
-      try {
-        // Try close() method first (for Claude)
-        if (typeof tool.apiService.close === 'function') {
-          await tool.apiService.close();
-        }
-        // Try clearFilesAndCaches() method (for Gemini/OpenAI)
-        else if (typeof tool.apiService.clearFilesAndCaches === 'function') {
-          await tool.apiService.clearFilesAndCaches();
-        }
-      } catch (error) {
-        // Ignore close errors during shutdown
-      } finally {
-        tool.apiService = null;
-      }
-    }
-  }
-});
+// June 2025 this is not needed:
+// app.on('before-quit', async (event) => {
+//   // console.log('Application is quitting, cleaning up resources...');
+//   // Close any active AI API clients
+//   for (const toolId of toolSystem.toolRegistry.getAllToolIds()) {
+//     const tool = toolSystem.toolRegistry.getTool(toolId);
+//     if (tool && tool.apiService) {
+//       try {
+//         // Try close() method first (for Claude)
+//         if (typeof tool.apiService.close === 'function') {
+//           await tool.apiService.close();
+//         }
+//         // Try clearFilesAndCaches() method (for Gemini/OpenAI)
+//         else if (typeof tool.apiService.clearFilesAndCaches === 'function') {
+//           await tool.apiService.clearFilesAndCaches();
+//         }
+//       } catch (error) {
+//         // Ignore close errors during shutdown
+//       } finally {
+//         tool.apiService = null;
+//       }
+//     }
+//   }
+// });

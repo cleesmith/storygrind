@@ -2,6 +2,7 @@
 const path = require('path');
 const { OpenAI } = require('openai');
 const fs = require('fs/promises');
+
 const { safeStorage } = require('electron');
 const Store = require('electron-store');
 
