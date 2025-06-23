@@ -16,29 +16,23 @@
 
     .tool-header {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
-      padding: 0px 0px;
+      padding: 5px 15px;
       border-bottom: 1px solid #333;
+      min-height: 30px;
     }
 
     #tool-title {
-      font-size: 12px; /* Reduce from likely 24px */
-      margin: 0; /* Remove any margin */
-    }    
-    
-    .tool-close-btn {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #fff;
+      font-size: 12px;
+      margin: 0;
+      font-weight: normal;
     }
     
     .tool-body {
       flex: 1;
       overflow: auto;
-      padding: 15px;
+      padding: 0px 15px 15px 15px;
       display: flex;
       flex-direction: column;
     }
@@ -53,23 +47,27 @@
       flex: 1;
       overflow: auto;
       white-space: pre-wrap;
-      margin-top: 20px;
-      margin-bottom: 20px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      min-height: 400px;
     }
 
     .button-row {
       display: flex;
-      gap: 10px;
-      margin-top: 15px;
-      margin-bottom: 15px;
+      gap: 8px;
+      margin-top: 3px;
+      margin-bottom: 10px;
+      align-items: center;
     }
     
     .button-row button {
-      padding: 8px 16px;
+      padding: 6px 12px;
       border-radius: 4px;
       border: none;
       cursor: pointer;
       font-weight: bold;
+      font-size: 12px;
+      min-width: 80px;
     }
     
     .setup-btn {
@@ -92,12 +90,22 @@
       color: white;
     }
     
+    .close-btn {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    .edit-btn {
+      background-color: #22c55e;
+      color: white;
+    }
+    
     .elapsed-time {
       color: #9ca3af;
-      margin-left: 15px;
+      font-size: 12px;
       display: flex;
       align-items: center;
-      margin-right: 20px;
+      margin: 0 5px;
     }
     
     /* Setup dialog styles */
@@ -331,9 +339,14 @@
     }
 
     .native-select {
-      max-width: 250px;
-      font-size: 13px;
+      max-width: 120px;
+      font-size: 11px;
       appearance: auto;
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #374151;
+      background-color: #1f2937;
+      color: #e5e7eb;
     }
 
     body.dark-mode .native-select {
@@ -347,19 +360,22 @@
 </head>
 <body class="dark-mode">
   <div class="tool-container">
-    <div class="tool-header">
-      <h2 id="tool-title">Writing Tool: <span id="tool-name"></span></h2>
-      <button class="tool-close-btn" id="close-btn">×</button>
-    </div>
+    <!-- Hidden elements that JavaScript expects -->
+    <span id="tool-name" style="display: none;"></span>
     
     <div class="tool-body">
       <div class="button-row">
         <button id="setup-btn" class="setup-btn">Setup</button>
         <button id="run-btn" class="run-btn" disabled>Run</button>
         <span id="elapsed-time" class="elapsed-time">elapsed: 0m 0s</span>
+        <button id="edit-btn" class="edit-btn" style="display: none;">Edit</button>
+        <select id="tool-select" class="native-select" style="display: none;">
+          <option value="">Select Tool...</option>
+        </select>
         <div style="flex-grow: 1;"></div>
         <button id="clear-btn" class="clear-btn">Clear</button>
         <button id="force-quit-btn" class="force-quit-btn">Force Quit</button>
+        <button id="close-btn" class="close-btn">Close</button>
       </div>
       
       <div id="output" class="tool-output">

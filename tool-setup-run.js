@@ -12,6 +12,8 @@ const dialogToolNameElement = document.getElementById('dialog-tool-name');
 const closeBtn = document.getElementById('close-btn');
 const setupBtn = document.getElementById('setup-btn');
 const runBtn = document.getElementById('run-btn');
+const editBtn = document.getElementById('edit-btn');
+const toolSelectElement = document.getElementById('tool-select');
 const clearBtn = document.getElementById('clear-btn');
 const forceQuitBtn = document.getElementById('force-quit-btn');
 const outputElement = document.getElementById('output');
@@ -70,11 +72,55 @@ window.addEventListener('DOMContentLoaded', async () => {
     outputElement.textContent = `Error loading tool: ${error.message}`;
   }
   
+  // Initialize tool select dropdown
+  try {
+    const allTools = await window.electronAPI.getAllTools();
+    populateToolSelect(allTools);
+  } catch (error) {
+    console.error('Error loading tools list:', error);
+  }
+  
   // Apply theme if one is set
   window.electronAPI.onSetTheme((theme) => {
     document.body.className = theme === 'light' ? 'light-mode' : 'dark-mode';
   });
 });
+
+// Function to populate tool select dropdown
+function populateToolSelect(tools) {
+  // Clear existing options except first
+  toolSelectElement.innerHTML = '<option value="">Select Tool...</option>';
+  
+  if (tools && tools.length > 0) {
+    tools.forEach(tool => {
+      const option = document.createElement('option');
+      option.value = tool.id;
+      option.textContent = tool.title || tool.name;
+      toolSelectElement.appendChild(option);
+    });
+  }
+}
+
+// Edit button handler
+editBtn.addEventListener('click', () => {
+  const selectedFile = toolSelectElement.value;
+  if (selectedFile) {
+    window.electronAPI.openFileInEditor(selectedFile)
+      .then(result => {
+        if (!result.success) {
+          outputElement.textContent += '\nError opening file: ' + (result.error || 'Unknown error');
+        }
+      })
+      .catch(error => {
+        console.error('Error opening file in editor:', error);
+        outputElement.textContent += '\nError opening file: ' + error.message;
+      });
+  } else {
+    outputElement.textContent += '\nPlease select a file to edit from the dropdown.\n';
+  }
+});
+
+// File select dropdown handler (no action needed - just for selection)
 
 // Close button handler
 closeBtn.addEventListener('click', () => {
@@ -243,6 +289,10 @@ runBtn.addEventListener('click', async () => {
         setupBtn.disabled = false;
         clearBtn.disabled = false;
         closeBtn.disabled = false;
+        
+        // Show Edit button and tool selector after successful run
+        editBtn.style.display = 'inline-block';
+        toolSelectElement.style.display = 'inline-block';
 
         runBtn.disabled = true;
         // Reset setupCompleted flag to require going through setup again
@@ -265,77 +315,14 @@ runBtn.addEventListener('click', async () => {
           fileList.textContent = fileListItems;
           outputElement.appendChild(fileList);
           
-          // Create a compact selector to place right after elapsed time
-          const compactSelector = document.createElement('div');
-          compactSelector.className = 'compact-file-selector';
-          compactSelector.style.display = 'flex';
-          compactSelector.style.alignItems = 'center';
-          compactSelector.style.gap = '8px';
-          compactSelector.style.marginLeft = '20px'; // More space from elapsed time
-          
-          // Create Edit button
-          const editButton = document.createElement('button');
-          editButton.id = 'edit-button';
-          editButton.textContent = 'Edit';
-          editButton.className = 'action-button';
-          editButton.style.padding = '4px 10px';
-          editButton.style.fontSize = '13px';
-          // Add this line to match the Run button's green color:
-          editButton.style.backgroundColor = '#22c55e';
-          editButton.style.color = 'white';
-          
-          // Create select dropdown
-          const select = document.createElement('select');
-          select.id = 'output-file-select';
-          select.style.maxWidth = '250px';
-          select.style.fontSize = '13px';
-          select.style.appearance = 'auto';
-          
-          // Add each file as an option
+          // Populate the existing tool select dropdown with created files
+          toolSelectElement.innerHTML = '<option value="">Select file to edit...</option>';
           result.createdFiles.forEach(file => {
             const option = document.createElement('option');
             option.value = file;
             option.textContent = path.basename(file);
-            select.appendChild(option);
+            toolSelectElement.appendChild(option);
           });
-          
-          // Add click handler to the Edit button
-          editButton.addEventListener('click', () => {
-            const selectedFile = select.value;
-            if (selectedFile) {
-              const tempOutput = outputElement.textContent;
-              
-              window.electronAPI.openFileInEditor(selectedFile)
-                .then(result => {
-                  if (!result.success) {
-                    outputElement.textContent = tempOutput + '\nError opening file: ' + 
-                      (result.error || 'Unknown error');
-                  }
-                })
-                .catch(error => {
-                  console.error('Error opening file in editor:', error);
-                  outputElement.textContent = tempOutput + '\nError opening file: ' + error.message;
-                });
-            }
-          });
-          
-          // Assemble the selector
-          compactSelector.appendChild(editButton);
-          compactSelector.appendChild(select);
-          
-          // Insert right after elapsed time
-          const elapsedTimeParent = elapsedTimeElement.parentNode;
-          if (elapsedTimeParent) {
-            if (elapsedTimeElement.nextSibling) {
-              elapsedTimeParent.insertBefore(compactSelector, elapsedTimeElement.nextSibling);
-            } else {
-              elapsedTimeParent.appendChild(compactSelector);
-            }
-          } else {
-            // Fallback - insert before Clear button
-            const buttonRow = document.querySelector('.button-row');
-            buttonRow.insertBefore(compactSelector, clearBtn);
-          }
         }
 
         currentRunId = null;
@@ -391,6 +378,10 @@ clearBtn.addEventListener('click', () => {
     clearInterval(timerInterval);
     timerInterval = null;
   }
+  
+  // Hide Edit button and tool select dropdown
+  editBtn.style.display = 'none';
+  toolSelectElement.style.display = 'none';
   
   // Remove any existing Edit button and file select dropdown
   const existingEditButton = document.getElementById('edit-button');
