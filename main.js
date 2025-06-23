@@ -579,8 +579,13 @@ function createWelcomeScreen() {
 function createSettingsDialog() {
   // console.log('Creating settings dialog...');
   
-  const windowWidth = 530;
-  const windowHeight = 750;
+  // Get the primary display's work area dimensions  
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+  
+  // Use full screen like tool setup and editor
+  const windowWidth = Math.floor(width * 0.95);
+  const windowHeight = Math.floor(height * 0.95);
   
   const display = screen.getPrimaryDisplay();
   const { x: workX, y: workY, width: workWidth, height: workHeight } = display.workArea;
@@ -588,11 +593,10 @@ function createSettingsDialog() {
   settingsWindow = new BrowserWindow({
     width: windowWidth,
     height: windowHeight,
-    x: workX + Math.floor((workWidth - windowWidth) / 2), // Center in workArea
-    y: workY + workHeight - windowHeight, // Bottom of workArea
+    x: workX + Math.floor((workWidth - windowWidth) / 2),
+    y: workY + Math.floor((workHeight - windowHeight) / 2),
     parent: mainWindow,
     modal: true,
-    transparent: true,
     frame: false,
     show: false,
     webPreferences: {
@@ -1501,6 +1505,72 @@ function setupIPCHandlers() {
     } catch (error) {
       console.error('Error saving settings:', error);
       return { success: false, error: error.message };
+    }
+  });
+
+  // Save OpenRouter API key
+  ipcMain.handle('save-openrouter-key', async (event, apiKey) => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        throw new Error('Encryption not available on this system');
+      }
+      
+      const store = new Store({ name: 'openrouter-keys' });
+      const encryptedKey = safeStorage.encryptString(apiKey);
+      store.set('api-key', encryptedKey.toString('latin1'));
+      
+      console.log('OpenRouter API key saved successfully');
+    } catch (error) {
+      console.error('Error saving OpenRouter API key:', error);
+      throw error;
+    }
+  });
+
+  // Check if OpenRouter API key exists
+  ipcMain.handle('has-openrouter-key', async () => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        return false;
+      }
+      
+      const store = new Store({ name: 'openrouter-keys' });
+      const encryptedKey = store.get('api-key');
+      
+      return !!encryptedKey;
+    } catch (error) {
+      console.error('Error checking for OpenRouter API key:', error);
+      return false;
+    }
+  });
+
+  // Get OpenRouter API key (decrypted)
+  ipcMain.handle('get-openrouter-key', async () => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        return null;
+      }
+      
+      const store = new Store({ name: 'openrouter-keys' });
+      const encryptedKey = store.get('api-key');
+      
+      if (!encryptedKey) {
+        return null;
+      }
+      
+      const apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+      return apiKey;
+    } catch (error) {
+      console.error('Error retrieving OpenRouter API key:', error);
+      return null;
     }
   });
 

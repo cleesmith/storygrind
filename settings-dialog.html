@@ -13,54 +13,46 @@ html, body {
   overflow: hidden;
 }
 
-.settings-overlay {
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 3px;
-  overflow: auto;
-}
-
-/* Remove the light mode overlay background */
-body.light-mode .settings-overlay {
-  background-color: transparent;
-}
-
-.settings-dialog {
+.settings-container {
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   background-color: #1e1e1e;
-  border: none;
-  padding: 10px;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  overflow: auto;
-}
-
-/* Ensure body.light-mode styles are consistent */
-body.light-mode .settings-dialog {
-  background-color: #ffffff;
-  border: none;
 }
 
 .settings-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  padding: 5px 15px;
+  border-bottom: 1px solid #333;
+  min-height: 30px;
   flex-shrink: 0;
 }
 
+.settings-body {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Light mode styles */
+body.light-mode .settings-container {
+  background-color: #ffffff;
+}
+
+body.light-mode .settings-header {
+  border-bottom: 1px solid #ddd;
+}
+
 .settings-title {
-  font-size: 22px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: normal;
   margin: 0;
   color: #fff;
 }
@@ -73,33 +65,36 @@ body.light-mode .settings-title {
 .settings-content {
   flex: 1;
   overflow-y: auto;
-  margin-bottom: 20px;
 }
 
 .setting-group {
-  margin-bottom: 2px;
-  padding: 10px;
+  margin-bottom: 8px;
+  padding: 16px;
   background-color: #2a2a2a;
   border: none;
+  border-radius: 6px;
 }
 
 .setting-group:first-child {
-  padding: 10px;
-  margin-bottom: 2px;
+  padding: 16px;
+  margin-bottom: 8px;
   background-color: #1a1a1a;
+  border-radius: 6px;
 }
 
 .setting-group:last-child {
-  margin-bottom: 2px;
+  margin-bottom: 8px;
 }
 
 body.light-mode .setting-group {
   background-color: #ffffff;
   border: none;
+  border-radius: 6px;
 }
 
 body.light-mode .setting-group:first-child {
   background-color: #f5f5f5;
+  border-radius: 6px;
 }
 
 .setting-label {
@@ -156,12 +151,16 @@ body.light-mode .setting-value {
   padding: 12px;
   background-color: #333;
   color: #fff;
-  font-size: 13px;
+  font-size: 14px;
+  border: 1px solid #555;
+  border-radius: 4px;
 }
 
 body.light-mode .settings-select {
   background-color: #ffffff;
   color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .settings-actions {
@@ -176,10 +175,10 @@ body.light-mode .settings-select {
   background-color: transparent;
   color: #888;
   border: 1px solid #444;
-  padding: 12px 18px;
+  padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 11px;
   transition: all 0.2s ease;
 }
 
@@ -202,10 +201,10 @@ body.light-mode .cancel-button:hover {
   background-color: #4a89dc;
   color: white;
   border: none;
-  padding: 12px 18px;
+  padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 11px;
   transition: all 0.2s ease;
 }
 
@@ -223,10 +222,10 @@ body.light-mode .cancel-button:hover {
   background-color: #e74c3c;
   color: white;
   border: none;
-  padding: 12px 18px;
+  padding: 6px 12px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 11px;
   transition: all 0.2s ease;
 }
 
@@ -237,27 +236,25 @@ body.light-mode .cancel-button:hover {
 
 </head>
 <body class="dark-mode">
-  <div class="settings-overlay">
-    <div class="settings-dialog">
-      <div class="settings-header">
-        <h1 class="settings-title">Settings</h1>
-        <div class="settings-actions">
-          <button id="cancel-btn" class="cancel-button">Cancel</button>
-          <div style="display: flex; gap: 12px;">
-            <button id="save-btn" class="save-button">Save</button>
-            <button id="save-quit-btn" class="save-quit-button" style="display: none;">Save & Quit</button>
-          </div>
+  <div class="settings-container">
+    <div class="settings-header">
+      <h1 class="settings-title">Settings</h1>
+      <div class="settings-actions">
+        <button id="cancel-btn" class="cancel-button">Cancel</button>
+        <div style="display: flex; gap: 12px;">
+          <button id="save-btn" class="save-button">Save</button>
+          <button id="save-quit-btn" class="save-quit-button" style="display: none;">Save & Quit</button>
         </div>
       </div>
-      
+    </div>
+    
+    <div class="settings-body">
       <div class="settings-content">
         <div class="setting-group">
           <div class="setting-label">Locations &nbsp;&nbsp;<b>(<i>these may not be changed</i>)</b></div>
           <div class="setting-description">1) This app is installed here:</div>
           <div class="setting-value" id="app-path">Loading...</div>
-          <div class="setting-description"><hr><br>2) Your AI API keys are in the hidden file <b>.env</b> here:</div>
-          <div class="setting-value" id="env-path">Loading...</div>
-          <div class="setting-description"><hr><br>3) Your writing Projects, Tool prompts, and dictionaries are here:</div>
+          <div class="setting-description"><hr><br>2) Your writing Projects, Tool prompts, and dictionaries are here:</div>
           <div class="setting-value" id="projects-path">Loading...</div>
           <hr>
         </div>
@@ -272,6 +269,15 @@ body.light-mode .cancel-button:hover {
               <option value="claude">Claude by Anthropic</option>
               <option value="openrouter">OpenRouter</option>
             </select>
+          </div>
+        </div>
+        
+        <div class="setting-group" id="openrouter-key-group" style="display: none;">
+          <div class="setting-label">OpenRouter API Key</div>
+          <div class="setting-description">Enter your OpenRouter API key (will be encrypted and stored securely)</div>
+          <div style="position: relative; margin-top: 8px;">
+            <input type="password" id="openrouter-key-input" class="settings-select" placeholder="Enter API key..." style="padding-right: 80px;">
+            <button type="button" id="toggle-key-visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; font-size: 12px;">👁️</button>
           </div>
         </div>
         

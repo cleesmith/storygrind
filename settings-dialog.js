@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const saveQuitBtn = document.getElementById('save-quit-btn');
   const projectsPath = document.getElementById('projects-path');
   const appPath = document.getElementById('app-path');
-  const envPath = document.getElementById('env-path');
+  const openrouterKeyGroup = document.getElementById('openrouter-key-group');
+  const openrouterKeyInput = document.getElementById('openrouter-key-input');
+  const toggleKeyVisibility = document.getElementById('toggle-key-visibility');
 
   console.log('Found elements:', {
     aiProviderSelect: !!aiProviderSelect,
@@ -23,17 +25,18 @@ document.addEventListener('DOMContentLoaded', function() {
     saveBtn: !!saveBtn,
     saveQuitBtn: !!saveQuitBtn,
     projectsPath: !!projectsPath,
-    appPath: !!appPath,
-    envPath: !!envPath
+    appPath: !!appPath
   });
 
   // Track initial values and changes
   let initialProvider = null;
   let initialModel = null;
   let initialLanguage = null;
+  let initialOpenRouterKey = null;
   let currentProvider = null;
   let currentModel = null;
   let currentLanguage = null;
+  let currentOpenRouterKey = null;
 
   // Check if electronAPI is available
   if (!window.electronAPI) {
@@ -52,9 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (settings.appPath) {
         appPath.textContent = settings.appPath;
       }
-      if (settings.envPath) {
-        envPath.textContent = settings.envPath;
-      }
       if (settings.projectsPath) {
         projectsPath.textContent = settings.projectsPath;
       }
@@ -64,6 +64,9 @@ document.addEventListener('DOMContentLoaded', function() {
         aiProviderSelect.value = settings.aiProvider;
         initialProvider = settings.aiProvider;
         currentProvider = settings.aiProvider;
+        
+        // Show/hide OpenRouter key group if needed
+        await toggleOpenRouterKeyGroup();
         
         // Load models for this provider
         await loadModelsForProvider(settings.aiProvider);
@@ -157,15 +160,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const providerChanged = currentProvider !== initialProvider;
     const modelChanged = currentModel !== initialModel;
     const languageChanged = currentLanguage !== initialLanguage;
-    const requiresRestart = providerChanged || modelChanged || languageChanged;
+    const openRouterKeyChanged = currentOpenRouterKey !== initialOpenRouterKey;
+    const requiresRestart = providerChanged || modelChanged || languageChanged || openRouterKeyChanged;
     
     console.log('Checking for changes:', {
       providerChanged,
       modelChanged,
       languageChanged,
+      openRouterKeyChanged,
       requiresRestart,
-      current: { provider: currentProvider, model: currentModel, language: currentLanguage },
-      initial: { provider: initialProvider, model: initialModel, language: initialLanguage }
+      current: { provider: currentProvider, model: currentModel, language: currentLanguage, openRouterKey: currentOpenRouterKey },
+      initial: { provider: initialProvider, model: initialModel, language: initialLanguage, openRouterKey: initialOpenRouterKey }
     });
     
     if (requiresRestart) {
@@ -177,10 +182,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // Show/hide OpenRouter key group based on provider selection
+  async function toggleOpenRouterKeyGroup() {
+    if (currentProvider === 'openrouter') {
+      openrouterKeyGroup.style.display = 'block';
+      // Check if key exists and show masked version
+      await loadExistingOpenRouterKey();
+    } else {
+      openrouterKeyGroup.style.display = 'none';
+    }
+  }
+
+  // Load existing OpenRouter key (masked) if it exists
+  async function loadExistingOpenRouterKey() {
+    try {
+      const hasKey = await window.electronAPI.hasOpenRouterKey();
+      if (hasKey) {
+        openrouterKeyInput.placeholder = '••••••••••••••••••••••••••••••••••••••••';
+        openrouterKeyInput.value = '';
+        initialOpenRouterKey = 'EXISTS'; // Mark that key exists
+        currentOpenRouterKey = 'EXISTS';
+      } else {
+        openrouterKeyInput.placeholder = 'Enter API key...';
+        initialOpenRouterKey = null;
+        currentOpenRouterKey = null;
+      }
+    } catch (error) {
+      console.error('Error checking for existing key:', error);
+    }
+  }
+
   // Handle AI provider selection change
   aiProviderSelect.addEventListener('change', async function() {
     currentProvider = aiProviderSelect.value;
     console.log('AI provider changed to:', currentProvider);
+    
+    // Show/hide OpenRouter key input
+    await toggleOpenRouterKeyGroup();
     
     // Load models for the new provider
     await loadModelsForProvider(currentProvider);
@@ -188,6 +226,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // Reset model selection since provider changed
     currentModel = null;
     
+    checkForChanges();
+  });
+
+  // Handle show/hide password toggle
+  toggleKeyVisibility.addEventListener('click', async function() {
+    if (openrouterKeyInput.type === 'password') {
+      // Show the key - load it if it's just dots
+      if (!openrouterKeyInput.value && openrouterKeyInput.placeholder.includes('•')) {
+        try {
+          const apiKey = await window.electronAPI.getOpenRouterKey();
+          if (apiKey) {
+            openrouterKeyInput.value = apiKey;
+          }
+        } catch (error) {
+          console.error('Error loading API key:', error);
+        }
+      }
+      openrouterKeyInput.type = 'text';
+      toggleKeyVisibility.innerHTML = '🙈';
+    } else {
+      openrouterKeyInput.type = 'password';
+      toggleKeyVisibility.innerHTML = '👁️';
+    }
+  });
+
+  // Handle OpenRouter key input changes
+  openrouterKeyInput.addEventListener('input', function() {
+    const keyValue = openrouterKeyInput.value.trim();
+    if (keyValue) {
+      currentOpenRouterKey = keyValue;
+    } else {
+      // If they clear the field, revert to initial state
+      currentOpenRouterKey = initialOpenRouterKey;
+    }
     checkForChanges();
   });
 
@@ -233,6 +305,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // Save settings function
   async function saveSettings(shouldQuit) {
     try {
+      // Save OpenRouter key if changed
+      if (currentOpenRouterKey && currentOpenRouterKey !== 'EXISTS' && currentOpenRouterKey !== initialOpenRouterKey) {
+        console.log('Saving OpenRouter key...');
+        await window.electronAPI.saveOpenRouterKey(currentOpenRouterKey);
+      }
+      
       const settings = {
         aiProvider: currentProvider,
         aiModel: currentModel,

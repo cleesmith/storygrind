@@ -2,6 +2,8 @@
 const path = require('path');
 const { OpenAI } = require('openai');
 const fs = require('fs/promises');
+const { safeStorage } = require('electron');
+const Store = require('electron-store');
 
 /**
  * OpenRouter API Service
@@ -14,15 +16,41 @@ class AiApiService {
       ...config,
     };
 
-    const apiKeyFromEnv = process.env.OPENROUTER_API_KEY;
-    if (!apiKeyFromEnv) {
-      console.error('OPENROUTER_API_KEY environment variable not found');
+    // Initialize with null client until async initialization completes
+    this.client = null;
+    this.apiKeyMissing = true;
+    this.prompt = null;
+    this.user = "storygrind";
+    this.temp = 0.3;
+
+    // Perform async initialization
+    this._initializeClient();
+  }
+
+  async _initializeClient() {
+    let apiKey = null;
+    
+    if (safeStorage.isEncryptionAvailable()) {
+      const store = new Store({ name: 'openrouter-keys' });
+      const encryptedKey = store.get('api-key');
+      
+      if (encryptedKey) {
+        try {
+          apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+        } catch (error) {
+          console.error('Failed to decrypt OpenRouter API key:', error.message);
+        }
+      }
+    }
+    
+    if (!apiKey) {
+      console.error('OpenRouter API key not found in secure storage');
       this.apiKeyMissing = true;
       return;
     }
 
     this.client = new OpenAI({ 
-      apiKey: apiKeyFromEnv,
+      apiKey: apiKey,
       baseURL: "https://openrouter.ai/api/v1",
       defaultHeaders: {
         'HTTP-Referer': 'https://www.slipthetrap.com/storygrind.html',
@@ -30,10 +58,7 @@ class AiApiService {
       }
     });
 
-    this.prompt = null;
-
-    this.user = "storygrind";
-    this.temp = 0.3;
+    this.apiKeyMissing = false;
   }
 
   /**
