@@ -3,6 +3,9 @@ const anthropic = require('@anthropic-ai/sdk');
 const fs = require('fs/promises');
 const path = require('path');
 
+const { safeStorage } = require('electron');
+const Store = require('electron-store');
+
 /**
  * Claude AI API Service
  * Handles interactions with Claude AI API services
@@ -29,21 +32,46 @@ class AiApiService {
     console.log('Claude API Constructor called with config:', config);
     console.log('Final model selection:', this.config.model_name);
 
-    const apiKeyFromEnv = process.env.ANTHROPIC_API_KEY;
-    if (!apiKeyFromEnv) {
-      console.error('ANTHROPIC_API_KEY environment variable not found');
+    // Initialize with null client until async initialization completes
+    this.client = null;
+    this.apiKeyMissing = true;
+    
+    // Store manuscript content for prepending to prompts
+    this.manuscriptContent = null;
+
+    // Perform async initialization
+    this._initializeClient();
+  }
+
+  async _initializeClient() {
+    let apiKey = null;
+    
+    if (safeStorage.isEncryptionAvailable()) {
+      const store = new Store({ name: 'claude-keys' });
+      const encryptedKey = store.get('api-key');
+      
+      if (encryptedKey) {
+        try {
+          apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+        } catch (error) {
+          console.error('Failed to decrypt Claude API key:', error.message);
+        }
+      }
+    }
+    
+    if (!apiKey) {
+      console.error('ANTHROPIC_API_KEY not found');
       this.apiKeyMissing = true;
       return;
     }
 
     this.client = new anthropic.Anthropic({
-      apiKey: apiKeyFromEnv,
+      apiKey: apiKey,
       timeout: this.config.request_timeout * 1000,
       maxRetries: this.config.max_retries,
     });
 
-    // Store manuscript content for prepending to prompts
-    this.manuscriptContent = null;
+    this.apiKeyMissing = false;
     
     console.log('Claude API Service initialized with:');
     console.log('- Context window:', this.config.context_window);
@@ -372,10 +400,24 @@ class AiApiService {
     // Ensure any existing client is closed first
     this.close();
     
-    // Only create a new client if the API key exists
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    // Only create a new client if the API key exists in secure storage
+    let apiKey = null;
+    
+    if (safeStorage.isEncryptionAvailable()) {
+      const store = new Store({ name: 'claude-keys' });
+      const encryptedKey = store.get('api-key');
+      
+      if (encryptedKey) {
+        try {
+          apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+        } catch (error) {
+          console.error('Failed to decrypt Claude API key:', error.message);
+        }
+      }
+    }
+    
     if (!apiKey) {
-      console.error('ANTHROPIC_API_KEY environment variable not found');
+      console.error('ANTHROPIC_API_KEY not found');
       this.apiKeyMissing = true;
       return;
     }

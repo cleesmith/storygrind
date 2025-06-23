@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const openrouterKeyGroup = document.getElementById('openrouter-key-group');
   const openrouterKeyInput = document.getElementById('openrouter-key-input');
   const toggleKeyVisibility = document.getElementById('toggle-key-visibility');
+  const claudeKeyGroup = document.getElementById('claude-key-group');
+  const claudeKeyInput = document.getElementById('claude-key-input');
+  const toggleClaudeKeyVisibility = document.getElementById('toggle-claude-key-visibility');
 
   console.log('Found elements:', {
     aiProviderSelect: !!aiProviderSelect,
@@ -33,10 +36,12 @@ document.addEventListener('DOMContentLoaded', function() {
   let initialModel = null;
   let initialLanguage = null;
   let initialOpenRouterKey = null;
+  let initialClaudeKey = null;
   let currentProvider = null;
   let currentModel = null;
   let currentLanguage = null;
   let currentOpenRouterKey = null;
+  let currentClaudeKey = null;
 
   // Check if electronAPI is available
   if (!window.electronAPI) {
@@ -65,8 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
         initialProvider = settings.aiProvider;
         currentProvider = settings.aiProvider;
         
-        // Show/hide OpenRouter key group if needed
+        // Show/hide key groups if needed
         await toggleOpenRouterKeyGroup();
+        await toggleClaudeKeyGroup();
         
         // Load models for this provider
         await loadModelsForProvider(settings.aiProvider);
@@ -161,7 +167,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const modelChanged = currentModel !== initialModel;
     const languageChanged = currentLanguage !== initialLanguage;
     const openRouterKeyChanged = currentOpenRouterKey !== initialOpenRouterKey;
-    const requiresRestart = providerChanged || modelChanged || languageChanged || openRouterKeyChanged;
+    const claudeKeyChanged = currentClaudeKey !== initialClaudeKey;
+    const requiresRestart = providerChanged || modelChanged || languageChanged || openRouterKeyChanged || claudeKeyChanged;
     
     console.log('Checking for changes:', {
       providerChanged,
@@ -193,6 +200,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // Show/hide Claude key group based on provider selection
+  async function toggleClaudeKeyGroup() {
+    if (currentProvider === 'anthropic') {
+      claudeKeyGroup.style.display = 'block';
+      // Check if key exists and show masked version
+      await loadExistingClaudeKey();
+    } else {
+      claudeKeyGroup.style.display = 'none';
+    }
+  }
+
   // Load existing OpenRouter key (masked) if it exists
   async function loadExistingOpenRouterKey() {
     try {
@@ -212,13 +230,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // Load existing Claude key (masked) if it exists
+  async function loadExistingClaudeKey() {
+    try {
+      const hasKey = await window.electronAPI.hasClaudeKey();
+      if (hasKey) {
+        claudeKeyInput.placeholder = '••••••••••••••••••••••••••••••••••••••••';
+        claudeKeyInput.value = '';
+        initialClaudeKey = 'EXISTS'; // Mark that key exists
+        currentClaudeKey = 'EXISTS';
+      } else {
+        claudeKeyInput.placeholder = 'Enter API key...';
+        initialClaudeKey = null;
+        currentClaudeKey = null;
+      }
+    } catch (error) {
+      console.error('Error checking for existing Claude key:', error);
+    }
+  }
+
   // Handle AI provider selection change
   aiProviderSelect.addEventListener('change', async function() {
     currentProvider = aiProviderSelect.value;
     console.log('AI provider changed to:', currentProvider);
     
-    // Show/hide OpenRouter key input
+    // Show/hide key inputs
     await toggleOpenRouterKeyGroup();
+    await toggleClaudeKeyGroup();
     
     // Load models for the new provider
     await loadModelsForProvider(currentProvider);
@@ -259,6 +297,40 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       // If they clear the field, revert to initial state
       currentOpenRouterKey = initialOpenRouterKey;
+    }
+    checkForChanges();
+  });
+
+  // Handle Claude key show/hide toggle
+  toggleClaudeKeyVisibility.addEventListener('click', async function() {
+    if (claudeKeyInput.type === 'password') {
+      // Show the key - load it if it's just dots
+      if (!claudeKeyInput.value && claudeKeyInput.placeholder.includes('•')) {
+        try {
+          const apiKey = await window.electronAPI.getClaudeKey();
+          if (apiKey) {
+            claudeKeyInput.value = apiKey;
+          }
+        } catch (error) {
+          console.error('Error loading Claude API key:', error);
+        }
+      }
+      claudeKeyInput.type = 'text';
+      toggleClaudeKeyVisibility.innerHTML = '🙈';
+    } else {
+      claudeKeyInput.type = 'password';
+      toggleClaudeKeyVisibility.innerHTML = '👁️';
+    }
+  });
+
+  // Handle Claude key input changes
+  claudeKeyInput.addEventListener('input', function() {
+    const keyValue = claudeKeyInput.value.trim();
+    if (keyValue) {
+      currentClaudeKey = keyValue;
+    } else {
+      // If they clear the field, revert to initial state
+      currentClaudeKey = initialClaudeKey;
     }
     checkForChanges();
   });
@@ -309,6 +381,12 @@ document.addEventListener('DOMContentLoaded', function() {
       if (currentOpenRouterKey && currentOpenRouterKey !== 'EXISTS' && currentOpenRouterKey !== initialOpenRouterKey) {
         console.log('Saving OpenRouter key...');
         await window.electronAPI.saveOpenRouterKey(currentOpenRouterKey);
+      }
+      
+      // Save Claude key if changed
+      if (currentClaudeKey && currentClaudeKey !== 'EXISTS' && currentClaudeKey !== initialClaudeKey) {
+        console.log('Saving Claude key...');
+        await window.electronAPI.saveClaudeKey(currentClaudeKey);
       }
       
       const settings = {

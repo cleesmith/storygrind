@@ -266,7 +266,7 @@ body.light-mode .cancel-button:hover {
             <select id="ai-provider-select" class="settings-select">
               <option value="gemini">Gemini by Google</option>
               <option value="openai">ChatGPT by OpenAI</option>
-              <option value="claude">Claude by Anthropic</option>
+              <option value="anthropic">Claude by Anthropic</option>
               <option value="openrouter">OpenRouter</option>
             </select>
           </div>
@@ -278,6 +278,15 @@ body.light-mode .cancel-button:hover {
           <div style="position: relative; margin-top: 8px;">
             <input type="password" id="openrouter-key-input" class="settings-select" placeholder="Enter API key..." style="padding-right: 80px;">
             <button type="button" id="toggle-key-visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; font-size: 12px;">👁️</button>
+          </div>
+        </div>
+        
+        <div class="setting-group" id="claude-key-group" style="display: none;">
+          <div class="setting-label">Claude API Key</div>
+          <div class="setting-description">Enter your Claude API key (will be encrypted and stored securely)</div>
+          <div style="position: relative; margin-top: 8px;">
+            <input type="password" id="claude-key-input" class="settings-select" placeholder="Enter API key..." style="padding-right: 80px;">
+            <button type="button" id="toggle-claude-key-visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; font-size: 12px;">👁️</button>
           </div>
         </div>
         

@@ -20,7 +20,7 @@ function createApiService() {
       case 'openai':
         ApiServiceClass = require('./client-openai.js'); 
         break;
-      case 'claude':
+      case 'anthropic':
         ApiServiceClass = require('./client-claude.js');
         break;
       case 'openrouter':

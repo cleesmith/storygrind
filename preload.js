@@ -97,6 +97,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveOpenRouterKey: (apiKey) => ipcRenderer.invoke('save-openrouter-key', apiKey),
   hasOpenRouterKey: () => ipcRenderer.invoke('has-openrouter-key'),
   getOpenRouterKey: () => ipcRenderer.invoke('get-openrouter-key'),
+  saveClaudeKey: (apiKey) => ipcRenderer.invoke('save-claude-key', apiKey),
+  hasClaudeKey: () => ipcRenderer.invoke('has-claude-key'),
+  getClaudeKey: () => ipcRenderer.invoke('get-claude-key'),
   cancelSettings: () => {
     console.log('electronAPI.cancelSettings called');
     ipcRenderer.send('cancel-settings');

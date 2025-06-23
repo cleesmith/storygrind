@@ -213,9 +213,9 @@ async function initializeApp() {
       }
       
       setupIPCHandlers(); // Set up handlers so welcome screen can communicate
-      setTimeout(() => {
-        createWelcomeScreen(); // Show welcome screen
-      }, 500);
+      // setTimeout(() => {
+      //   createWelcomeScreen(); // Show welcome screen
+      // }, 500);
       return; // Don't continue with AI initialization
     }
 
@@ -364,6 +364,7 @@ if (isPackaged) {
 
 // Global function to get complete settings 
 function getCompleteApiSettings() {
+  console.log('*** getCompleteApiSettings() called ***');
   // Start with an empty settings object
   const completeSettings = {};
   
@@ -655,10 +656,11 @@ function checkApiProviderConfiguration() {
   const selectedProvider = appState.store ? appState.store.get('selectedApiProvider') : null;
   // console.log('Selected provider from store:', selectedProvider);
   
-  if (!selectedProvider || selectedProvider === 'skipped') {
-    // console.log('No provider selected or user skipped, need to show welcome screen');
-    return false; // Need to show welcome screen
-  }
+  // Temporarily disable welcome screen for testing
+  // if (!selectedProvider || selectedProvider === 'skipped') {
+  //   // console.log('No provider selected or user skipped, need to show welcome screen');
+  //   return false; // Need to show welcome screen
+  // }
   
   // Check if the selected provider has a valid API key
   let apiKeyVar;
@@ -669,7 +671,7 @@ function checkApiProviderConfiguration() {
     case 'openai':
       apiKeyVar = 'OPENAI_API_KEY';
       break;
-    case 'claude':
+    case 'anthropic':
       apiKeyVar = 'ANTHROPIC_API_KEY';
       break;
     case 'openrouter':
@@ -680,9 +682,46 @@ function checkApiProviderConfiguration() {
       return false;
   }
   
-  const apiKey = process.env[apiKeyVar];
-  const hasApiKey = !!apiKey;
-  // console.log(`API key for ${apiKeyVar}: ${hasApiKey ? 'present' : 'missing'}`);
+  // Check for API key based on provider type
+  let hasApiKey = false;
+  
+  if (selectedProvider === 'anthropic') {
+    // Check safeStorage for Claude key
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (safeStorage.isEncryptionAvailable()) {
+        const store = new Store({ name: 'claude-keys' });
+        const encryptedKey = store.get('api-key');
+        hasApiKey = !!encryptedKey;
+      }
+    } catch (error) {
+      console.error('Error checking Claude API key:', error);
+      hasApiKey = false;
+    }
+  } else if (selectedProvider === 'openrouter') {
+    // Check safeStorage for OpenRouter key
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (safeStorage.isEncryptionAvailable()) {
+        const store = new Store({ name: 'openrouter-keys' });
+        const encryptedKey = store.get('api-key');
+        hasApiKey = !!encryptedKey;
+      }
+    } catch (error) {
+      console.error('Error checking OpenRouter API key:', error);
+      hasApiKey = false;
+    }
+  } else {
+    // Check environment variables for other providers
+    const apiKey = process.env[apiKeyVar];
+    hasApiKey = !!apiKey;
+  }
+  
+  // console.log(`API key for ${selectedProvider}: ${hasApiKey ? 'present' : 'missing'}`);
   
   return hasApiKey; // Return true if API key exists
 }
@@ -710,7 +749,7 @@ function setupWelcomeHandlers() {
       const providerNames = {
         'gemini': 'Gemini',
         'openai': 'OpenAI',
-        'claude': 'Claude'
+        'anthropic': 'Anthropic'
       };
       
       const providerName = providerNames[provider] || provider;
@@ -1412,7 +1451,7 @@ function setupIPCHandlers() {
       const clientDefaults = {
         'gemini': 'models/gemini-2.5-pro',
         'openai': 'gpt-4.1-2025-04-14',
-        'claude': 'claude-3-7-sonnet-20250219',
+        'anthropic': 'claude-3-7-sonnet-20250219',
         'openrouter': 'openai/gpt-4o'
       };
       
@@ -1438,7 +1477,7 @@ function setupIPCHandlers() {
         case 'openai':
           ApiServiceClass = require('./client-openai.js'); 
           break;
-        case 'claude':
+        case 'anthropic':
           ApiServiceClass = require('./client-claude.js');
           break;
         case 'openrouter':
@@ -1568,6 +1607,72 @@ function setupIPCHandlers() {
       return apiKey;
     } catch (error) {
       console.error('Error retrieving OpenRouter API key:', error);
+      return null;
+    }
+  });
+
+  // Save Claude API key
+  ipcMain.handle('save-claude-key', async (event, apiKey) => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        throw new Error('Encryption not available on this system');
+      }
+      
+      const store = new Store({ name: 'claude-keys' });
+      const encryptedKey = safeStorage.encryptString(apiKey);
+      store.set('api-key', encryptedKey.toString('latin1'));
+      
+      console.log('Claude API key saved successfully');
+      return true;
+    } catch (error) {
+      console.error('Error saving Claude API key:', error);
+      throw error;
+    }
+  });
+
+  // Check if Claude API key exists
+  ipcMain.handle('has-claude-key', async () => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        return false;
+      }
+      
+      const store = new Store({ name: 'claude-keys' });
+      const encryptedKey = store.get('api-key');
+      return !!encryptedKey;
+    } catch (error) {
+      console.error('Error checking for Claude API key:', error);
+      return false;
+    }
+  });
+
+  // Get Claude API key (decrypted)
+  ipcMain.handle('get-claude-key', async () => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        return null;
+      }
+      
+      const store = new Store({ name: 'claude-keys' });
+      const encryptedKey = store.get('api-key');
+      
+      if (!encryptedKey) {
+        return null;
+      }
+      
+      const apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+      return apiKey;
+    } catch (error) {
+      console.error('Error retrieving Claude API key:', error);
       return null;
     }
   });
@@ -2166,7 +2271,7 @@ function setupIPCHandlers() {
       const providerNames = {
         'gemini': 'Gemini',
         'openai': 'OpenAI', 
-        'claude': 'Claude',
+        'anthropic': 'Anthropic',
         'openrouter': 'OpenRouter'
       };
       
