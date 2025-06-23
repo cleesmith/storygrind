@@ -100,6 +100,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveClaudeKey: (apiKey) => ipcRenderer.invoke('save-claude-key', apiKey),
   hasClaudeKey: () => ipcRenderer.invoke('has-claude-key'),
   getClaudeKey: () => ipcRenderer.invoke('get-claude-key'),
+  saveOpenaiKey: (apiKey) => ipcRenderer.invoke('save-openai-key', apiKey),
+  hasOpenaiKey: () => ipcRenderer.invoke('has-openai-key'),
+  getOpenaiKey: () => ipcRenderer.invoke('get-openai-key'),
+  saveGeminiKey: (apiKey) => ipcRenderer.invoke('save-gemini-key', apiKey),
+  hasGeminiKey: () => ipcRenderer.invoke('has-gemini-key'),
+  getGeminiKey: () => ipcRenderer.invoke('get-gemini-key'),
   cancelSettings: () => {
     console.log('electronAPI.cancelSettings called');
     ipcRenderer.send('cancel-settings');

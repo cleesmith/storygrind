@@ -6,6 +6,8 @@ const {
     createUserContent,
     createPartFromUri,
 } = require('@google/genai');
+const { safeStorage } = require('electron');
+const Store = require('electron-store');
 
 /**
  * AI API Service
@@ -18,20 +20,44 @@ class AiApiService {
       ...config
     };
 
-    const apiKeyFromEnv = process.env.GEMINI_API_KEY;
-    if (!apiKeyFromEnv) {
-      console.error('GEMINI_API_KEY environment variable not found');
-      this.apiKeyMissing = true;
-      return; 
-    }
-
+    // Initialize with null client until async initialization completes
+    this.client = null;
+    this.apiKeyMissing = true;
     this.aiApiCache = null;
     // Store manuscript content for direct API calls (bypassing file upload/cache)
     this.manuscriptContent = null;
 
+    // Perform async initialization
+    this._initializeClient();
+  }
+
+  async _initializeClient() {
+    let apiKey = null;
+    
+    if (safeStorage.isEncryptionAvailable()) {
+      const store = new Store({ name: 'gemini-keys' });
+      const encryptedKey = store.get('api-key');
+      
+      if (encryptedKey) {
+        try {
+          apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+        } catch (error) {
+          console.error('Failed to decrypt Gemini API key:', error.message);
+        }
+      }
+    }
+    
+    if (!apiKey) {
+      console.error('GEMINI_API_KEY not found');
+      this.apiKeyMissing = true;
+      return;
+    }
+
     this.client = new GoogleGenAI({
-      apiKey: apiKeyFromEnv
+      apiKey: apiKey
     });
+
+    this.apiKeyMissing = false;
   }
 
   /**

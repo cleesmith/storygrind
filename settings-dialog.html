@@ -276,7 +276,7 @@ body.light-mode .cancel-button:hover {
           <div class="setting-label">OpenRouter API Key</div>
           <div class="setting-description">Enter your OpenRouter API key (will be encrypted and stored securely)</div>
           <div style="position: relative; margin-top: 8px;">
-            <input type="password" id="openrouter-key-input" class="settings-select" placeholder="Enter API key..." style="padding-right: 80px;">
+            <input type="password" id="openrouter-key-input" class="settings-select" placeholder="Enter API key..." style="padding-right: 80px;" maxlength="256">
             <button type="button" id="toggle-key-visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; font-size: 12px;">👁️</button>
           </div>
         </div>
@@ -285,8 +285,26 @@ body.light-mode .cancel-button:hover {
           <div class="setting-label">Claude API Key</div>
           <div class="setting-description">Enter your Claude API key (will be encrypted and stored securely)</div>
           <div style="position: relative; margin-top: 8px;">
-            <input type="password" id="claude-key-input" class="settings-select" placeholder="Enter API key..." style="padding-right: 80px;">
+            <input type="password" id="claude-key-input" class="settings-select" placeholder="Enter API key..." style="padding-right: 80px;" maxlength="256">
             <button type="button" id="toggle-claude-key-visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; font-size: 12px;">👁️</button>
+          </div>
+        </div>
+        
+        <div class="setting-group" id="openai-key-group" style="display: none;">
+          <div class="setting-label">OpenAI API Key</div>
+          <div class="setting-description">Enter your OpenAI API key (will be encrypted and stored securely)</div>
+          <div style="position: relative; margin-top: 8px;">
+            <input type="password" id="openai-key-input" class="settings-select" placeholder="Enter API key..." style="padding-right: 80px;" maxlength="256">
+            <button type="button" id="toggle-openai-key-visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; font-size: 12px;">👁️</button>
+          </div>
+        </div>
+        
+        <div class="setting-group" id="gemini-key-group" style="display: none;">
+          <div class="setting-label">Gemini API Key</div>
+          <div class="setting-description">Enter your Gemini API key (will be encrypted and stored securely)</div>
+          <div style="position: relative; margin-top: 8px;">
+            <input type="password" id="gemini-key-input" class="settings-select" placeholder="Enter API key..." style="padding-right: 80px;" maxlength="256">
+            <button type="button" id="toggle-gemini-key-visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #888; cursor: pointer; font-size: 12px;">👁️</button>
           </div>
         </div>
         

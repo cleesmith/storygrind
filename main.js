@@ -715,6 +715,36 @@ function checkApiProviderConfiguration() {
       console.error('Error checking OpenRouter API key:', error);
       hasApiKey = false;
     }
+  } else if (selectedProvider === 'openai') {
+    // Check safeStorage for OpenAI key
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (safeStorage.isEncryptionAvailable()) {
+        const store = new Store({ name: 'openai-keys' });
+        const encryptedKey = store.get('api-key');
+        hasApiKey = !!encryptedKey;
+      }
+    } catch (error) {
+      console.error('Error checking OpenAI API key:', error);
+      hasApiKey = false;
+    }
+  } else if (selectedProvider === 'gemini') {
+    // Check safeStorage for Gemini key
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (safeStorage.isEncryptionAvailable()) {
+        const store = new Store({ name: 'gemini-keys' });
+        const encryptedKey = store.get('api-key');
+        hasApiKey = !!encryptedKey;
+      }
+    } catch (error) {
+      console.error('Error checking Gemini API key:', error);
+      hasApiKey = false;
+    }
   } else {
     // Check environment variables for other providers
     const apiKey = process.env[apiKeyVar];
@@ -1673,6 +1703,138 @@ function setupIPCHandlers() {
       return apiKey;
     } catch (error) {
       console.error('Error retrieving Claude API key:', error);
+      return null;
+    }
+  });
+
+  // Save OpenAI API key
+  ipcMain.handle('save-openai-key', async (event, apiKey) => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        throw new Error('Encryption not available on this system');
+      }
+      
+      const store = new Store({ name: 'openai-keys' });
+      const encryptedKey = safeStorage.encryptString(apiKey);
+      store.set('api-key', encryptedKey.toString('latin1'));
+      
+      console.log('OpenAI API key saved successfully');
+      return true;
+    } catch (error) {
+      console.error('Error saving OpenAI API key:', error);
+      throw error;
+    }
+  });
+
+  // Check if OpenAI API key exists
+  ipcMain.handle('has-openai-key', async () => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        return false;
+      }
+      
+      const store = new Store({ name: 'openai-keys' });
+      const encryptedKey = store.get('api-key');
+      return !!encryptedKey;
+    } catch (error) {
+      console.error('Error checking for OpenAI API key:', error);
+      return false;
+    }
+  });
+
+  // Get OpenAI API key (decrypted)
+  ipcMain.handle('get-openai-key', async () => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        return null;
+      }
+      
+      const store = new Store({ name: 'openai-keys' });
+      const encryptedKey = store.get('api-key');
+      
+      if (!encryptedKey) {
+        return null;
+      }
+      
+      const apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+      return apiKey;
+    } catch (error) {
+      console.error('Error retrieving OpenAI API key:', error);
+      return null;
+    }
+  });
+
+  // Save Gemini API key
+  ipcMain.handle('save-gemini-key', async (event, apiKey) => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        throw new Error('Encryption not available on this system');
+      }
+      
+      const store = new Store({ name: 'gemini-keys' });
+      const encryptedKey = safeStorage.encryptString(apiKey);
+      store.set('api-key', encryptedKey.toString('latin1'));
+      
+      console.log('Gemini API key saved successfully');
+      return true;
+    } catch (error) {
+      console.error('Error saving Gemini API key:', error);
+      throw error;
+    }
+  });
+
+  // Check if Gemini API key exists
+  ipcMain.handle('has-gemini-key', async () => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        return false;
+      }
+      
+      const store = new Store({ name: 'gemini-keys' });
+      const encryptedKey = store.get('api-key');
+      return !!encryptedKey;
+    } catch (error) {
+      console.error('Error checking for Gemini API key:', error);
+      return false;
+    }
+  });
+
+  // Get Gemini API key (decrypted)
+  ipcMain.handle('get-gemini-key', async () => {
+    try {
+      const { safeStorage } = require('electron');
+      const Store = require('electron-store');
+      
+      if (!safeStorage.isEncryptionAvailable()) {
+        return null;
+      }
+      
+      const store = new Store({ name: 'gemini-keys' });
+      const encryptedKey = store.get('api-key');
+      
+      if (!encryptedKey) {
+        return null;
+      }
+      
+      const apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+      return apiKey;
+    } catch (error) {
+      console.error('Error retrieving Gemini API key:', error);
       return null;
     }
   });

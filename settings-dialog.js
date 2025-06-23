@@ -19,6 +19,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const claudeKeyGroup = document.getElementById('claude-key-group');
   const claudeKeyInput = document.getElementById('claude-key-input');
   const toggleClaudeKeyVisibility = document.getElementById('toggle-claude-key-visibility');
+  const openaiKeyGroup = document.getElementById('openai-key-group');
+  const openaiKeyInput = document.getElementById('openai-key-input');
+  const toggleOpenaiKeyVisibility = document.getElementById('toggle-openai-key-visibility');
+  const geminiKeyGroup = document.getElementById('gemini-key-group');
+  const geminiKeyInput = document.getElementById('gemini-key-input');
+  const toggleGeminiKeyVisibility = document.getElementById('toggle-gemini-key-visibility');
 
   console.log('Found elements:', {
     aiProviderSelect: !!aiProviderSelect,
@@ -37,11 +43,15 @@ document.addEventListener('DOMContentLoaded', function() {
   let initialLanguage = null;
   let initialOpenRouterKey = null;
   let initialClaudeKey = null;
+  let initialOpenaiKey = null;
+  let initialGeminiKey = null;
   let currentProvider = null;
   let currentModel = null;
   let currentLanguage = null;
   let currentOpenRouterKey = null;
   let currentClaudeKey = null;
+  let currentOpenaiKey = null;
+  let currentGeminiKey = null;
 
   // Check if electronAPI is available
   if (!window.electronAPI) {
@@ -73,6 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Show/hide key groups if needed
         await toggleOpenRouterKeyGroup();
         await toggleClaudeKeyGroup();
+        await toggleOpenaiKeyGroup();
+        await toggleGeminiKeyGroup();
         
         // Load models for this provider
         await loadModelsForProvider(settings.aiProvider);
@@ -168,7 +180,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const languageChanged = currentLanguage !== initialLanguage;
     const openRouterKeyChanged = currentOpenRouterKey !== initialOpenRouterKey;
     const claudeKeyChanged = currentClaudeKey !== initialClaudeKey;
-    const requiresRestart = providerChanged || modelChanged || languageChanged || openRouterKeyChanged || claudeKeyChanged;
+    const openaiKeyChanged = currentOpenaiKey !== initialOpenaiKey;
+    const geminiKeyChanged = currentGeminiKey !== initialGeminiKey;
+    const requiresRestart = providerChanged || modelChanged || languageChanged || openRouterKeyChanged || claudeKeyChanged || openaiKeyChanged || geminiKeyChanged;
     
     console.log('Checking for changes:', {
       providerChanged,
@@ -211,6 +225,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // Show/hide OpenAI key group based on provider selection
+  async function toggleOpenaiKeyGroup() {
+    if (currentProvider === 'openai') {
+      openaiKeyGroup.style.display = 'block';
+      // Check if key exists and show masked version
+      await loadExistingOpenaiKey();
+    } else {
+      openaiKeyGroup.style.display = 'none';
+    }
+  }
+
+  // Show/hide Gemini key group based on provider selection
+  async function toggleGeminiKeyGroup() {
+    if (currentProvider === 'gemini') {
+      geminiKeyGroup.style.display = 'block';
+      // Check if key exists and show masked version
+      await loadExistingGeminiKey();
+    } else {
+      geminiKeyGroup.style.display = 'none';
+    }
+  }
+
   // Load existing OpenRouter key (masked) if it exists
   async function loadExistingOpenRouterKey() {
     try {
@@ -249,6 +285,44 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  // Load existing OpenAI key (masked) if it exists
+  async function loadExistingOpenaiKey() {
+    try {
+      const hasKey = await window.electronAPI.hasOpenaiKey();
+      if (hasKey) {
+        openaiKeyInput.placeholder = '••••••••••••••••••••••••••••••••••••••••';
+        openaiKeyInput.value = '';
+        initialOpenaiKey = 'EXISTS'; // Mark that key exists
+        currentOpenaiKey = 'EXISTS';
+      } else {
+        openaiKeyInput.placeholder = 'Enter API key...';
+        initialOpenaiKey = null;
+        currentOpenaiKey = null;
+      }
+    } catch (error) {
+      console.error('Error checking for existing OpenAI key:', error);
+    }
+  }
+
+  // Load existing Gemini key (masked) if it exists
+  async function loadExistingGeminiKey() {
+    try {
+      const hasKey = await window.electronAPI.hasGeminiKey();
+      if (hasKey) {
+        geminiKeyInput.placeholder = '••••••••••••••••••••••••••••••••••••••••';
+        geminiKeyInput.value = '';
+        initialGeminiKey = 'EXISTS'; // Mark that key exists
+        currentGeminiKey = 'EXISTS';
+      } else {
+        geminiKeyInput.placeholder = 'Enter API key...';
+        initialGeminiKey = null;
+        currentGeminiKey = null;
+      }
+    } catch (error) {
+      console.error('Error checking for existing Gemini key:', error);
+    }
+  }
+
   // Handle AI provider selection change
   aiProviderSelect.addEventListener('change', async function() {
     currentProvider = aiProviderSelect.value;
@@ -257,6 +331,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show/hide key inputs
     await toggleOpenRouterKeyGroup();
     await toggleClaudeKeyGroup();
+    await toggleOpenaiKeyGroup();
+    await toggleGeminiKeyGroup();
     
     // Load models for the new provider
     await loadModelsForProvider(currentProvider);
@@ -335,6 +411,74 @@ document.addEventListener('DOMContentLoaded', function() {
     checkForChanges();
   });
 
+  // Handle OpenAI key show/hide toggle
+  toggleOpenaiKeyVisibility.addEventListener('click', async function() {
+    if (openaiKeyInput.type === 'password') {
+      // Show the key - load it if it's just dots
+      if (!openaiKeyInput.value && openaiKeyInput.placeholder.includes('•')) {
+        try {
+          const apiKey = await window.electronAPI.getOpenaiKey();
+          if (apiKey) {
+            openaiKeyInput.value = apiKey;
+          }
+        } catch (error) {
+          console.error('Error loading OpenAI API key:', error);
+        }
+      }
+      openaiKeyInput.type = 'text';
+      toggleOpenaiKeyVisibility.innerHTML = '🙈';
+    } else {
+      openaiKeyInput.type = 'password';
+      toggleOpenaiKeyVisibility.innerHTML = '👁️';
+    }
+  });
+
+  // Handle OpenAI key input changes
+  openaiKeyInput.addEventListener('input', function() {
+    const keyValue = openaiKeyInput.value.trim();
+    if (keyValue) {
+      currentOpenaiKey = keyValue;
+    } else {
+      // If they clear the field, revert to initial state
+      currentOpenaiKey = initialOpenaiKey;
+    }
+    checkForChanges();
+  });
+
+  // Handle Gemini key show/hide toggle
+  toggleGeminiKeyVisibility.addEventListener('click', async function() {
+    if (geminiKeyInput.type === 'password') {
+      // Show the key - load it if it's just dots
+      if (!geminiKeyInput.value && geminiKeyInput.placeholder.includes('•')) {
+        try {
+          const apiKey = await window.electronAPI.getGeminiKey();
+          if (apiKey) {
+            geminiKeyInput.value = apiKey;
+          }
+        } catch (error) {
+          console.error('Error loading Gemini API key:', error);
+        }
+      }
+      geminiKeyInput.type = 'text';
+      toggleGeminiKeyVisibility.innerHTML = '🙈';
+    } else {
+      geminiKeyInput.type = 'password';
+      toggleGeminiKeyVisibility.innerHTML = '👁️';
+    }
+  });
+
+  // Handle Gemini key input changes
+  geminiKeyInput.addEventListener('input', function() {
+    const keyValue = geminiKeyInput.value.trim();
+    if (keyValue) {
+      currentGeminiKey = keyValue;
+    } else {
+      // If they clear the field, revert to initial state
+      currentGeminiKey = initialGeminiKey;
+    }
+    checkForChanges();
+  });
+
   // Handle AI model selection change
   aiModelSelect.addEventListener('change', function() {
     currentModel = aiModelSelect.value;
@@ -387,6 +531,18 @@ document.addEventListener('DOMContentLoaded', function() {
       if (currentClaudeKey && currentClaudeKey !== 'EXISTS' && currentClaudeKey !== initialClaudeKey) {
         console.log('Saving Claude key...');
         await window.electronAPI.saveClaudeKey(currentClaudeKey);
+      }
+      
+      // Save OpenAI key if changed
+      if (currentOpenaiKey && currentOpenaiKey !== 'EXISTS' && currentOpenaiKey !== initialOpenaiKey) {
+        console.log('Saving OpenAI key...');
+        await window.electronAPI.saveOpenaiKey(currentOpenaiKey);
+      }
+      
+      // Save Gemini key if changed
+      if (currentGeminiKey && currentGeminiKey !== 'EXISTS' && currentGeminiKey !== initialGeminiKey) {
+        console.log('Saving Gemini key...');
+        await window.electronAPI.saveGeminiKey(currentGeminiKey);
       }
       
       const settings = {

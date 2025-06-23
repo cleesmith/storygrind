@@ -2,6 +2,8 @@
 const path = require('path');
 const { OpenAI } = require('openai');
 const fs = require('fs/promises');
+const { safeStorage } = require('electron');
+const Store = require('electron-store');
 
 /**
  * OpenAI API Service
@@ -14,19 +16,42 @@ class AiApiService {
       ...config,
     };
 
-    const apiKeyFromEnv = process.env.OPENAI_API_KEY;
-    if (!apiKeyFromEnv) {
-      console.error('OPENAI_API_KEY environment variable not found');
+    // Initialize with null client until async initialization completes
+    this.client = null;
+    this.apiKeyMissing = true;
+    this.prompt = null;
+    this.user = "storygrind";
+    this.temp = 0.3;
+
+    // Perform async initialization
+    this._initializeClient();
+  }
+
+  async _initializeClient() {
+    let apiKey = null;
+    
+    if (safeStorage.isEncryptionAvailable()) {
+      const store = new Store({ name: 'openai-keys' });
+      const encryptedKey = store.get('api-key');
+      
+      if (encryptedKey) {
+        try {
+          apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+        } catch (error) {
+          console.error('Failed to decrypt OpenAI API key:', error.message);
+        }
+      }
+    }
+    
+    if (!apiKey) {
+      console.error('OPENAI_API_KEY not found');
       this.apiKeyMissing = true;
       return;
     }
 
-    this.client = new OpenAI({ apiKey: apiKeyFromEnv });
+    this.client = new OpenAI({ apiKey: apiKey });
 
-    this.prompt = null;
-
-    this.user = "storygrind";
-    this.temp = 0.3;
+    this.apiKeyMissing = false;
   }
 
   /**
