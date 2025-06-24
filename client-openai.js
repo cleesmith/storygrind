@@ -110,29 +110,7 @@ class AiApiService {
     }
   }
 
-  async clearFilesAndCaches() {
-    // console.log('OpenAI API: No files or caches to clear');
-    return;
-  }
 
-  /**
-   * Reads a manuscript file and sets this.prompt to its content.
-   * @param {string} manuscriptFile - Path to the manuscript file
-   * @returns {Promise<Object>} { messages, errors }
-   */
-  async prepareFileAndCache(manuscriptFile) {
-    const messages = [];
-    const errors = [];
-    try {
-      const fileContent = await fs.readFile(manuscriptFile, 'utf-8');
-      this.prompt = fileContent;
-      messages.push('Manuscript file loaded successfully.');
-    } catch (fileErr) {
-      errors.push(`File read error: ${fileErr.message}`);
-      this.prompt = null;
-    }
-    return { messages, errors };
-  }
 
   /**
    * Streams a response using OpenAI Responses API
@@ -145,7 +123,7 @@ class AiApiService {
       throw new Error('OpenAI client not initialized - missing API key');
     }
     if (!this.prompt) {
-      throw new Error('No manuscript prompt loaded. Call prepareFileAndCache() first.');
+      throw new Error('No manuscript loaded.');
     }
     const fullInput = `=== MANUSCRIPT ===\n${this.prompt}\n=== MANUSCRIPT ===\n${prompt}`;
     console.log(fullInput);

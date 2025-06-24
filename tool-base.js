@@ -2,14 +2,13 @@
 const os = require('os');
 const fs = require('fs/promises');
 const path = require('path');
-const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const promptManager = require('./tool-prompts-manager');
 
 /**
  * Enhanced Base class for all tools
  * Provides common functionality for AI-based tools
- * Utilizes API's file and cache systems for efficient processing of large manuscripts.
+ * Provides common functionality for AI-powered editing tools.
  */
 class ToolBase {
 
@@ -103,16 +102,13 @@ class ToolBase {
       const manuscriptWordCount = this.countWords(manuscriptContent);
       const manuscriptTokens = await this.apiService.countTokens(manuscriptContent);
 
-      // Prepare file and cache for API processing
-      const prepareResult = await this.apiService.prepareFileAndCache(manuscriptFile);
-      prepareResult.messages.forEach(message => {
-        this.emitOutput(`${message}\n`);
-      });
-      if (prepareResult.errors.length > 0) {
-        this.emitOutput(`\n--- Errors encountered during preparation ---\n`);
-        prepareResult.errors.forEach(error => {
-          this.emitOutput(`ERROR: ${error}\n`);
-        });
+      // Load manuscript content into the API service
+      if (this.apiService.manuscriptContent !== undefined) {
+        // Gemini client uses manuscriptContent property
+        this.apiService.manuscriptContent = manuscriptContent;
+      } else {
+        // OpenAI and OpenRouter clients use prompt property
+        this.apiService.prompt = manuscriptContent;
       }
       
       // Get the tool-specific prompt - subclasses must implement this
@@ -202,10 +198,7 @@ class ToolBase {
       // Add the output files to the result
       outputFiles.push(...savedFiles);
       
-      // Add files to the cache
-      outputFiles.forEach(file => {
-        fileCache.addFile(this.name, file);
-      });
+      // Files created successfully
       
       return {
         success: true,

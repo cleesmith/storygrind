@@ -10,14 +10,12 @@ const os = require('os');
 const { v4: uuidv4 } = require('uuid');
 const appState = require('./state.js');
 const toolSystem = require('./tool-system');
-const fileCache = require('./file-cache');
 const promptManager = require('./tool-prompts-manager');
 const SpellChecker = require('./lib/spellchecker');
+const ToolOutputs = require('./tool-outputs'); // for Tools output files!
 
 const homeDir = os.homedir();
 const envFilePath = path.join(homeDir, '.env');
-// console.log(`envFilePath:`);
-// console.dir(envFilePath);
 
 let mainWindow = null;
 
@@ -219,19 +217,18 @@ async function initializeApp() {
       return; // Don't continue with AI initialization
     }
 
-    // Initialize tool system and get the AiApiService instance
-    const toolSystemResult = await toolSystem.initializeToolSystem(getCompleteApiSettings());
-
-    AiApiServiceInstance = toolSystemResult.AiApiService;
-
-    // Initialize tool-prompts manager and create default prompts
+    // Initialize tool-prompts manager and create default prompts FIRST
     try {
       await promptManager.ensurePromptsDirectory();
-      // console.log('Tool prompts directory initialized');
       await promptManager.initializeAllPrompts();
     } catch (err) {
       console.error('Error initializing tool prompts directory:', err);
     }
+
+    // Initialize tool system and get the AiApiService instance AFTER prompts are created
+    const toolSystemResult = await toolSystem.initializeToolSystem(getCompleteApiSettings());
+
+    AiApiServiceInstance = toolSystemResult.AiApiService;
 
     // Setup IPC handlers
     setupIPCHandlers();
@@ -882,25 +879,15 @@ function setupProjectHandlers() {
         };
       }
 
-      // Unconditionally clear API files and caches whenever a project is selected or created.
-      // console.log(`Project selected/created: ${projectName}.\nClearing all API files and caches for the configured API key.`);
 
       if (AiApiServiceInstance) {
-        try {
-          await AiApiServiceInstance.clearFilesAndCaches(); // No argument needed
-        } catch (cleanupError) {
-          console.error('Error during global API files and caches cleanup:', cleanupError);
-          // Log this error but allow the project switch to continue
-          // You might want to show a dialog to the user if critical
-          dialog.showErrorBox('API Cleanup Error', `Failed to clear all API files and caches. Please check the logs. Reason: ${cleanupError.message}`);
-        }
       } else {
         console.warn('AiApiServiceInstance not available for API data cleanup. This may occur if API key is missing or initialization failed.');
         // Optionally inform the user if this is unexpected
         // dialog.showMessageBox(mainWindow, { // mainWindow should be accessible
         //   type: 'warning',
         //   title: 'API Service Unavailable',
-        //   message: 'The AI service is not available, so API files and caches could not be cleared.',
+        //   message: 'The AI service is not available, so API content could not be cleared.',
         //   buttons: ['OK']
         // });
       }
@@ -948,25 +935,15 @@ function setupProjectHandlers() {
       // Create the project directory
       await fs.promises.mkdir(projectPath, { recursive: true });
 
-      // Unconditionally clear API files and caches whenever a project is selected or created.
-      // console.log(`Project selected/created: ${projectName}. Clearing all API files and caches for the configured API key.`);
 
       if (AiApiServiceInstance) {
-        try {
-          await AiApiServiceInstance.clearFilesAndCaches(); // No argument needed
-        } catch (cleanupError) {
-          console.error('Error during global API files and caches cleanup:', cleanupError);
-          // Log this error but allow the project switch to continue
-          // You might want to show a dialog to the user if critical
-          dialog.showErrorBox('API Cleanup Error', `Failed to clear all API files and caches. Please check the logs. Reason: ${cleanupError.message}`);
-        }
       } else {
         console.warn('AiApiServiceInstance not available for API data cleanup. This may occur if API key is missing or initialization failed.');
         // Optionally inform the user if this is unexpected
         // dialog.showMessageBox(mainWindow, { // mainWindow should be accessible
         //   type: 'warning',
         //   title: 'API Service Unavailable',
-        //   message: 'The AI service is not available, so API files and caches could not be cleared.',
+        //   message: 'The AI service is not available, so API content could not be cleared.',
         //   buttons: ['OK']
         // });
       }
@@ -1199,7 +1176,8 @@ function setupToolHandlers() {
       return {
         name: id,
         title: tool.config?.title || id,
-        description: tool.config?.description || tool.title || `Tool: ${id}`
+        description: tool.config?.description || tool.title || `Tool: ${id}`,
+        category: tool.config?.category || null
       };
     });
     
@@ -1276,19 +1254,13 @@ function setupToolHandlers() {
             throw new Error(`Tool not found: ${toolName}`);
           }
           
-          fileCache.clear(toolName);
 
           // Execute the tool (passing sendOutput so it can assign emitOutput)
           const result = await toolSystem.executeToolById(toolName, optionValues, runId, sendOutput);
           
-          // Get files from cache
-          const cachedFiles = fileCache.getFiles(toolName);
           
-          // Combine cached files with any files returned by the tool
-          const allFiles = [...new Set([
-            ...(result.outputFiles || []),
-            ...cachedFiles.map(file => file.path)
-          ])];
+          // Use files returned by the tool
+          const allFiles = result.outputFiles || [];
           
           // Send completion notification
           if (toolSetupRunWindow && !toolSetupRunWindow.isDestroyed()) {
@@ -2369,9 +2341,8 @@ function setupIPCHandlers() {
       // This assumes runIds are in the format toolName-uuid
       const toolName = toolId.includes('-') ? toolId.split('-')[0] : toolId;
       
-      // Get files from the cache
-      const fileCache = require('./file-cache');
-      const files = fileCache.getFiles(toolName);
+      // Get files from Tools Outputs list:
+      const files = ToolOutputs.getFiles(toolName);
       
       return files;
     } catch (error) {
@@ -2504,10 +2475,6 @@ app.on('activate', () => {
 //         // Try close() method first (for Claude)
 //         if (typeof tool.apiService.close === 'function') {
 //           await tool.apiService.close();
-//         }
-//         // Try clearFilesAndCaches() method (for Gemini/OpenAI)
-//         else if (typeof tool.apiService.clearFilesAndCaches === 'function') {
-//           await tool.apiService.clearFilesAndCaches();
 //         }
 //       } catch (error) {
 //         // Ignore close errors during shutdown

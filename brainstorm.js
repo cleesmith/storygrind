@@ -1,7 +1,6 @@
 // brainstorm.js
 const ToolBase = require('./tool-base');
 const path = require('path');
-const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
 
@@ -22,7 +21,6 @@ class BrainstormTool extends ToolBase {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    fileCache.clear(this.name);
     
     // Extract options
     const ideasFile = options.ideas_file;
@@ -112,7 +110,6 @@ class BrainstormTool extends ToolBase {
           fullResponse += textDelta;
           this.emitOutput(textDelta);
         },
-        true // don't use cached file
       );
     } catch (error) {
       this.emitOutput(`\nAPI Error: ${error.message}\n`);
@@ -139,8 +136,6 @@ class BrainstormTool extends ToolBase {
     await this.writeOutputFile(fullResponse, saveDir, brainstormFilename);
     this.emitOutput(`Brainstorm saved to: ${brainstormPath}\n`);
     
-    // Add to the file cache
-    fileCache.addFile('brainstorm', brainstormPath);
     
     return brainstormPath;
   }

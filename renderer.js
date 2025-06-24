@@ -155,9 +155,7 @@ window.electronAPI.onProjectUpdated((event) => {
 function isAiTool(tool) {
   // Check if tool requires AI API service - non-AI tools don't need AI
   const nonAiTools = ['docx_comments', 'epub_converter'];
-  const result = !nonAiTools.includes(tool.name);
-  console.log(`*** isAiTool: Tool "${tool.name}" is ${result ? 'AI' : 'non-AI'} tool`);
-  return result;
+  return !nonAiTools.includes(tool.name);
 }
 
 // Store all AI tools globally for category filtering
@@ -221,6 +219,11 @@ async function loadAiTools() {
   writingOption.textContent = 'AI Writing Tools';
   aiCategorySelect.appendChild(writingOption);
   
+  const userOption = document.createElement('option');
+  userOption.value = 'user';
+  userOption.textContent = 'User Tools';
+  aiCategorySelect.appendChild(userOption);
+  
   // Enable the AI setup & run button since AI tools are available
   aiSetupRunBtn.disabled = false;
 }
@@ -236,32 +239,45 @@ function loadToolsForCategory(category) {
   }
   
   // Define tool categories
-  const coreTools = ["tokens_words_counter", "narrative_integrity", "developmental_editing", "line_editing", "copy_editing", "proofreader_spelling", "proofreader_punctuation", "proofreader_plot_consistency"];
+  const coreTools = ["tokens_words_counter", "proofreader_spelling", "narrative_integrity", "developmental_editing", "line_editing", "copy_editing", "proofreader_plot_consistency", "proofreader_punctuation"];
   const writingTools = ["brainstorm", "outline_writer", "world_writer", "chapter_writer"];
   
   let categoryTools = [];
   
   switch (category) {
     case 'core':
-      categoryTools = allAiTools.filter(tool => coreTools.includes(tool.name));
+      categoryTools = allAiTools.filter(tool => coreTools.includes(tool.name))
+        .sort((a, b) => coreTools.indexOf(a.name) - coreTools.indexOf(b.name));
       break;
     case 'writing':
       categoryTools = allAiTools.filter(tool => writingTools.includes(tool.name));
       break;
     case 'other':
       categoryTools = allAiTools.filter(tool => 
-        !coreTools.includes(tool.name) && !writingTools.includes(tool.name)
+        !coreTools.includes(tool.name) && !writingTools.includes(tool.name) && 
+        (!tool.category || tool.category !== 'User Tools')
       );
+      break;
+    case 'user':
+      categoryTools = allAiTools.filter(tool => tool.category === 'User Tools');
       break;
   }
   
   if (categoryTools.length === 0) {
     const option = document.createElement('option');
     option.disabled = true;
-    option.textContent = 'No tools available in this category';
-    aiToolSelect.appendChild(option);
-    aiToolGroup.style.display = 'block';
-    aiToolDescription.textContent = 'No tools available in this category.';
+    
+    if (category === 'user') {
+      option.textContent = 'Create your own custom tools!';
+      aiToolSelect.appendChild(option);
+      aiToolGroup.style.display = 'block';
+      aiToolDescription.textContent = 'Add .txt files with custom prompts to ~/writing_with_storygrind/tool-prompts/User Tools/ folder. Each file becomes a custom AI tool (max 10). Restart app to see new custom tools.';
+    } else {
+      option.textContent = 'No tools available in this category';
+      aiToolSelect.appendChild(option);
+      aiToolGroup.style.display = 'block';
+      aiToolDescription.textContent = 'No tools available in this category.';
+    }
     return;
   }
   

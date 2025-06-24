@@ -141,64 +141,24 @@ class AiApiService {
     }
   }
 
-  /**
-   * Prepares file content for manuscript processing
-   * @param {string} manuscriptFile - Path to the manuscript file
-   * @returns {Promise<Object>} - Returns {cache: null, messages, errors}
-   */
-  async prepareFileAndCache(manuscriptFile) {
-    const messages = [];
-    const errors = [];
-    
-    try {
-      messages.push('Loading manuscript file...');
-      const content = await fs.readFile(manuscriptFile, 'utf8');
-      
-      if (!content.trim()) {
-        throw new Error('Manuscript file is empty');
-      }
-      
-      this.manuscriptContent = content;
-      messages.push('Manuscript file loaded successfully');
-      messages.push(`Manuscript length: ${content.length} characters`);
-      
-    } catch (error) {
-      errors.push(`Error loading manuscript: ${error.message}`);
-      this.manuscriptContent = null;
-    }
-    
-    return {
-      cache: null, // Claude doesn't use caching like Gemini
-      messages,
-      errors
-    };
-  }
 
-  /**
-   * Clear any cached content (Claude doesn't use external caching)
-   */
-  async clearFilesAndCaches() {
-    console.log('Claude API: Clearing manuscript content from memory');
-    this.manuscriptContent = null;
-  }
 
   /**
    * Stream a response with thinking
    * @param {string} prompt - Prompt to complete
    * @param {Function} onText - Callback for response text
-   * @param {boolean} [noCache=false] - Whether to skip using cached content (ignored for Claude)
    * @param {boolean} [includeMetaData=true] - Whether to include metadata in response
    * @param {Object} [options={}] - Additional options
    * @returns {Promise<void>}
    */
-  async streamWithThinking(prompt, onText, noCache = false, includeMetaData = true, options = {}) {
+  async streamWithThinking(prompt, onText, includeMetaData = true, options = {}) {
     if (!this.client || this.apiKeyMissing) {
       throw new Error('Claude API client not initialized - API key missing');
     }
 
     // Prepare the full prompt with manuscript content if available
     let fullPrompt = prompt;
-    if (this.manuscriptContent && !noCache) {
+    if (this.manuscriptContent) {
       fullPrompt = `=== MANUSCRIPT ===\n${this.manuscriptContent}\n=== END MANUSCRIPT ===\n\n${prompt}`;
     }
 

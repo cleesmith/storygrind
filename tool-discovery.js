@@ -27,7 +27,7 @@ class ToolDiscovery {
   filenameToTitle(filename) {
     return filename
       .replace('.txt', '')
-      .split('-')
+      .split(/[-_]/)  // Split on both hyphens and underscores
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   }
@@ -70,8 +70,9 @@ class ToolDiscovery {
    * @returns {boolean} - True if folder should be ignored
    */
   shouldIgnoreFolder(folderName) {
-    const ignoreFolders = ['dictionaries', '.DS_Store'];
-    return ignoreFolders.includes(folderName) || folderName.startsWith('.');
+    // Only scan the 3 main subfolders, ignore everything else
+    const allowedFolders = ['Core Editing Tools', 'Other Editing Tools', 'User Tools'];
+    return !allowedFolders.includes(folderName);
   }
 
   /**
@@ -120,13 +121,35 @@ class ToolDiscovery {
         try {
           // Get all .txt files in this category folder
           const files = await fs.readdir(categoryPath);
+          
+          // For User Tools folder, limit to 10 files
+          const isUserToolsFolder = entry.name === 'User Tools';
+          let userToolCount = 0;
 
           for (const filename of files) {
             if (this.shouldIgnoreFile(filename)) continue;
+            
+            // Limit User Tools to maximum of 10 files
+            if (isUserToolsFolder && userToolCount >= 10) {
+              console.warn(`User Tools folder limited to 10 tools. Ignoring additional file: ${filename}`);
+              continue;
+            }
 
             const toolId = this.filenameToToolId(filename);
             const title = this.filenameToTitle(filename);
             const promptPath = path.join(categoryPath, filename);
+
+            // Check if file has content before creating tool
+            try {
+              const content = await fs.readFile(promptPath, 'utf8');
+              if (!content.trim()) {
+                // Skip empty files
+                continue;
+              }
+            } catch (error) {
+              // Skip files that can't be read
+              continue;
+            }
 
             // Create tool definition
             const toolDef = {
@@ -140,6 +163,10 @@ class ToolDiscovery {
             };
 
             userTools.push(toolDef);
+            
+            if (isUserToolsFolder) {
+              userToolCount++;
+            }
           }
         } catch (error) {
           console.warn(`Error reading category folder ${entry.name}:`, error.message);

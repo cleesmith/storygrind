@@ -1,7 +1,6 @@
 // outline-writer.js
 const ToolBase = require('./tool-base');
 const path = require('path');
-const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
 
@@ -21,8 +20,6 @@ class OutlineWriter extends ToolBase {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    // Clear the cache for this tool
-    fileCache.clear(this.name);
     
     const brainstormFile = options.brainstorm_file;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
@@ -77,7 +74,6 @@ class OutlineWriter extends ToolBase {
             fullResponse += textDelta;
             this.emitOutput(textDelta);
           },
-          true // don't use cached file
         );
       } catch (error) {
         this.emitOutput(`\nAPI Error: ${error.message}\n`);
@@ -108,8 +104,6 @@ class OutlineWriter extends ToolBase {
       // Add to output files list
       outputFiles.push(outlinePath);
       
-      // Add to the file cache
-      fileCache.addFile(this.name, outlinePath);
       
       return {
         success: true,

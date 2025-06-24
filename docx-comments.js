@@ -3,7 +3,6 @@ const ToolBase = require('./tool-base');
 const path = require('path');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
-const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const mammoth = require('mammoth');
 const JSZip = require('jszip');
@@ -72,9 +71,6 @@ class DocxComments extends ToolBase {
       // Add to output files list
       outputFiles.push(result.outputPath);
       
-      // Add to the file cache
-      const toolName = 'docx_comments';
-      fileCache.addFile(toolName, result.outputPath);
       
       // Return the result
       return {

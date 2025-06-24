@@ -1,7 +1,6 @@
 // tokens-words-counter.js
 const ToolBase = require('./tool-base');
 const path = require('path');
-const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs').promises;
 
@@ -49,8 +48,6 @@ class TokensWordsCounter extends ToolBase {
     }
 
     try {
-      // Clear the cache for this tool
-      fileCache.clear(this.name);
 
       let inputFile = options.input_file;
 
@@ -119,8 +116,6 @@ class TokensWordsCounter extends ToolBase {
       // Add to local tracking array
       outputFiles.push(outputFile);
       
-      // Add to the shared file cache
-      fileCache.addFile(this.name, outputFile);
       
       this.emitOutput('Analysis complete!\n');
 

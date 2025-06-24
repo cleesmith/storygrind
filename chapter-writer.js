@@ -1,7 +1,6 @@
 // chapter-writer.js
 const ToolBase = require('./tool-base');
 const path = require('path');
-const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const fs = require('fs/promises');
 
@@ -22,8 +21,6 @@ class ChapterWriter extends ToolBase {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    // Clear the cache for this tool
-    fileCache.clear(this.name);
     
     // Extract options
     const manuscriptFile = options.manuscript; // a filepath
@@ -95,10 +92,6 @@ class ChapterWriter extends ToolBase {
         summary.push(result);
       }
       
-      // Add all files to the cache
-      for (const file of outputFiles) {
-        fileCache.addFile(this.name, file);
-      }
       
       return {
         success: true,
@@ -266,7 +259,6 @@ class ChapterWriter extends ToolBase {
             fullResponse += textDelta;
             this.emitOutput(textDelta);
           },
-          true, // don't use cached file
           false, // don't show metadata
           { includeThinking: false } // don't include thinking in the response
         );

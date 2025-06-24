@@ -3,7 +3,6 @@ const ToolBase = require('./tool-base');
 const path = require('path');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
-const fileCache = require('./file-cache');
 const appState = require('./state.js');
 const JSZip = require('jszip');
 const { DOMParser } = require('@xmldom/xmldom');
@@ -89,9 +88,6 @@ class EpubConverter extends ToolBase {
       this.emitOutput(`\nConverted EPUB saved to: ${outputPath}\n`);
       outputFiles.push(outputPath);
       
-      // Add to the file cache
-      const toolName = 'epub_converter';
-      fileCache.addFile(toolName, outputPath);
       
       // Return the result
       return {

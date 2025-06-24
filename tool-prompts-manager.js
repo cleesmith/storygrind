@@ -10,19 +10,64 @@ const { toolPrompts } = require('./tool-prompts');
 class PromptManager {
   constructor() {
     this.promptsDir = path.join(appState.PROJECTS_DIR, 'tool-prompts');
+    
+    // Define the three main subfolders
+    this.coreToolsDir = path.join(this.promptsDir, 'Core Editing Tools');
+    this.otherToolsDir = path.join(this.promptsDir, 'Other Editing Tools');
+    this.userToolsDir = path.join(this.promptsDir, 'User Tools');
+    
+    // Category mapping for tools in proper editing workflow order
+    this.coreEditingTools = [
+      'developmental_editing',
+      'line_editing', 
+      'copy_editing',
+      'proofreader_spelling',    // First proofreading tool
+      'proofreader_punctuation',
+      'proofreader_plot_consistency',
+      'narrative_integrity'
+    ];
+    
+    // Tools that should NOT have prompt files created (they have JS implementations)
+    this.builtInToolsToSkip = [
+      'tokens_words_counter',
+      'proofreader_spelling', 
+      'docx_comments',
+      'epub_converter',
+      'brainstorm',
+      'outline_writer', 
+      'world_writer',
+      'chapter_writer'
+    ];
   }
 
   /**
-   * Ensures the tool-prompts directory exists
-   * @returns {Promise<boolean>} - True if directory exists or was created
+   * Ensures the tool-prompts directory and subfolders exist
+   * @returns {Promise<boolean>} - True if directories exist or were created
    */
   async ensurePromptsDirectory() {
     try {
+      // Create the main prompts directory and all three subfolders
       await fs.mkdir(this.promptsDir, { recursive: true });
+      await fs.mkdir(this.coreToolsDir, { recursive: true });
+      await fs.mkdir(this.otherToolsDir, { recursive: true });
+      await fs.mkdir(this.userToolsDir, { recursive: true });
       return true;
     } catch (error) {
-      console.error('Error creating prompts directory:', error);
+      console.error('Error creating prompts directories:', error);
       return false;
+    }
+  }
+
+  /**
+   * Determines which category/folder a tool belongs to
+   * @param {string} toolName - Name of the tool
+   * @returns {string} - Path to the appropriate subfolder
+   */
+  getToolCategoryPath(toolName) {
+    if (this.coreEditingTools.includes(toolName)) {
+      return this.coreToolsDir;
+    } else {
+      return this.otherToolsDir;
     }
   }
 
@@ -32,17 +77,22 @@ class PromptManager {
    * @returns {Promise<boolean>} - True if prompt was created or already exists
    */
   async createDefaultPrompt(toolName) {
+    // Skip tools that have JS implementations (built-in tools)
+    if (this.builtInToolsToSkip.includes(toolName)) {
+      return false;
+    }
+    
     // Check if we have a default prompt for this tool
     if (!toolPrompts[toolName] || toolPrompts[toolName] === '') {
-      // console.log(`No default prompt content found for ${toolName}`);
       return false;
     }
 
-    // Make sure the directory exists
+    // Make sure the directories exist
     await this.ensurePromptsDirectory();
     
-    // Create the prompt file
-    const promptPath = path.join(this.promptsDir, `${toolName}.txt`);
+    // Determine the correct subfolder and create the prompt file there
+    const categoryPath = this.getToolCategoryPath(toolName);
+    const promptPath = path.join(categoryPath, `${toolName}.txt`);
     
     try {
       // Check if the file already exists
@@ -161,7 +211,6 @@ class PromptManager {
    * @returns {Promise<void>}
    */
   async initializeAllPrompts() {
-    // console.log('Initializing all tool prompts...');
     await this.ensurePromptsDirectory();
     
     // Get all tool names from the prompts object
