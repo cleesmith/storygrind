@@ -2,6 +2,7 @@
 // Handles creation, retrieval, and management of prompts for tools
 
 const fs = require('fs/promises');
+const fsSync = require('fs');
 const path = require('path');
 const os = require('os');
 const appState = require('./state.js');
@@ -72,6 +73,21 @@ class PromptManager {
   }
 
   /**
+   * Check if this tool exists in User Tools directory
+   * @param {string} toolName - Name of the tool
+   * @returns {Promise<boolean>} - True if tool exists in User Tools
+   */
+  async isUserTool(toolName) {
+    const userToolPath = path.join(this.userToolsDir, `${toolName}.txt`);
+    try {
+      await fs.access(userToolPath);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
    * Creates a default prompt file for a tool if it doesn't exist
    * @param {string} toolName - Name of the tool
    * @returns {Promise<boolean>} - True if prompt was created or already exists
@@ -118,18 +134,13 @@ class PromptManager {
   }
 
   /**
-   * Gets the categorized prompt path for specific tools (pilot implementation)
+   * Gets the categorized prompt path for tools
    * @param {string} toolName - Name of the tool
    * @returns {string|null} - Categorized path if tool supports it, null otherwise
    */
   getCategorizedPromptPath(toolName) {
-    // Pilot: Only NarrativeIntegrity uses categorized folders for now
-    if (toolName === 'narrative_integrity') {
-      // Convert tool_name to hyphenated filename for consistency
-      const filename = toolName.replace(/_/g, '-') + '.txt';
-      return path.join(this.promptsDir, 'CoreEditingTools', filename);
-    }
-    return null;
+    const categoryPath = this.getToolCategoryPath(toolName);
+    return path.join(categoryPath, `${toolName}.txt`);
   }
 
   /**
@@ -138,6 +149,20 @@ class PromptManager {
    * @returns {Promise<string|null>} - Prompt content or null if not available
    */
   async getPrompt(toolName) {
+    // First check if this is a User Tool
+    if (await this.isUserTool(toolName)) {
+      const userToolPath = path.join(this.userToolsDir, `${toolName}.txt`);
+      try {
+        const content = await fs.readFile(userToolPath, 'utf8');
+        if (content.trim()) {
+          return content;
+        }
+      } catch (error) {
+        console.error(`Error reading user tool prompt for ${toolName}:`, error);
+      }
+      return null;
+    }
+    
     // Check if this tool has a categorized path (pilot implementation)
     const categorizedPath = this.getCategorizedPromptPath(toolName);
     
@@ -203,6 +228,35 @@ class PromptManager {
       }
       // If we couldn't create or read the file, return null
       return null;
+    }
+  }
+
+  /**
+   * Gets the file path for a tool's prompt file (synchronous)
+   * @param {string} toolName - Name of the tool  
+   * @returns {string} - File path to the prompt file
+   */
+  getPromptFilePath(toolName) {
+    // First check if this could be a User Tool (synchronous check)
+    const userToolPath = path.join(this.userToolsDir, `${toolName}.txt`);
+    try {
+      if (fsSync.existsSync(userToolPath)) {
+        return userToolPath;
+      }
+    } catch (error) {
+      // If we can't check, continue with normal logic
+    }
+    
+    // Check if this tool has a categorized path (pilot implementation)
+    const categorizedPath = this.getCategorizedPromptPath(toolName);
+    
+    if (categorizedPath) {
+      // Use categorized path for supported tools
+      return categorizedPath;
+    } else {
+      // Determine the correct subfolder and create the path
+      const categoryPath = this.getToolCategoryPath(toolName);
+      return path.join(categoryPath, `${toolName}.txt`);
     }
   }
 

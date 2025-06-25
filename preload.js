@@ -64,6 +64,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   
   // Editor dialog functions
   showEditorDialog: (filePath) => ipcRenderer.invoke('show-editor-dialog', filePath),
+  openInEditor: (promptPath) => ipcRenderer.invoke('openInEditor', promptPath),
   saveFile: (data) => ipcRenderer.invoke('save-file', data),
   closeEditorDialog: () => {
     console.log("PRELOAD: Sending close-editor-dialog IPC");

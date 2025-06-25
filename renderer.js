@@ -96,6 +96,7 @@ const aiToolSelect = document.getElementById('ai-tool-select');
 const aiToolGroup = document.getElementById('ai-tool-group');
 const aiToolDescription = document.getElementById('ai-tool-description');
 const aiSetupRunBtn = document.getElementById('ai-setup-run-btn');
+const editPromptBtn = document.getElementById('edit-prompt-btn');
 
 const nonAiToolSelect = document.getElementById('non-ai-tool-select');
 const nonAiToolDescription = document.getElementById('non-ai-tool-description');
@@ -232,6 +233,10 @@ function loadToolsForCategory(category) {
   // Clear existing tool options
   aiToolSelect.innerHTML = '';
   
+  // Hide edit button when switching categories
+  editPromptBtn.style.display = 'none';
+  editPromptBtn.dataset.toolId = '';
+  
   if (!category) {
     aiToolGroup.style.display = 'none';
     aiToolDescription.textContent = 'Select a category to see available tools.';
@@ -295,6 +300,16 @@ function loadToolsForCategory(category) {
   if (categoryTools.length > 0) {
     aiToolSelect.value = categoryTools[0].name;
     aiToolDescription.textContent = categoryTools[0].description;
+    
+    // Update Edit button for the auto-selected first tool
+    const firstToolId = categoryTools[0].name;
+    if (hasEditablePrompt(firstToolId)) {
+      editPromptBtn.style.display = 'block';
+      editPromptBtn.dataset.toolId = firstToolId;
+    } else {
+      editPromptBtn.style.display = 'none';
+      editPromptBtn.dataset.toolId = '';
+    }
   }
 }
 
@@ -426,11 +441,32 @@ aiCategorySelect.addEventListener('change', () => {
   loadToolsForCategory(selectedCategory);
 });
 
-// Update the AI tool description when a different tool is selected
+// Tools with hardcoded implementations (not editable prompts)
+const hardcodedTools = [
+  'tokens_words_counter', 'proofreader_spelling', 'docx_comments', 'epub_converter',
+  'brainstorm', 'outline_writer', 'world_writer', 'chapter_writer'
+];
+
+// Check if a tool has an editable prompt
+function hasEditablePrompt(toolId) {
+  // Only allow editing if the tool is NOT in the hardcoded list
+  return !hardcodedTools.includes(toolId);
+}
+
+// Update the AI tool description and edit button when a different tool is selected
 aiToolSelect.addEventListener('change', () => {
   const selectedOption = aiToolSelect.options[aiToolSelect.selectedIndex];
   if (selectedOption) {
+    const toolId = selectedOption.value;
     aiToolDescription.textContent = selectedOption.dataset.description || 'No description available.';
+    
+    // Show/hide edit button based on whether tool has editable prompt
+    if (hasEditablePrompt(toolId)) {
+      editPromptBtn.style.display = 'block';
+      editPromptBtn.dataset.toolId = toolId;
+    } else {
+      editPromptBtn.style.display = 'none';
+    }
   }
 });
 
@@ -459,6 +495,15 @@ aiSetupRunBtn.addEventListener('click', () => {
   
   // Launch the tool setup dialog with the current selection
   window.electronAPI.showToolSetupDialog(selectedTool);
+});
+
+// Handle the Edit Prompt button
+editPromptBtn.addEventListener('click', () => {
+  const toolId = editPromptBtn.dataset.toolId;
+  if (toolId) {
+    // Pass the tool ID directly to let the main process find the correct prompt file
+    window.electronAPI.openInEditor(toolId);
+  }
 });
 
 // Handle the non-AI Setup & Run button

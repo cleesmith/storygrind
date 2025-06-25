@@ -72,34 +72,12 @@ window.addEventListener('DOMContentLoaded', async () => {
     outputElement.textContent = `Error loading tool: ${error.message}`;
   }
   
-  // Initialize tool select dropdown
-  try {
-    const allTools = await window.electronAPI.getAllTools();
-    populateToolSelect(allTools);
-  } catch (error) {
-    console.error('Error loading tools list:', error);
-  }
-  
   // Apply theme if one is set
   window.electronAPI.onSetTheme((theme) => {
     document.body.className = theme === 'light' ? 'light-mode' : 'dark-mode';
   });
 });
 
-// Function to populate tool select dropdown
-function populateToolSelect(tools) {
-  // Clear existing options except first
-  toolSelectElement.innerHTML = '<option value="">Select Tool...</option>';
-  
-  if (tools && tools.length > 0) {
-    tools.forEach(tool => {
-      const option = document.createElement('option');
-      option.value = tool.id;
-      option.textContent = tool.title || tool.name;
-      toolSelectElement.appendChild(option);
-    });
-  }
-}
 
 // Edit button handler
 editBtn.addEventListener('click', () => {
@@ -290,9 +268,18 @@ runBtn.addEventListener('click', async () => {
         clearBtn.disabled = false;
         closeBtn.disabled = false;
         
-        // Show Edit button and tool selector after successful run
-        editBtn.style.display = 'inline-block';
-        toolSelectElement.style.display = 'inline-block';
+        // Check if this tool should show the Edit button
+        // Hide for AI Writing Tools and Non-AI Tools
+        const excludedTools = [
+          'brainstorm', 'outline_writer', 'world_writer', 'chapter_writer',
+          'tokens_words_counter', 'proofreader_spelling'
+        ];
+        
+        if (!excludedTools.includes(toolData.name)) {
+          // Show Edit button and dropdown for non-excluded tools
+          editBtn.style.display = 'inline-block';
+          toolSelectElement.style.display = 'inline-block';
+        }
 
         runBtn.disabled = true;
         // Reset setupCompleted flag to require going through setup again
@@ -301,28 +288,40 @@ runBtn.addEventListener('click', async () => {
         // Add completion message to output area
         outputElement.textContent += `\n\nTool finished with exit code: ${result.code}`;
         
-        // Create file selector if there are output files
-        if (result.createdFiles && result.createdFiles.length > 0) {
-          // First, log the files to the output area
-          outputElement.textContent += `\n\nFiles created/modified:`;
-          const fileList = document.createElement('pre');
-          fileList.style.marginTop = '10px';
-          fileList.style.whiteSpace = 'pre-wrap';
-          fileList.style.fontSize = '12px';
-          fileList.style.color = document.body.classList.contains('light-mode') ? '#666666' : '#aaaaaa';
-          
-          const fileListItems = result.createdFiles.map(file => `- ${file}`).join('\n');
-          fileList.textContent = fileListItems;
-          outputElement.appendChild(fileList);
-          
-          // Populate the existing tool select dropdown with created files
+        // Handle file selector
+        if (editBtn.style.display !== 'none') {
+          // Clear and populate dropdown
           toolSelectElement.innerHTML = '<option value="">Select file to edit...</option>';
-          result.createdFiles.forEach(file => {
-            const option = document.createElement('option');
-            option.value = file;
-            option.textContent = path.basename(file);
-            toolSelectElement.appendChild(option);
-          });
+          
+          // For User Tools, always add the prompt file
+          if ((toolData.isUserCreated || toolData.category === 'User Tools') && toolData.promptPath) {
+            const promptOption = document.createElement('option');
+            promptOption.value = toolData.promptPath;
+            promptOption.textContent = path.basename(toolData.promptPath) + ' (prompt)';
+            toolSelectElement.appendChild(promptOption);
+          }
+          
+          // If there are created files, log them and add to dropdown
+          if (result.createdFiles && result.createdFiles.length > 0) {
+            outputElement.textContent += `\n\nFiles created/modified:`;
+            const fileList = document.createElement('pre');
+            fileList.style.marginTop = '10px';
+            fileList.style.whiteSpace = 'pre-wrap';
+            fileList.style.fontSize = '12px';
+            fileList.style.color = document.body.classList.contains('light-mode') ? '#666666' : '#aaaaaa';
+            
+            const fileListItems = result.createdFiles.map(file => `- ${file}`).join('\n');
+            fileList.textContent = fileListItems;
+            outputElement.appendChild(fileList);
+            
+            // Add created files to dropdown
+            result.createdFiles.forEach(file => {
+              const option = document.createElement('option');
+              option.value = file;
+              option.textContent = path.basename(file);
+              toolSelectElement.appendChild(option);
+            });
+          }
         }
 
         currentRunId = null;

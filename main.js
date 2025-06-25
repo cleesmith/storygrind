@@ -1630,6 +1630,30 @@ function setupIPCHandlers() {
       return false;
     }
   });
+
+  // Open prompt file in editor
+  ipcMain.handle('openInEditor', async (event, toolId) => {
+    try {
+      // Use the same prompt manager that the tool system uses
+      const promptManager = require('./tool-prompts-manager');
+      
+      // Get the prompt file path using the same logic as tool execution
+      const promptPath = promptManager.getPromptFilePath(toolId);
+      
+      if (!fs.existsSync(promptPath)) {
+        console.error('Prompt file not found for tool:', toolId, 'at path:', promptPath);
+        dialog.showErrorBox('Error', `Prompt file not found for tool: ${toolId}`);
+        return false;
+      }
+      
+      createEditorDialog(promptPath);
+      return true;
+    } catch (error) {
+      console.error('Failed to open prompt in editor:', error);
+      dialog.showErrorBox('Error', `Failed to open prompt file: ${error.message}`);
+      return false;
+    }
+  });
   
   // Close editor dialog
   ipcMain.on('close-editor-dialog', () => {
