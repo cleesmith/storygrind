@@ -265,6 +265,30 @@ function initCodeMirror() {
   
   // Set up event listeners for the editor
   setupCodeMirrorEvents();
+
+  // SIMPLE SEARCH SCROLLING FIX:
+  // =============================
+  
+  // Store original find commands
+  const origFindNext = CodeMirror.commands.findNext;
+  const origFindPrev = CodeMirror.commands.findPrev;
+  
+  // Enhanced findNext with better scrolling
+  CodeMirror.commands.findNext = function(cm) {
+    origFindNext(cm);
+    // Scroll to the match
+    const cursor = cm.getCursor();
+    cm.scrollIntoView(cursor, 150);
+  };
+  
+  // Enhanced findPrev with better scrolling
+  CodeMirror.commands.findPrev = function(cm) {
+    origFindPrev(cm);
+    // Scroll to the match
+    const cursor = cm.getCursor();
+    cm.scrollIntoView(cursor, 150);
+  };  
+
 }
 
 // =============================================================================

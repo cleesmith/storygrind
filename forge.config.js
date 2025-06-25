@@ -40,7 +40,11 @@ module.exports = {
       /^\/screencaps/,
       /\.png$/,
       /\.jpg$/,
-      /\.jpeg$/
+      /\.jpeg$/,
+      // Don't ignore codemirror directory
+      function(path) {
+        return path.startsWith('/codemirror/') ? false : null;
+      }
     ]
   },
   rebuildConfig: {},
