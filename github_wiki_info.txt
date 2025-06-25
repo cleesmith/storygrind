@@ -211,7 +211,7 @@
      1. Go to the [StoryGrind Releases 
      page](https://github.com/cleesmith/storygrind/releases/latest)
      2. Download the latest `.exe` installer file
-     3. The file will be named something like `storygrind-2.0.1-win.exe`
+     3. The file will be named something like `storygrind-3.0.0-win.exe`
      … +99 lines (ctrl+r to expand)
 
 ⏺ Write(wiki-content/API-Setup-Guide.md)

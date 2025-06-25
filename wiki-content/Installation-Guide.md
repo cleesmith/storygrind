@@ -7,7 +7,7 @@ Getting StoryGrind up and running on your computer is straightforward. Follow th
 ### Download
 1. Go to the [StoryGrind Releases page](https://github.com/cleesmith/storygrind/releases/latest)
 2. Download the latest `.exe` installer file
-3. The file will be named something like `storygrind-2.0.1-win.exe`
+3. The file will be named something like `storygrind-3.0.0-win.exe`
 
 ### Install
 1. Double-click the downloaded installer
@@ -25,7 +25,7 @@ Getting StoryGrind up and running on your computer is straightforward. Follow th
 ### Download
 1. Go to the [StoryGrind Releases page](https://github.com/cleesmith/storygrind/releases/latest)
 2. Download the latest `.dmg` file
-3. The file will be named something like `storygrind-2.0.1-mac.dmg`
+3. The file will be named something like `storygrind-3.0.0-mac.dmg`
 
 ### Install
 1. Double-click the downloaded `.dmg` file

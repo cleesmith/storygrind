@@ -67,7 +67,7 @@ user downloads: .exe
   1. Upload the .exe to GitHub Releases:
     - Create a new release on your GitHub repo
     - Attach the generated .exe file as a release asset
-    - Name it something like storygrind-2.0.0-Setup.exe
+    - Name it something like storygrind-3.0.0-Setup.exe
   2. Users download and install:
     - Users download the .exe from your GitHub releases page
     - They run the .exe installer
