@@ -462,14 +462,6 @@ VERY IMPORTANT:
 `,
 
 proofreader_spelling: `
-Read the provided manuscript. Your tasks are as follows:
-
-1.  First, from the provided manuscript, change all words to lower case words.
-2.  Second, use the lower cased words to extract a list of all character names, place names, and any words that are not typically found in a standard English dictionary (e.g., made-up words, slang, brand names if unique, portmanteaus, nicknames not obviously common names). This initial list can contain multi-word entries (e.g., 'Saturday Night Specials', 'Bubba Gumshoe').
-3.  Third, take the list generated in step 2 and process it to show only single words. If a multi-word entry was in the second list (e.g., 'Saturday Night Specials'), it should be broken down into its constituent single words ('Saturday', 'Night', 'Specials') in this third list. Duplicates are acceptable if they arise from breaking down different multi-word phrases or were distinct entries in the second list.
-4.  Fourth, take the list generated in step 3 and double check that each word is actually a true misspelled word, i.e. the word is NOT in a dictionary, if the word is correctly spelled remove it from your step 3 list.
-
-Your final output should ONLY be the plain list of lower cased single words generated in step 4, with each word on a new line. Do not include any other explanatory text, headers, or the list from steps 1, 2, or 3 in your final response.
 `,
 
 proofreader_punctuation: `

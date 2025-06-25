@@ -182,7 +182,7 @@ class ProofreaderSpelling extends ToolBase {
    * @returns {string[]} - Array of extracted words
    */
   extractWords(content) {
-    // Use regex to extract words, handling contractions and various English text gotchas
+    // Use regex to extract words, handling contractions and various text gotchas
     // Explicitly include Unicode 8217 (right single quote) which is common in documents
     const wordPattern = /\b[\p{L}]+(?:['`''\u2019][\p{L}]+)*\b/gu;
     const matches = content.match(wordPattern) || [];

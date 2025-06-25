@@ -127,7 +127,7 @@ const TOOL_DEFS = [
       ]
     }
   ]},
-  { id: 'proofreader_spelling', title: `Proofreader Spelling`, description: `This tool does NOT use AI! All AI's have issues with spell checking words (very slow and lots of false-positives), unless it's just a few words at a time, but they always fail with an entire manuscript ... too much to ask I suppose. However, this tool performs spell checking for an entire manuscript. It tries to ignore most proper names/places and other false-positives often seen as misspelled. It is blazingly fast; Moby Dick in under 2 seconds (YMMV🤔). Future enhancements: Offer a way to search through the manuscript for each possible misspelled word and allow corrections in the editor; but honestly, most editor software (Word, Pages, google Docs, Reedsy, and others) offer good spell checking already.`, Class: ProofreaderSpelling, options: [
+  { id: 'proofreader_spelling', title: `Proofreader Spelling`, description: `This tool does NOT use AI!  As AI's are not useful for spell checking words in entire manuscripts ... too much to ask I suppose.  However this tool is blazingly fast; Moby Dick in under 2 seconds.  Honestly, most editor software like: Word, Pages, google Docs, Reedsy, Vellum (best!) and so on. offer good spell checking already.`, Class: ProofreaderSpelling, options: [
     {
       "name": "manuscript_file",
       "label": "Manuscript File",
@@ -187,7 +187,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'outline_writer', title: `Outline Writer`, description: `Generates a plot outline from your brainstorming file. CAVEAT EMPTOR: Anthropic's Claudes do a much better job, if you have the money for a API key; Google's Geminis are cheaper but less quality. YMMV🤔`, Class: OutlineWriter, options: [
+  { id: 'outline_writer', title: `Outline Writer`, description: `Generates a plot outline from your brainstorming file. CAVEAT EMPTOR: Anthropic's Claudes do a much better job, if you have the money for a API key; Google's Geminis are cheaper but less quality. 🤔`, Class: OutlineWriter, options: [
     {
       "name": "brainstorm_file",
       "label": "Brainstorm File",
@@ -198,7 +198,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'world_writer', title: `World Writer`, description: `Extract and develop characters and world elements from an outline. It requires: title, POV, and brainstorm.txt and outline.txt. All three files become useful during chapter writing. CAVEAT EMPTOR: Anthropic's Claudes do a much better job, if you have the money for a API key; Google's Geminis are cheaper but less quality. YMMV🤔`, Class: WorldWriter, options: [
+  { id: 'world_writer', title: `World Writer`, description: `Extract and develop characters and world elements from an outline. It requires: title, POV, and brainstorm.txt and outline.txt. All three files become useful during chapter writing. CAVEAT EMPTOR: Anthropic's Claudes do a much better job, if you have the money for a API key; Google's Geminis are cheaper but less quality. 🤔`, Class: WorldWriter, options: [
     {
       "name": "title",
       "label": "TITLE",
@@ -236,7 +236,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'chapter_writer', title: `Chapter Writer`, description: `Uses the outline, chapters list, world document, and any existing manuscript to write rough draft chapters. *HIGHLY RECOMMENDED: Even though this is very rough draft 🌬️ writing, it really does help the AIs to have a good start by self-writing Chapter 1 or intensely edit the AI's first attempt at Chapter 1. *CAVEAT EMPTOR: Anthropic's Claudes do a much better job, if you have the money for a API key; Google's Geminis are cheaper but less quality. YMMV🤔`, Class: ChapterWriter, options: [
+  { id: 'chapter_writer', title: `Chapter Writer`, description: `Uses the outline, chapters list, world document, and any existing manuscript to write rough draft chapters. *HIGHLY RECOMMENDED: Even though this is very rough draft 🌬️ writing, it really does help the AIs to have a good start by self-writing Chapter 1 or intensely edit the AI's first attempt at Chapter 1. *CAVEAT EMPTOR: Anthropic's Claudes do a much better job, if you have the money for a API key; Google's Geminis are cheaper but less quality. 🤔`, Class: ChapterWriter, options: [
     {
       "name": "manuscript",
       "label": "manuscript",
