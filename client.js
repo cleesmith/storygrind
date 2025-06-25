@@ -5,8 +5,8 @@ function createApiService() {
   // Get selected provider from settings
   const selectedProvider = appState.store ? appState.store.get('selectedApiProvider') : null;
   
-  // Default to gemini if no selection (fallback)
-  const provider = selectedProvider || 'gemini';
+  // Default to openrouter if no selection (fallback)
+  const provider = selectedProvider || 'openrouter';
   
   console.log(`Creating API service for provider: ${provider}`);
   
@@ -31,8 +31,8 @@ function createApiService() {
         console.log('API setup was skipped by user');
         return null;
       default:
-        console.warn(`Unknown API provider: ${provider}, defaulting to Gemini`);
-        ApiServiceClass = require('./client-gemini.js');
+        console.warn(`Unknown API provider: ${provider}, defaulting to OpenRouter`);
+        ApiServiceClass = require('./client-openrouter.js');
     }
     
     // Return the constructor class, not an instance

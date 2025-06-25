@@ -5,8 +5,6 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-// require('dotenv').config({ path: require('os').homedir() + '/.env' });
-
 const { v4: uuidv4 } = require('uuid');
 const appState = require('./state.js');
 const toolSystem = require('./tool-system');
@@ -15,13 +13,11 @@ const SpellChecker = require('./lib/spellchecker');
 const ToolOutputs = require('./tool-outputs'); // for Tools output files!
 
 const homeDir = os.homedir();
-const envFilePath = path.join(homeDir, '.env');
 
 let mainWindow = null;
 
 let editorDialogWindow = null;
 
-let welcomeWindow = null;
 
 let settingsWindow = null;
 
@@ -80,63 +76,25 @@ app.whenReady().then(() => {
 
 async function ensureEssentialPathsExist() {
   const writingDir = appState.PROJECTS_DIR;
-  const envExists = fs.existsSync(envFilePath);
   const writingDirExists = fs.existsSync(writingDir);
-  
-  // console.log('Checking essential paths for first-time setup or user removed .env or ~/writing_with_storygrind ...');
 
-  // If either .env or ~/writing_with_storygrind is missing, 
+  // If ~/writing_with_storygrind is missing, 
   // reset Electron Store to defaults to avoid 
   // previous Project and settings issues
-  if (!envExists || !writingDirExists) {
-    // console.log('Essential paths missing - resetting Electron Store to defaults');
+  if (!writingDirExists) {
     if (appState.store) {
       appState.store.clear();
-      // console.log('Electron Store cleared due to missing essential paths');
     }
   }
 
   try {
-    // Create .env file if it doesn't exist
-    if (!envExists) {
-      // console.log('Creating .env file at:', envFilePath);
-
-      // Create empty .env file with helpful comments
-      const envContent = `
-# storygrind created this on: ${new Date().toLocaleString()}
-
-# Add your AI API key(s), at least one is required, below: 
-
-# 1. uncomment, by deleting the "# " (that's a #space)
-# 2. then put your actual api key after that "="
-# 3. the keys do not need quotes
-
-# GEMINI_API_KEY=put-yours-here
-
-# OPENAI_API_KEY=put-yours-here
-
-# ANTHROPIC_API_KEY=put-yours-here
-
-# OPENROUTER_API_KEY=put-yours-here
-
-      `;
-      
-      await fs.promises.writeFile(envFilePath, envContent, 'utf8');
-      // console.log('Successfully created .env file');
-    } else {
-      console.log('.env file already exists');
-    }
-
     // Create ~/writing_with_storygrind directory if it doesn't exist
     if (!writingDirExists) {
-      // console.log('Creating writing directory at:', writingDir);
       await fs.promises.mkdir(writingDir, { recursive: true });
-      // console.log('Successfully created writing directory');
       
       // Also create the tool-prompts subdirectory
       const toolPromptsDir = path.join(writingDir, 'tool-prompts');
       await fs.promises.mkdir(toolPromptsDir, { recursive: true });
-      // console.log('Successfully created tool-prompts directory');
       
     } else {
       console.log('Writing directory already exists');
@@ -145,7 +103,6 @@ async function ensureEssentialPathsExist() {
       const toolPromptsDir = path.join(writingDir, 'tool-prompts');
       if (!fs.existsSync(toolPromptsDir)) {
         await fs.promises.mkdir(toolPromptsDir, { recursive: true });
-        // console.log('Created missing tool-prompts directory');
       }
     }
     
@@ -185,17 +142,9 @@ async function initializeApp() {
     try {
       const now = new Date();
       await fs.promises.utimes(appState.PROJECTS_DIR, now, now);
-      // console.log(`Updated timestamp for projects directory: ${appState.PROJECTS_DIR}`);
     } catch (touchError) {
       console.warn('Could not update projects directory timestamp:', touchError);
     }
-
-    // console.log('Current store values:', {
-    //   selectedProvider: appState.store.get('selectedApiProvider'),
-    //   hasGeminiKey: !!process.env.GEMINI_API_KEY,
-    //   hasOpenAIKey: !!process.env.OPENAI_API_KEY,
-    //   hasClaudeKey: !!process.env.ANTHROPIC_API_KEY
-    // });
 
     // Check if API provider is configured
     if (!checkApiProviderConfiguration()) {
@@ -210,10 +159,16 @@ async function initializeApp() {
         console.error('Error initializing tool system without AI:', err);
       }
       
-      setupIPCHandlers(); // Set up handlers so welcome screen can communicate
-      // setTimeout(() => {
-      //   createWelcomeScreen(); // Show welcome screen
-      // }, 500);
+      setupIPCHandlers();
+      
+      // Show API key setup dialog for fresh installs - open Settings directly
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        setTimeout(() => {
+          console.log('Opening Settings for fresh install API key configuration');
+          createSettingsDialog();
+        }, 500); // Small delay to ensure main window is fully loaded
+      }
+      
       return; // Don't continue with AI initialization
     }
 
@@ -242,72 +197,21 @@ async function initializeApp() {
 
       if (!verifiedAiAPI) {
           if (mainWindow && !mainWindow.isDestroyed()) {
-
-              dialog.showMessageBox(mainWindow, {
-                  type: 'error',
-                  title: 'API Key Issue',
-                  message: 'Connection failed: API key not found or invalid.',
-                  detail: `To use AI-powered tools, your API key needs to be configured.\n\n` +
-                          `- click 'OK' to continue using storygrind.\nAI features will be unavailable or may cause errors until the api key is set.\nHowever, non-AI based Tools are available for use.\n\n` +
-                          `- click 'Quit then Edit .env file' to open the .env configuration file.\nstorygrind will then quit.\nYour default text editor should appear.\nAfter adding/changing your key, please start the app again.\n` +
-                          `\nYou may do this manually:\nThe .env file must be located here:\n${envFilePath}\nOpen .env in a text editor (Notepad/Textedit), then add the appropriate line and replace with your actual api key, then save and quit the editor, then start the storygrind again.`,
-                  buttons: ['OK', 'Quit then Edit .env file'],
-                  defaultId: 0,
-                  cancelId: 0
-              }).then(async ({ response }) => {
-                  if (response === 1) {
-                      try {
-                          let envFileExisted = fs.existsSync(envFilePath);
-                          let currentEnvContent = "";
-                          if (envFileExisted) {
-                              currentEnvContent = await fs.promises.readFile(envFilePath, 'utf8');
-                          }
-
-                          const timestamp = new Date().toLocaleString();
-                          let newEnvContent = currentEnvContent;
-                          const instructionalComment = `\n# On ${timestamp}, storygrind tried to use AI API key, but failed!\n# Please ensure the appropriate line below is correct and uncommented:\n# GEMINI_API_KEY=your_actual_api_key_here\n# OPENAI_API_KEY=your_actual_api_key_here\n# ANTHROPIC_API_KEY=your_actual_api_key_here\n# OPENROUTER_API_KEY=your_actual_api_key_here\n\n`;
-
-                          if (!currentEnvContent.includes("# storygrind tried to use AI API key, but failed!")) {
-                              newEnvContent = instructionalComment + currentEnvContent;
-                          }
-                          
-                          await fs.promises.writeFile(envFilePath, newEnvContent, 'utf8');
-
-                          const openError = await shell.openPath(envFilePath);
-                          console.log(`\n .env file: ${envFilePath}\n openError=${openError}\n`);
-                          console.dir(openError);
-                          if (openError) {
-                              console.error(`Error opening .env file with shell.openPath: ${openError}`);
-                              dialog.showErrorBox('File Access Error', `Could not automatically open the .env file at:\n${envFilePath}\n\nPlease open it manually. storygrind will now quit.`);
-                          } else {
-                              console.log(`Attempted to open .env file: ${envFilePath}`);
-                          }
-                      } catch (err) {
-                          console.error(`Error preparing or opening .env file: ${err.message || err}`);
-                          dialog.showErrorBox('Configuration Error', `An error occurred while trying to prepare or open your .env file at:\n${envFilePath}\n\nPlease check it manually. storygrind will now quit.`);
-                      } finally {
-                          console.log('Quitting application after "Setup Key & Quit" option.');
-                          app.quit(0);
-                          process.exit();
-                      }
-                  } else { 
-                      console.log('User acknowledged API key warning. AI tools will be unavailable or may error out if used. However, non-AI based Tools are available for use.');
-                  }
-              }).catch(err => {
-                  console.error('Error displaying API key dialog:', err);
-              });
+              // API key verification failed - open Settings directly  
+              console.log('API key verification failed - opening Settings for configuration');
+              createSettingsDialog();
           }
       }
     }
     
     // Initial project dialog logic
-    if (!appState.CURRENT_PROJECT && shouldShowProjectDialog) {
-      setTimeout(() => {
-        if (mainWindow && !mainWindow.isDestroyed()) {
-            showProjectDialog();
-        }
-      }, 500);
-    }
+    // if (!appState.CURRENT_PROJECT && shouldShowProjectDialog) {
+    //   setTimeout(() => {
+    //     if (mainWindow && !mainWindow.isDestroyed()) {
+    //         showProjectDialog();
+    //     }
+    //   }, 500);
+    // }
 
   } catch (error) {
     console.error('Failed to initialize application:', error);
@@ -504,7 +408,7 @@ function createWindow() {
   // Load the index.html of the app
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
   
-  // Show the main window initially, but it might be hidden by welcome screen
+  // Show the main window
   mainWindow.show();
   
   // Ensure proper cleanup on Windows when main window closes
@@ -517,62 +421,6 @@ function createWindow() {
   });
 }
 
-function createWelcomeScreen() {
-  // console.log('Creating welcome screen...');
-  
-  welcomeWindow = new BrowserWindow({
-    width: 650,
-    height: 700,
-    parent: mainWindow,
-    modal: true,
-    show: false,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      preload: path.join(__dirname, 'preload.js'),
-      // Enable web security for production but allow dev tools
-      webSecurity: true
-    },
-    backgroundColor: '#121212',
-    autoHideMenuBar: true,
-    resizable: false
-  });
-
-  welcomeWindow.loadFile(path.join(__dirname, 'welcome-screen.html'));
-
-  welcomeWindow.once('ready-to-show', () => {
-    // console.log('Welcome screen ready to show');
-    welcomeWindow.show();
-    
-    // Apply current theme
-    if (mainWindow) {
-      mainWindow.webContents.executeJavaScript('document.body.classList.contains("light-mode")')
-        .then(isLightMode => {
-          if (welcomeWindow && !welcomeWindow.isDestroyed()) {
-            // console.log('Sending theme to welcome screen:', isLightMode ? 'light' : 'dark');
-            welcomeWindow.webContents.send('set-theme', isLightMode ? 'light' : 'dark');
-          }
-        })
-        .catch(err => console.error('Error getting theme:', err));
-    }
-  });
-
-  // Add error handling for the welcome window
-  welcomeWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-    console.error('Welcome screen failed to load:', errorCode, errorDescription, validatedURL);
-  });
-
-  welcomeWindow.webContents.on('dom-ready', () => {
-    console.log('Welcome screen DOM ready');
-  });
-
-  welcomeWindow.on('closed', () => {
-    console.log('Welcome window closed');
-    welcomeWindow = null;
-  });
-  
-  return welcomeWindow;
-}
 
 function createSettingsDialog() {
   // console.log('Creating settings dialog...');
@@ -650,14 +498,17 @@ function checkApiProviderConfiguration() {
   // console.log('Checking API provider configuration...');
   
   // Check if user has selected a provider
-  const selectedProvider = appState.store ? appState.store.get('selectedApiProvider') : null;
+  let selectedProvider = appState.store ? appState.store.get('selectedApiProvider') : null;
   // console.log('Selected provider from store:', selectedProvider);
   
-  // Temporarily disable welcome screen for testing
-  // if (!selectedProvider || selectedProvider === 'skipped') {
-  //   // console.log('No provider selected or user skipped, need to show welcome screen');
-  //   return false; // Need to show welcome screen
-  // }
+  // If no provider selected, set OpenRouter as default but still require user to complete setup
+  if (!selectedProvider) {
+    console.log('No provider selected, setting OpenRouter as default but requiring Settings setup');
+    if (appState.store) {
+      appState.store.set('selectedApiProvider', 'openrouter');
+    }
+    return false; // Still need to show Settings for user to enter API key and select model
+  }
   
   // Check if the selected provider has a valid API key
   let apiKeyVar;
@@ -753,75 +604,6 @@ function checkApiProviderConfiguration() {
   return hasApiKey; // Return true if API key exists
 }
 
-function setupWelcomeHandlers() {
-  // console.log('Setting up welcome screen IPC handlers...');
-  ipcMain.on('set-api-provider', (event, provider) => {
-    // console.log('Received set-api-provider:', provider);
-    
-    try {
-      if (appState.store) {
-        appState.store.set('selectedApiProvider', provider);
-        // console.log('Saved provider to store:', provider);
-      } else {
-        console.warn('appState.store not available');
-      }
-      
-      // Close welcome window
-      if (welcomeWindow && !welcomeWindow.isDestroyed()) {
-        // console.log('Closing welcome window...');
-        welcomeWindow.close();
-      }
-      
-      // Show message that restart is needed
-      const providerNames = {
-        'gemini': 'Gemini',
-        'openai': 'OpenAI',
-        'anthropic': 'Anthropic'
-      };
-      
-      const providerName = providerNames[provider] || provider;
-      
-      // console.log('Showing restart dialog for provider:', providerName);
-      
-      // Check if this is user-initiated switch or initial setup
-      const isUserSwitch = global.isUserInitiatedProviderSwitch || false;
-      
-      const dialogMessage = isUserSwitch 
-        ? `AI provider changed to ${providerName}.`
-        : `API provider set to ${providerName}.`;
-        
-      const dialogDetail = isUserSwitch
-        ? `storygrind will now quit so you can restart with the new AI provider.\n\nNote: You will need a valid API key in your .env file located at:\n${envFilePath}`
-        : `Please restart storygrind to continue with the selected AI provider.\n\nNote: You will need a valid API key in your .env file located in your home path at:\n${envFilePath}`;
-      
-      dialog.showMessageBox(mainWindow, {
-        type: 'info',
-        title: 'Restart Required',
-        message: dialogMessage,
-        detail: dialogDetail,
-        buttons: ['Quit Now']
-      }).then(({ response }) => {
-        // console.log('Restart dialog response:', response);
-        // console.log('User chose to quit for provider switch');
-        // Reset the flag before quitting
-        global.isUserInitiatedProviderSwitch = false;
-        app.quit(0);
-        process.exit();
-      }).catch(err => {
-        console.error('Error showing restart dialog:', err);
-        // Reset flag and quit anyway if dialog fails
-        global.isUserInitiatedProviderSwitch = false;
-        app.quit(0);
-        process.exit();
-      });
-      
-    } catch (error) {
-      console.error('Error in set-api-provider handler:', error);
-    }
-  });
-  
-  // console.log('Welcome screen IPC handlers set up successfully');
-}
 
 // Setup handlers for project operations
 function setupProjectHandlers() {
@@ -1411,7 +1193,6 @@ ipcMain.on('close-editor-dialog', () => {
 function setupIPCHandlers() {
   setupProjectHandlers();
   setupToolHandlers();
-  setupWelcomeHandlers();
   
   // Handle quit request from renderer
   ipcMain.on('app-quit', () => {
@@ -1430,16 +1211,14 @@ function setupIPCHandlers() {
   ipcMain.handle('get-current-settings', async () => {
     try {
       const settings = appState.getCurrentSettings();
-      // Add app and env paths that the settings dialog expects
+      // Add app path that the settings dialog expects
       settings.appPath = app.getAppPath();
-      settings.envPath = envFilePath;
       return settings;
     } catch (error) {
       console.error('Error getting current settings:', error);
       return {
         projectsPath: appState.PROJECTS_DIR,
         appPath: app.getAppPath(),
-        envPath: envFilePath,
         aiProvider: null,
         language: 'en-US'
       };
@@ -1824,9 +1603,6 @@ function setupIPCHandlers() {
   ipcMain.on('cancel-provider-selection', () => {
     // console.log('Provider selection cancelled - proceeding with non-AI tools only');
     
-    if (welcomeWindow && !welcomeWindow.isDestroyed()) {
-      welcomeWindow.close();
-    }
     
     // Reset the flag
     global.isUserInitiatedProviderSwitch = false;

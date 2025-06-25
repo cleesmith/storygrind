@@ -1,4 +1,4 @@
-// preload.js - Updated with better welcome screen support
+// preload.js
 
 const { contextBridge, ipcRenderer } = require('electron');
 
@@ -20,7 +20,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeDialog: (action, data) => ipcRenderer.send('close-project-dialog', action, data),
   onProjectUpdated: (callback) => ipcRenderer.on('project-updated', (_, data) => callback(data)),
 
-  // Welcome and provider setup
+  // Provider setup (legacy - may be unused)
   setApiProvider: (provider) => {
     console.log('electronAPI.setApiProvider called with:', provider);
     ipcRenderer.send('set-api-provider', provider);
