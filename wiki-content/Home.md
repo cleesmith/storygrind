@@ -77,7 +77,7 @@ StoryGrind exists because:
 
 ## 🎯 Who This Is For
 
-- **Fiction and Nonfiction Writers** crafting short stories, novellas, and novels
+- **Fiction and Nonfiction Writers** crafting *good reads*
 - **Authors** preparing manuscripts for publication
 - **Editors** looking for AI-powered analysis tools
 - **Writing Groups** who want to share editing resources

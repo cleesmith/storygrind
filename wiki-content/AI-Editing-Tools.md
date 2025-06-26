@@ -6,6 +6,16 @@ StoryGrind includes over 25 AI-powered tools designed specifically for manuscrip
 
 These are the essential tools most writers will use regularly:
 
+### Tokens & Words Counter
+- **What it does**: Counts words and tokens, analyzes manuscript complexity
+- **Best for**: Tracking progress, understanding API usage, submission requirements
+- **Output**: Detailed word counts by chapter, token analysis, reading time estimates
+
+### Proofreader Spelling
+- **What it does**: A non-AI based spell checker
+- **Best for**: Blazingly fast spell checking, Moby Dick in under 2 seconds
+- **Output**: Ignores proper names, but does have false-positives
+
 ### Developmental Editing
 - **What it does**: Analyzes your story's structure, pacing, character development, and themes
 - **Best for**: First drafts, major revisions, structural problems
@@ -21,10 +31,20 @@ These are the essential tools most writers will use regularly:
 - **Best for**: Near-final drafts, preparing for publication
 - **Output**: Detailed corrections and style improvements
 
-### Narrative Integrity Checker
+### Narrative Integrity
 - **What it does**: Verifies your story stays consistent with your world-building and outline
 - **Best for**: Complex stories, series, fantasy/sci-fi with detailed world-building
 - **Output**: Consistency analysis highlighting potential plot holes or contradictions
+
+### Proofreader Plot Consistency
+- **What it does**: Specifically checks for plot holes and world-building inconsistencies
+- **Best for**: Fantasy/sci-fi, complex plots, series continuity
+- **Output**: Detailed consistency analysis with specific issue locations
+
+### Proofreader Punctuation
+- **What it does**: Finds run-on sentences, missing commas, and other punctuation issues
+- **Best for**: Final proofreading, preparation for publication
+- **Output**: Punctuation corrections with explanations
 
 ## 📊 Analysis Tools
 
@@ -83,20 +103,15 @@ Tools for refining your prose and fixing specific writing issues:
 
 Practical tools for manuscript management and analysis:
 
-### Tokens & Words Counter
-- **What it does**: Counts words and tokens, analyzes manuscript complexity
-- **Best for**: Tracking progress, understanding API usage, submission requirements
-- **Output**: Detailed word counts by chapter, token analysis, reading time estimates
+### "Drunken" Editor
+- **What it does**: Provides brutally honest (and slightly tipsy) manuscript critique
+- **Best for**: When you need tough love, breaking through denial about problems
+- **Output**: Unvarnished feedback that cuts through politeness to real issues
 
-### Proofreader Punctuation
-- **What it does**: Finds run-on sentences, missing commas, and other punctuation issues
-- **Best for**: Final proofreading, preparation for publication
-- **Output**: Punctuation corrections with explanations
-
-### Proofreader Plot Consistency
-- **What it does**: Specifically checks for plot holes and world-building inconsistencies
-- **Best for**: Fantasy/sci-fi, complex plots, series continuity
-- **Output**: Detailed consistency analysis with specific issue locations
+### KDP Publishing Prep
+- **What it does**: Generates Amazon KDP metadata like descriptions, categories, and keywords
+- **Best for**: Self-publishing preparation, marketing copy
+- **Output**: Publication-ready descriptions, keyword lists, and category suggestions
 
 ## 📚 Generation Tools
 
@@ -131,20 +146,15 @@ Specialized tools for specific situations:
 - **Best for**: Planning new works, restructuring existing stories
 - **Output**: Structured outline with chapters, scenes, and plot progression
 
+### World Writer
+- **What it does**: Creates a detailed world based on outline
+- **Best for**: Outline expansion and character development
+- **Output**: A fleshed out world
+
 ### Chapter Writer
 - **What it does**: Drafts new chapters based on your outline and existing manuscript
 - **Best for**: Getting unstuck, generating rough drafts *(note: prose quality varies)*
 - **Output**: Draft chapters that match your story's style and continue the plot
-
-### KDP Publishing Prep
-- **What it does**: Generates Amazon KDP metadata like descriptions, categories, and keywords
-- **Best for**: Self-publishing preparation, marketing copy
-- **Output**: Publication-ready descriptions, keyword lists, and category suggestions
-
-### "Drunken" Editor
-- **What it does**: Provides brutally honest (and slightly tipsy) manuscript critique
-- **Best for**: When you need tough love, breaking through denial about problems
-- **Output**: Unvarnished feedback that cuts through politeness to real issues
 
 ## 🔧 How to Choose the Right Tool
 

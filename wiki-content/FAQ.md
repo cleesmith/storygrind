@@ -9,16 +9,61 @@ Yes! StoryGrind itself is completely free and open source. However, AI-powered t
 StoryGrind works with plain text only- `.txt` files, and the Tools only use `.txt`. For convenience, it can also convert between these formats: `.docx` to `.txt` and vice versa. All output files are saved as `.txt` for maximum compatibility.
 
 ### Where are my files stored?
-Everything is stored locally on your computer in the `~/writing_with_storygrind/` directory. Where `~` is `C:\` your home on Windows.
+Everything is stored locally on your computer in the `~/writing_with_storygrind/` directory. Where `~` is `C:\` or root drive on Windows, well kind of 🤥.
 
-Inside the main `~/writing_with_storygrind/` folder, you'll find individual subfolders for each of your projects. Each subfolder represents a separate story, book, novel, or writing project. For example:
+Inside the main `~/writing_with_storygrind/` folder, you'll find individual subfolders for each of your projects. Each subfolder represents a separate story, book, novel, or writing project. Along with the editable tool prompts. For example:
 
 ```
 ~/writing_with_storygrind/
-  ├── my-first-novel/
-  ├── short-story-collection/
-  ├── memoir-draft/
-  └── fantasy-series-book-1/
+  ├── TheNecklace/
+  ├── JawsAndMobyDick/
+  ├── MirrorMeTheMemoir/
+  ├── HairlessPotter/
+  └── tool-prompts
+      ├── Core Editing Tools
+      │   ├── copy_editing.txt
+      │   ├── developmental_editing.txt
+      │   ├── line_editing.txt
+      │   ├── narrative_integrity.txt
+      │   ├── proofreader_plot_consistency.txt
+      │   └── proofreader_punctuation.txt
+      ├── Other Editing Tools
+      │   ├── adjective_adverb_optimizer.txt
+      │   ├── character_analyzer.txt
+      │   ├── conflict_analyzer.txt
+      │   ├── crowding_leaping_evaluator.txt
+      │   ├── dangling_modifier_checker.txt
+      │   ├── drunken.txt
+      │   ├── foreshadowing_tracker.txt
+      │   ├── kdp_publishing_prep.txt
+      │   ├── manuscript_to_characters.txt
+      │   ├── manuscript_to_outline.txt
+      │   ├── manuscript_to_world.txt
+      │   ├── plot_thread_tracker.txt
+      │   ├── rhythm_analyzer.txt
+      │   └── tense_consistency_checker.txt
+      ├── User Tools
+      │   ├── list_chapters.txt
+      │   ├── nonfiction_SelfHelp_editing.txt
+      │   ├── nonfiction_creative_editing.txt
+      │   ├── nonfiction_integrity_editing.txt
+      │   └── nonfiction_sourcing_audit.txt
+      └── dictionaries
+          ├── de-DE.dic
+          ├── en-GB.dic
+          ├── en-US.dic
+          ├── es-ES.dic
+          ├── es-MX.dic
+          ├── fr-FR.dic
+          ├── it-IT.dic
+          ├── lt-LT.dic
+          ├── nl-NL.dic
+          ├── pl-PL.dic
+          ├── pt-BR.dic
+          ├── ru-RU.dic
+          ├── sv-SE.dic
+          ├── tr-TR.dic
+          └── uk-UA.dic
 ```
 
 This organization keeps your different writing projects completely separate and organized, making it easy to manage multiple stories at once.
@@ -28,27 +73,27 @@ While StoryGrind's tools work only with .txt plain text files, your project subf
 For backing up your work, you can sync your writing folder to cloud storage services like iCloud, Dropbox, or Google Drive. This protects your manuscripts and lets you access them from other devices. For writers who want to track changes to their work over time, GitHub is another option that saves every version of your files automatically.
 
 ### Can I use StoryGrind offline?
-No, not really, as it's the AI that's providing the editing 🪄 magic.
+A little bit, but not really, as it's the AI that's providing the editing 🪄 magic. File converters, spell checking, the built-in editor; are all usable offline.
 
 ## 🔑 API Keys & Setup
 
 ### Which AI provider should I choose?
-All four providers (Anthropic Claude, Google Gemini, OpenAI, OpenRouter) work well with StoryGrind. Given you have multiple AI API keys, you can switch providers anytime.
+All four providers (OpenRouter, Anthropic Claude, Google Gemini, OpenAI) work well with StoryGrind. Given you have multiple AI API keys, you can switch providers anytime.
 
 ### How do I get an API key?
 Visit the provider's website:
+- [OpenRouter](https://openrouter.ai/) - money upfront, but access to lots of AI models
 - [Anthropic Claude](https://console.anthropic.com/) - money upfront
 - [Google Gemini](https://aistudio.google.com/app/apikey) - pay-as-you-go
 - [OpenAI](https://platform.openai.com/) - money upfront
-- [OpenRouter](https://openrouter.ai/) - pay-as-you-go, access to multiple models
 
 Follow the [API Setup Guide](API-Setup-Guide) for detailed instructions.
 
 ### Can I use multiple API keys?
-You can have multiple keys in your `.env` file, but StoryGrind will use only one provider/model at a time. You can use **Settings** in StoryGrind to switch between your AI providers/models.
+Yes, but StoryGrind will use only one provider/model at a time. You can use **Settings** in StoryGrind to switch between your AI providers/models.
 
 ### Where do I put my API key?
-Create a `.env` file in your home directory (`~/.env` on Mac, `C:\Users\YourName\.env` on Windows) and add your key. See the [API Setup Guide](API-Setup-Guide) for details.
+You can only use **Settings** in StoryGrind to encrypt and store your API keys. Your API keys are not stored in plain sight and unreadable by humans.
 
 ## 🛠️ Using the Tools
 
@@ -80,28 +125,22 @@ Simply copy the entire `~/writing_with_storygrind/` folder to your backup locati
 
 ## 🔧 Technical Issues
 
-### "API Key Not Found" error
-Check that:
-1. Your `.env` file is in the correct location (home directory)
-2. You removed the `#` symbol from the key line
-3. You restarted StoryGrind after creating/editing the `.env` file
-
 ### Tools produce strange results
-- AI's and their providers are not perfect
+- AI's and their providers and their API services are not perfect
 
 ### App is running slowly
-- Close other programs to free up memory
+- AI's have a lot of outages
 - Check your internet connection
-- Try switching AI providers if one seems slow
+- If you have multiple API keys; try switching AI providers if one seems slow
 - Restart your computer
 
 ## 📝 Writing & Workflow
 
-### Can I use StoryGrind for non-fiction?
-While designed for fiction, many tools work well for creative non-fiction, memoirs, and narrative essays. Technical writing might not benefit as much. You can also over-write a default prompt to make it more suitable for non-fiction. If you change your mind, just edit the prompt file and make it blank/empty which will restore the default prompt.
+### Can I use StoryGrind for nonfiction?
+While designed for fiction, there are a few prompts/tools included in **Users Tools** specifically for nonfiction.
 
 ### How do I share results with beta readers or other editors?
-Tool results are saved as plain text files that can be shared.
+Tool results/reports are saved as plain text files that can be shared.
 
 ## 🔄 Updates & Support
 
@@ -110,8 +149,7 @@ Download the latest version from [GitHub Releases](https://github.com/cleesmith/
 
 ### Where can I get help?
 1. Check this wiki for answers
-2. Look at the [Troubleshooting guide](Troubleshooting)
-3. Report issues on [GitHub](https://github.com/cleesmith/storygrind/issues)
+2. Report issues on [GitHub](https://github.com/cleesmith/storygrind/issues)
 
 ### Can I request new features?
 Yes! Submit feature requests on [GitHub Issues](https://github.com/cleesmith/storygrind/issues). The most requested features may be added in future versions.

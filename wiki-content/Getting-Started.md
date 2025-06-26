@@ -28,7 +28,7 @@ Think of a project as a workspace for one book, story collection, or writing pro
 ### Step 2: Create a New Project
 1. Click **"Select Project"** on the main screen
 2. Click **"Create New Project"**
-3. Enter a name for your project (e.g., "MyNovel", "ShortStories", "Memoir")
+3. Enter a name for your project (e.g., "MyNovel", "ShortStories", "MemoirMe")
 4. Click **"Create"**
 
 ### Step 3: Add Your Manuscript
@@ -148,14 +148,12 @@ A typical StoryGrind workflow:
 
 If you run into issues:
 
-1. **Check the [Troubleshooting guide](Troubleshooting)**
-2. **Look at the [FAQ](FAQ)** for common questions
-3. **Visit [GitHub Issues](https://github.com/cleesmith/storygrind/issues)** to report problems
+1. **Look at the [FAQ](FAQ)** for common questions
+2. **Visit [GitHub Issues](https://github.com/cleesmith/storygrind/issues)** to report problems
 
 ## 🎯 Next Steps
 
 Ready to dive deeper?
 
 - **[Learn about AI editing tools](AI-Editing-Tools)** - Understand what each tool does
-- **[Master the interface](User-Interface-Guide)** - Become a power user
-- **[Explore best practices](Best-Practices)** - Get professional results
+

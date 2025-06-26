@@ -46,7 +46,6 @@ This message **confirms that Apple has verified the app is safe**, *read the sma
 When you first run StoryGrind, it creates:
 
 ### In Your Home Directory
-- **`.env` file** - Stores your API keys securely
 - **`writing_with_storygrind/` folder** - Contains all your projects
 
 ### File Access Restrictions
