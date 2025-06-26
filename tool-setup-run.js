@@ -272,7 +272,7 @@ runBtn.addEventListener('click', async () => {
         // Hide for AI Writing Tools and Non-AI Tools
         const excludedTools = [
           'brainstorm', 'outline_writer', 'world_writer', 'chapter_writer',
-          'tokens_words_counter', 'proofreader_spelling'
+          'tokens_words_counter'
         ];
         
         if (!excludedTools.includes(toolData.name)) {

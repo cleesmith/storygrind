@@ -443,7 +443,7 @@ aiCategorySelect.addEventListener('change', () => {
 
 // Tools with hardcoded implementations (not editable prompts)
 const hardcodedTools = [
-  'tokens_words_counter', 'proofreader_spelling', 'docx_comments', 'epub_converter',
+  'tokens_words_counter', 'docx_comments', 'epub_converter',
   'brainstorm', 'outline_writer', 'world_writer', 'chapter_writer'
 ];
 
