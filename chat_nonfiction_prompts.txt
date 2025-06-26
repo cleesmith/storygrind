@@ -1,4 +1,5 @@
-⏺ I see three specialized editing prompt files for different non-fiction genres:
+
+⏺ I see three editing prompt files for different non-fiction genres:
 
 1. prompt_creative_nonfiction_editing.txt 
   - For creative/literary non-fiction with focus on:
@@ -134,133 +135,6 @@ the sequence and combination that serves their work best.
 Much more flexible and writer-empowering than forcing them to get both 
 analyses at once when they might only need one specific perspective.
 
-
-> cool 🫘 ... now, i was thinking that sometimes in all of the Tools 
-  there have been moments when i wanted to include a one/two instruction 
-  during the Setup dialog just before Run 
-  ... a twist on the default prompt the tool is using ... thoughts?
-
-⏺ That's a brilliant idea! 
-A "custom instruction" field in the setup dialog would add huge
-flexibility without breaking the core tool functionality.
-
-Perfect use cases:
-- "Focus specifically on dialogue in chapters 3-5"
-- "I'm concerned about pacing in the middle section"
-- "Pay special attention to the secondary character arc"
-- "This is intended for young adult readers"
-- "I'm worried about the technical explanations being too complex"
-
-Implementation thoughts:
-- Simple text area in the setup dialog labeled something like 
-  "Additional Focus" or "Custom Instructions"
-- Optional field that appends to the base prompt when provided
-- Could be as simple as adding the user input to the end: 
-  "ADDITIONAL INSTRUCTION: [user text]"
-
-Benefits:
-- Writers get targeted analysis for their specific concerns
-- Tools remain useful for general analysis when no custom instruction is provided
-- No need to create dozens of hyper-specific tools
-- Writers can experiment with different analytical angles on the same tool
-
-This would make every tool infinitely more adaptable while keeping the 
-interface clean and simple. Writers could guide the AI's attention 
-without having to write entire prompts from scratch.
-
-> in: tool-system.js, each Tool can have a "special instructions" textarea (multi-lines) in 
-this:   { id: 'narrative_integrity', title: `Narrative Integrity`, description: `Focused on 
-consistency issues within the entire manuscript.`, Class: NarrativeIntegrity, options: [
-      {
-        "name": "manuscript_file",
-        "label": "Manuscript File",
-        "type": "file",
-        "description": "File containing the manuscript to analyze",
-        "required": true,
-        "default": "manuscript.txt",
-        "group": "Input Files"
-      }
-    ]},
-
-⏺ Perfect! 
-You can add a "special instructions" textarea option to each tool's options array.
-Here's how it would look:
-
-  {
-    id: 'narrative_integrity',
-    title: `Narrative Integrity`,
-    description: `Focused on consistency issues within the entire manuscript.`,
-    Class: NarrativeIntegrity,
-    options: [
-      {
-        "name": "manuscript_file",
-        "label": "Manuscript File",
-        "type": "file",
-        "description": "File containing the manuscript to analyze",
-        "required": true,
-        "default": "manuscript.txt",
-        "group": "Input Files"
-      },
-      {
-        "name": "special_instructions",
-        "label": "Special Instructions",
-        "type": "textarea",
-        "description": "Additional focus areas or specific concerns (optional)",
-        "required": false,
-        "placeholder": "e.g., Focus on dialogue consistency, Pay attention to timeline issues...",
-        "group": "Customization"
-      }
-    ]
-  }
-
-Then in the tool's implementation, you'd access it via this.getInput('special_instructions')
-and append it to your prompt when it's provided. This gives every tool the flexibility for
-custom guidance while maintaining the clean, consistent interface pattern you already have.
-
-> is this: "type": "textarea" ... a type that's already coded for?
-
-⏺ Task(Search for textarea input types)
-  ⎿ Done (9 tool uses · 46.0k tokens · 1m 1.2s)
-
-⏺ Yes! "textarea" is already a supported type in the tool system. According to the code in
-  tool-setup-run.js, it creates a multi-line HTML textarea element and supports these
-  properties:
-
-  - rows: Number of visible text lines (defaults to 4 if not specified)
-  - default: Default value
-  - required: Boolean for validation
-  - description: Help text shown below
-
-  So your special instructions field would work perfectly:
-
-  {
-    "name": "special_instructions",
-    "label": "Special Instructions",
-    "type": "textarea",
-    "description": "Additional focus areas or specific concerns (optional)",
-    "required": false,
-    "rows": 3,
-    "default": "",
-    "group": "Customization"
-  }
-
-  The existing code will handle it automatically!
-
-> /cost 
-  ⎿ Total cost:            $0.55
-     Total duration (API):  11m 30.6s
-     Total duration (wall): 21m 20.8s
-     Total code changes:    0 lines added, 0 lines removed
-     Token usage by model:
-         claude-3-5-haiku:  67.2k input, 3.2k output, 0 cache read, 0 cache write
-            claude-sonnet:  113 input, 5.3k output, 474.4k cache read, 68.3k cache write
-
-╭───────────────────────────────────────────────────────────────────────────────────────────────────╮
-│>                                                                                                │
-╰───────────────────────────────────────────────────────────────────────────────────────────────────╯
-  ? for shortcuts
-
-
 AI Tools for non-fiction writers:
 1. Artistic Integrity Analysis
 2. Resonance and Completion Analysis
@@ -268,6 +142,4 @@ AI Tools for non-fiction writers:
 4. Incomplete Development Analysis
 5. Practical Effectiveness Analysis
 6. Reader Support Analysis
-
-
 

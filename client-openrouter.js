@@ -22,7 +22,7 @@ class AiApiService {
     this.apiKeyMissing = true;
     this.prompt = null;
     this.user = "storygrind";
-    this.temp = 0.3;
+    this.temp = 0.3; // 0.0 (conservative) to 2.0 (wild/crazy)
 
     // Perform async initialization
     this._initializeClient();
@@ -122,8 +122,6 @@ class AiApiService {
       return false;
     }
   }
-
-
 
   /**
    * Streams a response using OpenRouter Chat Completions API
