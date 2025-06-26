@@ -144,7 +144,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'docx_comments', title: 'DOCX Text/Comments Extractor', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [
+  { id: 'docx_comments', title: 'DOCX: Extract Comments as Text', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [
       {
         "name": "docx_file",
         "label": "DOCX File",

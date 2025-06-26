@@ -1,3 +1,4 @@
+
 Evidence Gap Finder
 
 GOAL: Flag factual assertions that lack adequate sourcing or contain possible inconsistencies so the author can verify them manually, with priority given to high-stakes claims.

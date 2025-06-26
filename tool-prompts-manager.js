@@ -28,6 +28,15 @@ class PromptManager {
       'narrative_integrity'
     ];
     
+    // User Tools (demo tools)
+    this.userTools = [
+      'list_chapters',
+      'nonfiction_SelfHelp_editing',
+      'nonfiction_creative_editing', 
+      'nonfiction_integrity_editing',
+      'nonfiction_sourcing_audit'
+    ];
+    
     // Tools that should NOT have prompt files created (they have JS implementations)
     this.builtInToolsToSkip = [
       'tokens_words_counter',
@@ -67,6 +76,8 @@ class PromptManager {
   getToolCategoryPath(toolName) {
     if (this.coreEditingTools.includes(toolName)) {
       return this.coreToolsDir;
+    } else if (this.userTools.includes(toolName)) {
+      return this.userToolsDir;
     } else {
       return this.otherToolsDir;
     }

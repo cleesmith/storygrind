@@ -36,6 +36,7 @@ For each issue found, provide:
 - Why it diminishes the artistic or emotional impact
 - A suggested approach for revision that honors the creative intent
 
+
 === TASK 2: RESONANCE AND COMPLETION ANALYSIS ===
 
 You are an expert editor focusing on the emotional and spiritual impact of literary non-fiction. Analyze the MANUSCRIPT to identify where the work could deepen its resonance or achieve greater completeness.

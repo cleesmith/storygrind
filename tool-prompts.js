@@ -1374,6 +1374,301 @@ world_writer: ``, // see tool for prompt
 
 chapter_writer: ``, // see tool for prompt
 
+// User Tools (non-fiction editing demos)
+list_chapters: `
+List the chapters in the manuscript.`,
+
+nonfiction_SelfHelp_editing: `Thoroughly complete the following 2 TASKS for SELF-HELP NON-FICTION:
+
+=== TASK 1: PRACTICAL EFFECTIVENESS ANALYSIS ===
+
+You are an expert editor specializing in self-help books. 
+Analyze the MANUSCRIPT to identify elements that undermine the book's practical value for readers seeking personal improvement or life change.
+
+Focus on:
+
+1. SOLUTION CLARITY:
+   - Techniques or methods that are explained vaguely or incompletely
+   - Steps that assume knowledge or skills the target reader may not have
+   - Advice that sounds good but lacks specific implementation guidance
+   - Instructions that are too complex for practical application
+
+2. ACCESSIBILITY BARRIERS:
+   - Language that is unnecessarily technical or academic for the intended audience
+   - Examples that don't reflect the reader's likely life circumstances
+   - Assumptions about time, resources, or lifestyle that exclude many readers
+   - Cultural references or contexts that limit broad applicability
+
+3. SAFETY AND REALISM:
+   - Advice that could be harmful if misapplied
+   - Promises or expectations that are unrealistic for typical readers
+   - Missing warnings about when professional help is needed
+   - Oversimplified solutions to complex psychological, medical, or life issues
+
+4. EVIDENCE AND CREDIBILITY:
+   - Claims about effectiveness that lack supporting evidence, citations, or references
+   - Personal anecdotes presented as universal solutions without broader support
+   - Contradictions with established research in relevant fields
+   - Misuse or misrepresentation of cited studies or expert opinions
+   - Missing citations where claims clearly derive from other sources
+   - Author credentials that don't match the scope of advice being given
+
+For each issue found, provide:
+- The specific problem with exact manuscript locations
+- Why it reduces the book's practical value for self-help readers
+- A suggested revision that improves usability and credibility
+
+=== TASK 2: READER SUPPORT ANALYSIS ===
+
+You are an expert editor focusing on reader experience in self-help literature. 
+Analyze the MANUSCRIPT to identify where readers might get stuck, confused, or discouraged in their personal development journey.
+
+1. STRUCTURAL SUPPORT:
+   - Missing quick reference guides or summaries for easy review
+   - Lack of clear progression from basic to advanced concepts
+   - No system for readers to track progress or measure success
+   - Absence of troubleshooting guidance when methods don't work initially
+
+2. MOTIVATIONAL GAPS:
+   - Sections that inadvertently shame or blame readers for their current situation
+   - Lack of encouragement for readers who struggle with implementation
+   - Missing acknowledgment of common obstacles and setbacks
+   - No guidance for maintaining new habits or practices long-term
+
+3. PRACTICAL LOGISTICS:
+   - Methods that require resources, tools, or support not clearly specified
+   - Time commitments that aren't realistic for busy readers
+   - No adaptation suggestions for different life circumstances or limitations
+   - Missing guidance on integrating new practices into existing routines
+
+4. READER EMPOWERMENT:
+   - Lack of guidance on customizing approaches to individual needs
+   - No framework for readers to evaluate what works for them personally
+   - Missing education about underlying principles that help readers understand why methods work
+   - Absence of guidance on when and how to seek additional help or resources
+   - Insufficient citation of sources that readers could explore for deeper learning
+
+For each gap found, provide:
+- What support is missing and where in the manuscript
+- How this gap might frustrate or limit reader success
+- Suggested additions that better serve people seeking personal improvement
+
+IMPORTANT:
+- Prioritize practical utility over academic sophistication
+- Consider readers who may be starting from difficult circumstances
+- Evaluate whether the book delivers on its promises to help readers improve their lives
+- Assess whether citations and references enhance or detract from accessibility
+- Focus on whether readers could realistically implement this guidance successfully`,
+
+nonfiction_creative_editing: `Thoroughly complete the following 2 TASKS for CREATIVE/LITERARY NON-FICTION:
+
+=== TASK 1: ARTISTIC INTEGRITY ANALYSIS ===
+
+You are an expert editor specializing in creative and literary non-fiction. 
+Analyze the MANUSCRIPT to identify elements that undermine the work's artistic authenticity, voice consistency, or emotional resonance.
+
+Focus on:
+
+1. VOICE AND AUTHENTICITY:
+   - Moments where the author's voice feels forced, artificial, or inconsistent with the established tone
+   - Insights or reflections that seem manufactured rather than genuinely discovered
+   - Shifts in narrative persona that feel jarring or unmotivated
+   - Language that sounds borrowed from other writers rather than authentically the author's own
+
+2. METAPHORICAL INTEGRITY:
+   - Connections between paired elements that feel forced or intellectually constructed rather than intuitively discovered
+   - Metaphors that break down when examined or don't sustain their internal logic
+   - Symbolic interpretations that seem imposed from outside rather than emerging from the material
+   - Overextended analogies that lose their power through excessive elaboration
+
+3. EMOTIONAL HONESTY:
+   - Reflections that claim depth or significance they haven't earned through the writing
+   - Spiritual insights that feel generic or borrowed rather than personally lived
+   - Emotional moments that seem performed rather than genuinely felt
+   - Conclusions that arrive too easily without sufficient exploration of complexity or doubt
+
+4. STRUCTURAL COHERENCE:
+   - Individual pieces that don't contribute to the overall arc or vision of the work
+   - Repetitive patterns that become predictable rather than building meaning
+   - Missing connections between pieces that could strengthen the cumulative effect
+   - Inconsistencies in the experimental method or approach that confuse rather than intrigue
+
+For each issue found, provide:
+- The specific problem with exact manuscript locations
+- Why it diminishes the artistic or emotional impact
+- A suggested approach for revision that honors the creative intent
+
+
+=== TASK 2: RESONANCE AND COMPLETION ANALYSIS ===
+
+You are an expert editor focusing on the emotional and spiritual impact of literary non-fiction. Analyze the MANUSCRIPT to identify where the work could deepen its resonance or achieve greater completeness.
+
+1. UNREALIZED POTENTIAL:
+   - Metaphorical pairings that could yield richer insights with deeper exploration
+   - Personal revelations that are touched on but not fully developed
+   - Spiritual or philosophical threads that could be woven more explicitly through the work
+   - Moments of genuine discovery that could be expanded or deepened
+
+2. CUMULATIVE IMPACT:
+   - Missing connections between individual pieces that could strengthen the overall experience
+   - Patterns or themes that emerge but aren't fully explored or articulated
+   - Opportunities for the work to build toward greater meaning or revelation
+   - Ways the experimental constraint could be more fully explored or evolved
+
+3. READER EXPERIENCE:
+   - Places where readers might lose engagement or feel distanced from the material
+   - Opportunities to invite deeper contemplation or personal reflection
+   - Missing guidance for readers who want to apply this approach in their own lives
+   - Moments where the writing could be more generous in sharing insight or vulnerability
+
+4. ARTISTIC COMPLETENESS:
+   - Questions raised by the work that deserve further exploration
+   - Philosophical implications that could be more fully developed
+   - The relationship between form and content that could be made more explicit
+   - Ways the ending could provide greater sense of completion or transformation
+
+For each area of unrealized potential, provide:
+- What deeper possibility exists and where in the manuscript
+- How developing this element would serve the work's artistic vision
+- Suggested approaches that maintain the work's contemplative and experimental nature
+
+IMPORTANT:
+- Prioritize authentic spiritual and emotional insight over intellectual cleverness
+- Evaluate whether metaphorical connections feel genuinely discovered rather than constructed
+- Consider the cumulative effect and overall reading experience, not just individual pieces
+- Respect the experimental and contemplative nature of the work
+- Focus on deepening resonance rather than adding external validation or proof`,
+
+nonfiction_integrity_editing: `Thoroughly complete the following 2 TASKS:
+
+=== TASK 1: CONCEPTUAL CONSISTENCY ANALYSIS ===
+
+You are an expert non-fiction editor focusing on argumentative integrity and conceptual coherence. Analyze the MANUSCRIPT to identify elements that are internally inconsistent, contradictory, or lacking intellectual rigor.
+
+Focus on:
+
+1. ARGUMENT CONSISTENCY:
+   - Central claims that contradict each other across different sections
+   - Definitions or explanations of key concepts that shift without acknowledgment
+   - Philosophical or theoretical positions that conflict with earlier stated views
+   - Value judgments or conclusions that contradict the author's established framework
+
+2. EVIDENCE AND SUPPORT:
+   - Claims made without adequate supporting evidence or examples
+   - Examples that actually undermine rather than support the stated point
+   - Personal anecdotes that contradict the broader argument being made
+   - Generalizations that aren't sufficiently grounded in the provided evidence
+
+3. LOGICAL STRUCTURE:
+   - Cause-and-effect relationships that don't hold up to scrutiny
+   - Conclusions that don't follow from the premises provided
+   - Analogies or metaphors that break down when examined closely
+   - Circular reasoning or assumptions presented as proven facts
+
+4. VOICE AND AUTHORITY:
+   - Shifts in the author's expertise or authority claims without explanation
+   - Inconsistencies in the author's relationship to the material (personal vs. analytical distance)
+   - Contradictory attitudes toward the same concepts or experiences
+   - Claims to knowledge or insight that seem unsupported by the author's demonstrated expertise
+
+For each issue found, provide:
+- The specific inconsistency with exact manuscript locations
+- Why it creates a credibility or clarity problem
+- A suggested revision approach
+
+=== TASK 2: INCOMPLETE DEVELOPMENT ANALYSIS ===
+
+You are an expert non-fiction editor specializing in thorough argument development. Analyze the MANUSCRIPT to identify concepts, claims, or themes that have been introduced but not fully developed or resolved.
+
+1. UNDERDEVELOPED ARGUMENTS:
+   - Central claims that are stated but not sufficiently explored or defended
+   - Complex concepts introduced but not adequately explained or unpacked
+   - Counterarguments acknowledged but not addressed
+   - Implications of the author's position that are suggested but not explored
+
+2. INCOMPLETE EXAMPLES:
+   - Stories or anecdotes that are started but don't reach a satisfying conclusion
+   - Examples that illustrate one aspect of a concept but leave other important dimensions unexplored
+   - Case studies or illustrations that raise questions they don't answer
+   - Personal experiences mentioned but not connected to the larger themes
+
+3. THEMATIC THREADS:
+   - Recurring themes or motifs that appear throughout but aren't explicitly connected
+   - Concepts that seem central to the work but aren't given adequate development
+   - Patterns in the author's thinking that could be made more explicit
+   - Spiritual or philosophical insights that are hinted at but not fully articulated
+
+4. STRUCTURAL GAPS:
+   - Transitions between sections that leave logical gaps
+   - Concepts introduced early that don't reappear when relevant
+   - Promised discussions or explorations that never materialize
+   - Missing context that would help readers understand the significance of particular insights
+
+For each underdeveloped element, provide:
+- What was introduced and where in the manuscript
+- Why it creates an expectation of fuller development
+- Suggested approaches for completion or explicit acknowledgment of the limitation
+
+IMPORTANT:
+- Label each TASK clearly in your response
+- Consider the genre and intended audience when evaluating completeness
+- Distinguish between intentional artistic choices and actual gaps in development`,
+
+nonfiction_sourcing_audit: `Nonfiction Sourcing Audit
+
+GOAL: Systematically identify factual claims that require better sourcing or verification before publication, prioritizing high-risk assertions that could cause harm if incorrect.
+
+HIGH-PRIORITY CLAIMS (review these first):
+- Medical, health, or safety recommendations without authoritative backing
+- Legal advice or regulatory guidance lacking proper citation  
+- Financial recommendations or investment advice without credible sources
+- Claims about vulnerable populations without research support
+- Emergency procedures or crisis response information
+
+STANDARD REVIEW ITEMS:
+- Vague sourcing language ("studies show," "experts say," "research indicates")
+- Specific statistics, percentages, dates, or quotes without citations
+- Claims about current events lacking date-specific sources
+- Internal contradictions between different sections
+- Outdated information in rapidly changing fields
+
+SOURCE QUALITY TIERS:
+- TIER 1 (Highest): Peer-reviewed journals, government agencies, established medical institutions, official statistics, primary legal documents
+- TIER 2 (Moderate): Major news outlets with editorial standards, recognized research organizations, authoritative industry reports
+- TIER 3 (Questionable): Personal blogs, social media, commercial sites with conflicts of interest, sources over 5 years old in fast-changing fields
+
+AUDIT PROCESS:
+1. Extract each factual assertion from the text
+2. Verify supporting sources using available resources
+3. Check internal consistency across all claims
+4. Assess source currency and potential bias
+5. Categorize findings using status codes below
+
+SOURCE STATUS CODES:
+- VERIFIED: Current, credible source directly supports claim
+- PARTIAL: Relevant source found but with limited scope or different parameters  
+- OUTDATED: Source located but may no longer be current
+- CONFLICTING: Multiple sources with contradictory information
+- UNSOURCED: No adequate supporting source identified
+- INTERNAL CONFLICT: Inconsistency within the manuscript
+
+AUDIT REPORT FORMAT:
+
+HIGH-PRIORITY FINDINGS
+Claim | Status Code | Recommended Source | Risk Assessment | Action Required
+
+STANDARD FINDINGS  
+Claim | Status Code | Recommended Source | Notes
+
+VERIFICATION RECOMMENDATIONS
+- List specific steps for addressing UNSOURCED, CONFLICTING, OUTDATED, or INTERNAL CONFLICT items
+- Suggest removal or revision of unsupported high-risk claims
+- Provide alternative phrasing for partially supported statements
+- Recommend consultation with subject matter experts where needed
+
+AUDIT LIMITATIONS:
+This sourcing audit relies on automated analysis with restricted access to specialized databases and recent publications. Authors must independently verify all claims through primary research, especially high-priority assertions. For complex technical, medical, or legal content, consultation with qualified experts is essential before publication.`,
+
 // Non-AI tools
 docx_comments: ``,
 epub_converter: ``
