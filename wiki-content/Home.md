@@ -49,19 +49,12 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 - [Installation Guide](Installation-Guide) - Download and install StoryGrind
 - [API Setup Guide](API-Setup-Guide) - Connect your AI provider
 - [Your First Project](Getting-Started) - Create and manage projects
-- [Quick View of App's Interface](User-Interface-Guide)
 
 ### Tools & Features
 - [AI Editing Tools](AI-Editing-Tools) - Developmental, line, and copy editing
-- [Manuscript Analysis](Manuscript-Analysis-Tools) - Plot, character, and narrative tools
 - User Tools - create your prompts and tools; easy as creating a .txt file
-- [Non-AI Tools](Non-AI-Tools) - Spell check, file conversion, and more (FREE)
-- [Customizing AI Prompts](Customizing-Prompts) - Make the tools work your way
 
-### Workflow & Tips
-- [File Management](File-Management) - Organize your projects
-
-### Help & Support
+### Help
 - [FAQ](FAQ) - Frequently asked questions
 
 ## 💡 Why StoryGrind?
@@ -69,10 +62,10 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 > *"Personally it's my way of giving back for all of the great stories I've read. Everyone is a story and has stories in them, so this app can help us publish shiny ✨ new ones for all readers."* - Chris Smith, StoryGrind's creator
 
 StoryGrind exists because:
-- **Writing is hard enough** without expensive subscriptions
+- **Writing is hard enough** without ongoing subscriptions
 - **Your creativity deserves freedom** from platform lock-in
-- **AI can excel at editing** when given clear, precise prompts
-- **Every story matters** and deserves professional-quality tools
+- **AI can excel at editing** when given clear and precise prompts
+- **Every story matters** and deserves professional-quality editing tools
 - **You control your costs** and choose your AI provider
 
 ## 🎯 Who This Is For
@@ -86,7 +79,7 @@ StoryGrind exists because:
 ## 🔧 What You'll Need
 
 - A Mac or Windows computer
-- One AI API key from [Claude](https://console.anthropic.com/), [Gemini](https://aistudio.google.com/app/apikey), [OpenAI](https://platform.openai.com/), or [OpenRouter](https://openrouter.ai/)
-- Your manuscript in .txt or .docx format
+- One AI API key from:  [OpenRouter](https://openrouter.ai/), [Claude](https://console.anthropic.com/), [Gemini](https://aistudio.google.com/app/apikey), [OpenAI](https://platform.openai.com/)
+- Your manuscript in .txt or .docx (can be converted to .txt) format
 
 Ready to transform your writing? **[Start here!](Getting-Started)**
