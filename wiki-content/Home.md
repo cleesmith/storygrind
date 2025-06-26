@@ -36,10 +36,10 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 ## 🔑 AI Provider Options
 
 **StoryGrind is FREE** - but AI features require an API key from one of these providers:
+- **OpenRouter** - Access to multiple models, even the 3 below, from various providers; and a great place to start
 - **Anthropic Claude** - Known for detailed analysis  
 - **Google Gemini** - Easy to get started and less expensive
 - **OpenAI** **GPT**'s and **o**'s - Widely used and familiar
-- **OpenRouter** - Access to multiple models from various providers
 
 **Non-AI tools** (fast spell check, file conversion: .docx ↔️ .txt) work without any AI (free).
 
@@ -54,6 +54,7 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 ### Tools & Features
 - [AI Editing Tools](AI-Editing-Tools) - Developmental, line, and copy editing
 - [Manuscript Analysis](Manuscript-Analysis-Tools) - Plot, character, and narrative tools
+- User Tools - create your prompts and tools; easy as creating a .txt file
 - [Non-AI Tools](Non-AI-Tools) - Spell check, file conversion, and more (FREE)
 - [Customizing AI Prompts](Customizing-Prompts) - Make the tools work your way
 
@@ -65,7 +66,7 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 
 ## 💡 Why StoryGrind?
 
-> *"Personally it's my way of giving back for all of the great stories I've read. Everyone is a story and has stories in them, so this app can help us publish shiny ✨ new ones for all readers."* - Chris Smith, Creator
+> *"Personally it's my way of giving back for all of the great stories I've read. Everyone is a story and has stories in them, so this app can help us publish shiny ✨ new ones for all readers."* - Chris Smith, StoryGrind's creator
 
 StoryGrind exists because:
 - **Writing is hard enough** without expensive subscriptions
@@ -76,7 +77,7 @@ StoryGrind exists because:
 
 ## 🎯 Who This Is For
 
-- **Fiction Writers** crafting short stories, novellas, and novels
+- **Fiction and Nonfiction Writers** crafting short stories, novellas, and novels
 - **Authors** preparing manuscripts for publication
 - **Editors** looking for AI-powered analysis tools
 - **Writing Groups** who want to share editing resources

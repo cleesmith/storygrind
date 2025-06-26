@@ -6,6 +6,12 @@ To use StoryGrind's AI-powered editing tools, you'll need an API key from at lea
 
 StoryGrind supports four major AI providers. You only need to choose one to get started:
 
+### OpenRouter
+- Access to multiple AI models from various providers
+- Pay-as-you-go pricing
+- Good for trying different models
+- [Get API Key](https://openrouter.ai/)
+
 ### Google Gemini
 - Easy to get started
 - Good for general editing tasks
@@ -21,93 +27,37 @@ StoryGrind supports four major AI providers. You only need to choose one to get 
 - Good all-around option
 - [Get API Key](https://platform.openai.com/)
 
-### OpenRouter
-- Access to multiple AI models from various providers
-- Pay-as-you-go pricing
-- Good for trying different models
-- [Get API Key](https://openrouter.ai/)
-
 > **💡 Pro Tip**: Pick whichever provider you're most comfortable with. You can always switch later.
 
 ## 🔑 Getting Your API Key
 
-### Option 1: Google Gemini
-
-1. **Sign up**: Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. **Create key**: Click "Create API Key"
-3. **Copy key**: Copy the generated key
-4. **Save it**: You'll need this for StoryGrind setup
-
-### Option 2: Anthropic Claude
-
-1. **Sign up**: Go to [Anthropic Console](https://console.anthropic.com/)
-2. **Add credit**: Add funds to your account 
-3. **Create key**: Navigate to API Keys section → Create new key
-4. **Copy key**: Copy the generated key
-
-### Option 3: OpenAI
-
-1. **Sign up**: Go to [OpenAI Platform](https://platform.openai.com/)
-2. **Add credit**: Add funds to your account
-3. **Create key**: Go to API Keys → Create new secret key
-4. **Copy key**: Copy the generated key
-
-### Option 4: OpenRouter
+### Option 1: OpenRouter
 
 1. **Sign up**: Go to [OpenRouter](https://openrouter.ai/)
 2. **Add credit**: Add funds to your account (pay-as-you-go)
 3. **Create key**: Go to Keys → Create new key
 4. **Copy key**: Copy the generated key
 
-## 🔧 Setting Up StoryGrind
+### Option 2: Google Gemini
 
-### Step 1: Create Your .env File
+1. **Sign up**: Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. **Create key**: Click "Create API Key"
+3. **Copy key**: Copy the generated key
+4. **Save it**: You'll need this for StoryGrind setup
 
-StoryGrind looks for API keys in a special file in your home directory:
+### Option 3: Anthropic Claude
 
-**Windows**: `C:\Users\YourUsername\.env`  
-**Mac**: `~/.env`
+1. **Sign up**: Go to [Anthropic Console](https://console.anthropic.com/)
+2. **Add credit**: Add funds to your account 
+3. **Create key**: Navigate to API Keys section → Create new key
+4. **Copy key**: Copy the generated key
 
-### Step 2: Add Your API Key
+### Option 4: OpenAI
 
-Open the `.env` file with any text editor (Notepad, TextEdit, etc.) and add ONE of these lines:
-
-```
-# For Gemini:
-GEMINI_API_KEY=your_actual_api_key_here
-
-# For Claude:
-ANTHROPIC_API_KEY=your_actual_api_key_here
-
-# For OpenAI:
-OPENAI_API_KEY=your_actual_api_key_here
-
-# For OpenRouter:
-OPENROUTER_API_KEY=your_actual_api_key_here
-```
-
-**Important notes:**
-- Remove the `#` symbol and space before the line you want to use
-- Replace `your_actual_api_key_here` with your real API key
-- Don't use quotes around the key
-- You only need ONE provider to get started
-
-### Step 3: Example .env File
-
-Here's what a working `.env` file looks like:
-
-```
-# StoryGrind API Configuration
-# Created on: Mon Jan 15, 2024 3:45pm
-
-GEMINI_API_KEY=AIzaSyDexample123key456here789
-```
-
-### Step 4: Save and Restart
-
-1. Save the `.env` file
-2. **Restart StoryGrind** (this is important!)
-3. StoryGrind should now detect your API key
+1. **Sign up**: Go to [OpenAI Platform](https://platform.openai.com/)
+2. **Add credit**: Add funds to your account
+3. **Create key**: Go to API Keys → Create new secret key
+4. **Copy key**: Copy the generated key
 
 ## ✅ Testing Your Setup
 
@@ -120,23 +70,8 @@ GEMINI_API_KEY=AIzaSyDexample123key456here789
 
 You can change providers anytime:
 
-1. Edit your `.env` file
-2. Comment out the old key (add `#` at the start)
-3. Add the new provider's key
-4. Restart StoryGrind
-
-## ❗ Troubleshooting
-
-### "API Key Not Found" Error
-- Check that your `.env` file is in the right location
-- Make sure you removed the `#` symbol
-- Verify there are no extra spaces or quotes
-- Restart StoryGrind after making changes
-
-### "Invalid API Key" Error  
-- Double-check you copied the key correctly
-- Make sure the key is still valid (hasn't expired)
-- Verify you have credit in your provider account
+- click on **Settings**
+- quit StoryGrind and relaunch
 
 ## 🎯 Next Steps
 
@@ -150,5 +85,4 @@ Once your API key is working:
 
 - Your API keys are stored only on your computer
 - StoryGrind never sees or stores your keys
-- Keep your `.env` file private (don't share it)
 - Each provider has different privacy policies for your manuscript content
