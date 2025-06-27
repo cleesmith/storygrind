@@ -2,7 +2,7 @@
 const path = require('path');
 const { OpenAI } = require('openai');
 const fs = require('fs/promises');
-const { safeStorage } = require('electron');
+const saferStorage = require('./safer_storage');
 const Store = require('electron-store');
 
 /**
@@ -30,13 +30,13 @@ class AiApiService {
   async _initializeClient() {
     let apiKey = null;
     
-    if (safeStorage.isEncryptionAvailable()) {
+    if (saferStorage.isEncryptionAvailable()) {
       const store = new Store({ name: 'openai-keys' });
       const encryptedKey = store.get('api-key');
       
       if (encryptedKey) {
         try {
-          apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+          apiKey = saferStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
         } catch (error) {
           console.error('Failed to decrypt OpenAI API key:', error.message);
         }

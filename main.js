@@ -534,12 +534,12 @@ function checkApiProviderConfiguration() {
   let hasApiKey = false;
   
   if (selectedProvider === 'anthropic') {
-    // Check safeStorage for Claude key
+    // Check saferStorage for Claude key
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (safeStorage.isEncryptionAvailable()) {
+      if (saferStorage.isEncryptionAvailable()) {
         const store = new Store({ name: 'claude-keys' });
         const encryptedKey = store.get('api-key');
         hasApiKey = !!encryptedKey;
@@ -549,12 +549,12 @@ function checkApiProviderConfiguration() {
       hasApiKey = false;
     }
   } else if (selectedProvider === 'openrouter') {
-    // Check safeStorage for OpenRouter key
+    // Check saferStorage for OpenRouter key
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (safeStorage.isEncryptionAvailable()) {
+      if (saferStorage.isEncryptionAvailable()) {
         const store = new Store({ name: 'openrouter-keys' });
         const encryptedKey = store.get('api-key');
         hasApiKey = !!encryptedKey;
@@ -564,12 +564,12 @@ function checkApiProviderConfiguration() {
       hasApiKey = false;
     }
   } else if (selectedProvider === 'openai') {
-    // Check safeStorage for OpenAI key
+    // Check saferStorage for OpenAI key
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (safeStorage.isEncryptionAvailable()) {
+      if (saferStorage.isEncryptionAvailable()) {
         const store = new Store({ name: 'openai-keys' });
         const encryptedKey = store.get('api-key');
         hasApiKey = !!encryptedKey;
@@ -579,12 +579,12 @@ function checkApiProviderConfiguration() {
       hasApiKey = false;
     }
   } else if (selectedProvider === 'gemini') {
-    // Check safeStorage for Gemini key
+    // Check saferStorage for Gemini key
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (safeStorage.isEncryptionAvailable()) {
+      if (saferStorage.isEncryptionAvailable()) {
         const store = new Store({ name: 'gemini-keys' });
         const encryptedKey = store.get('api-key');
         hasApiKey = !!encryptedKey;
@@ -1329,15 +1329,11 @@ function setupIPCHandlers() {
   // Save OpenRouter API key
   ipcMain.handle('save-openrouter-key', async (event, apiKey) => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (!safeStorage.isEncryptionAvailable()) {
-        throw new Error('Encryption not available on this system');
-      }
-      
       const store = new Store({ name: 'openrouter-keys' });
-      const encryptedKey = safeStorage.encryptString(apiKey);
+      const encryptedKey = saferStorage.encryptString(apiKey);
       store.set('api-key', encryptedKey.toString('latin1'));
       
       console.log('OpenRouter API key saved successfully');
@@ -1350,16 +1346,11 @@ function setupIPCHandlers() {
   // Check if OpenRouter API key exists
   ipcMain.handle('has-openrouter-key', async () => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
-      
-      if (!safeStorage.isEncryptionAvailable()) {
-        return false;
-      }
       
       const store = new Store({ name: 'openrouter-keys' });
       const encryptedKey = store.get('api-key');
-      
       return !!encryptedKey;
     } catch (error) {
       console.error('Error checking for OpenRouter API key:', error);
@@ -1370,12 +1361,8 @@ function setupIPCHandlers() {
   // Get OpenRouter API key (decrypted)
   ipcMain.handle('get-openrouter-key', async () => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
-      
-      if (!safeStorage.isEncryptionAvailable()) {
-        return null;
-      }
       
       const store = new Store({ name: 'openrouter-keys' });
       const encryptedKey = store.get('api-key');
@@ -1384,7 +1371,7 @@ function setupIPCHandlers() {
         return null;
       }
       
-      const apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+      const apiKey = saferStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
       return apiKey;
     } catch (error) {
       console.error('Error retrieving OpenRouter API key:', error);
@@ -1395,15 +1382,11 @@ function setupIPCHandlers() {
   // Save Claude API key
   ipcMain.handle('save-claude-key', async (event, apiKey) => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (!safeStorage.isEncryptionAvailable()) {
-        throw new Error('Encryption not available on this system');
-      }
-      
       const store = new Store({ name: 'claude-keys' });
-      const encryptedKey = safeStorage.encryptString(apiKey);
+      const encryptedKey = saferStorage.encryptString(apiKey);
       store.set('api-key', encryptedKey.toString('latin1'));
       
       console.log('Claude API key saved successfully');
@@ -1417,12 +1400,8 @@ function setupIPCHandlers() {
   // Check if Claude API key exists
   ipcMain.handle('has-claude-key', async () => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
-      
-      if (!safeStorage.isEncryptionAvailable()) {
-        return false;
-      }
       
       const store = new Store({ name: 'claude-keys' });
       const encryptedKey = store.get('api-key');
@@ -1436,12 +1415,8 @@ function setupIPCHandlers() {
   // Get Claude API key (decrypted)
   ipcMain.handle('get-claude-key', async () => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
-      
-      if (!safeStorage.isEncryptionAvailable()) {
-        return null;
-      }
       
       const store = new Store({ name: 'claude-keys' });
       const encryptedKey = store.get('api-key');
@@ -1450,7 +1425,7 @@ function setupIPCHandlers() {
         return null;
       }
       
-      const apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+      const apiKey = saferStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
       return apiKey;
     } catch (error) {
       console.error('Error retrieving Claude API key:', error);
@@ -1461,15 +1436,15 @@ function setupIPCHandlers() {
   // Save OpenAI API key
   ipcMain.handle('save-openai-key', async (event, apiKey) => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (!safeStorage.isEncryptionAvailable()) {
+      if (!saferStorage.isEncryptionAvailable()) {
         throw new Error('Encryption not available on this system');
       }
       
       const store = new Store({ name: 'openai-keys' });
-      const encryptedKey = safeStorage.encryptString(apiKey);
+      const encryptedKey = saferStorage.encryptString(apiKey);
       store.set('api-key', encryptedKey.toString('latin1'));
       
       console.log('OpenAI API key saved successfully');
@@ -1483,10 +1458,10 @@ function setupIPCHandlers() {
   // Check if OpenAI API key exists
   ipcMain.handle('has-openai-key', async () => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (!safeStorage.isEncryptionAvailable()) {
+      if (!saferStorage.isEncryptionAvailable()) {
         return false;
       }
       
@@ -1502,10 +1477,10 @@ function setupIPCHandlers() {
   // Get OpenAI API key (decrypted)
   ipcMain.handle('get-openai-key', async () => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (!safeStorage.isEncryptionAvailable()) {
+      if (!saferStorage.isEncryptionAvailable()) {
         return null;
       }
       
@@ -1516,7 +1491,7 @@ function setupIPCHandlers() {
         return null;
       }
       
-      const apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+      const apiKey = saferStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
       return apiKey;
     } catch (error) {
       console.error('Error retrieving OpenAI API key:', error);
@@ -1527,15 +1502,15 @@ function setupIPCHandlers() {
   // Save Gemini API key
   ipcMain.handle('save-gemini-key', async (event, apiKey) => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (!safeStorage.isEncryptionAvailable()) {
+      if (!saferStorage.isEncryptionAvailable()) {
         throw new Error('Encryption not available on this system');
       }
       
       const store = new Store({ name: 'gemini-keys' });
-      const encryptedKey = safeStorage.encryptString(apiKey);
+      const encryptedKey = saferStorage.encryptString(apiKey);
       store.set('api-key', encryptedKey.toString('latin1'));
       
       console.log('Gemini API key saved successfully');
@@ -1549,10 +1524,10 @@ function setupIPCHandlers() {
   // Check if Gemini API key exists
   ipcMain.handle('has-gemini-key', async () => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (!safeStorage.isEncryptionAvailable()) {
+      if (!saferStorage.isEncryptionAvailable()) {
         return false;
       }
       
@@ -1568,10 +1543,10 @@ function setupIPCHandlers() {
   // Get Gemini API key (decrypted)
   ipcMain.handle('get-gemini-key', async () => {
     try {
-      const { safeStorage } = require('electron');
+      const saferStorage = require('./safer_storage');
       const Store = require('electron-store');
       
-      if (!safeStorage.isEncryptionAvailable()) {
+      if (!saferStorage.isEncryptionAvailable()) {
         return null;
       }
       
@@ -1582,7 +1557,7 @@ function setupIPCHandlers() {
         return null;
       }
       
-      const apiKey = safeStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
+      const apiKey = saferStorage.decryptString(Buffer.from(encryptedKey, 'latin1'));
       return apiKey;
     } catch (error) {
       console.error('Error retrieving Gemini API key:', error);
@@ -1909,6 +1884,17 @@ function setupIPCHandlers() {
       
       // Construct output path
       const outputPath = path.join(appState.CURRENT_PROJECT_PATH, outputFilename);
+      
+      // Check file size first to prevent memory issues
+      const stats = fs.statSync(docxPath);
+      const fileSizeInMB = stats.size / (1024 * 1024);
+      
+      if (fileSizeInMB > 10) {
+        return {
+          success: false,
+          message: `File too large (${fileSizeInMB.toFixed(1)}MB). Please use files smaller than 10MB.`
+        };
+      }
       
       // Use your existing DOCX to TXT conversion code
       const mammoth = require('mammoth');

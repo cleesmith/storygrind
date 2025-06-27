@@ -3,6 +3,7 @@ module.exports = {
     asar: true,
     name: 'storygrind',
     executableName: 'storygrind',
+    appBundleId: 'com.slipthetrap.storygrind',
     // Platform-specific icon handling
     icon: process.platform === 'darwin' 
       ? './resources/storygrind.icns'

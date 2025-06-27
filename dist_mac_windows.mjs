@@ -56,7 +56,7 @@
 
 // ditto -c -k --keepParent "out/StoryGrind-darwin-arm64/StoryGrind.app" "StoryGrind.zip"
 
-// xcrun notarytool submit "StoryGrind.zip" --keychain-profile "notarytool-profile"
+// xcrun notarytool submit "StoryGrind.zip" --keychain-profile "notarytool-profile" --wait
 
 // xcrun notarytool history --keychain-profile "notarytool-profile"
 
@@ -64,14 +64,13 @@
 
 // xcrun stapler validate "out/StoryGrind-darwin-arm64/storygrind.app"
 
-// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "StoryGrind.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
+// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "StoryGrind StoryGrind_v3.0.0_June_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // open out/storygrind-darwin-arm64/storygrind.app
 
 // to test .dmg thoroughly delete anything to do with: storygrind
 // mdfind storygrind
 // then download .dmg and install/run it = what most users will see
-
 
 import { sign } from '@electron/osx-sign'
 
