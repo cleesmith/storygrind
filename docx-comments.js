@@ -30,15 +30,15 @@ class DocxComments extends ToolBase {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    console.log('Executing DocxComments with options:', options);
+    let errorMsg = "";
     
     // Extract options
     let docxFile = options.docx_file;
     const saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     if (!saveDir) {
-      const errorMsg = 'Error: No save directory specified and no current project selected.\n' +
-                      'Please select a project or specify a save directory.';
+      errorMsg = 'Error: No save directory specified and no current project selected.\n' +
+                 'Please select a project or specify a save directory.';
       this.emitOutput(errorMsg);
       throw new Error('No save directory available');
     }
@@ -57,7 +57,23 @@ class DocxComments extends ToolBase {
         throw new Error(`File not found: ${docxFile}`);
       }
       
+      // Check file size first to prevent memory issues
+      const stats = fs.statSync(docxFile);
+      const fileSizeInMB = stats.size / (1024 * 1024);
+      
+      if (fileSizeInMB > 10) {
+        errorMsg = `\nFile too large (${fileSizeInMB.toFixed(1)}MB). Please use files smaller than 10MB.`;
+      }
+      
       this.emitOutput(`Extracting comments from DOCX file...\n`);
+      
+      if (errorMsg) {
+        this.emitOutput(errorMsg + '\n');
+        return {
+          noComments: true,
+          outputPath: null
+        };
+      }
       
       // Process the DOCX file
       const result = await this.processDocx(docxFile, saveDir);

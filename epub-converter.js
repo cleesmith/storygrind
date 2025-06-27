@@ -28,7 +28,7 @@ class EpubConverter extends ToolBase {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    console.log('Executing EPUB Converter with options:', options);
+    let errorMsg = "";
     
     // Extract options
     let epubFile = options.epub_file;
@@ -54,7 +54,28 @@ class EpubConverter extends ToolBase {
         throw new Error(`File not found: ${epubFile}`);
       }
       
+      // Check file size first to prevent memory issues
+      const stats = fs.statSync(epubFile);
+      const fileSizeInMB = stats.size / (1024 * 1024);
+      
+      if (fileSizeInMB > 10) {
+        errorMsg = `\nFile too large (${fileSizeInMB.toFixed(1)}MB). Please use files smaller than 10MB.`;
+      }
+      
       this.emitOutput(`Converting EPUB to text...\n`);
+      
+      if (errorMsg) {
+        this.emitOutput(errorMsg + '\n');
+        return {
+          success: false,
+          message: errorMsg,
+          outputFiles: [],
+          stats: {
+            chapterCount: 0,
+            wordCount: 0
+          }
+        };
+      }
       
       // Read EPUB file as buffer
       const fileData = await fsPromises.readFile(epubFile);
@@ -87,7 +108,6 @@ class EpubConverter extends ToolBase {
       
       this.emitOutput(`\nConverted EPUB saved to: ${outputPath}\n`);
       outputFiles.push(outputPath);
-      
       
       // Return the result
       return {
