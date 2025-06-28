@@ -1,6 +1,6 @@
 # AI Editing Tools
 
-StoryGrind includes over 25 AI-powered tools designed specifically for manuscript editing and analysis. This guide explains what each tool does and when to use it.
+StoryGrind includes over 20+ AI-powered tools designed specifically for manuscript editing and analysis. This guide explains what each tool does and when to use it.
 
 ## 🎯 Core Editing Tools
 
