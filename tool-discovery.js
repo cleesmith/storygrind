@@ -143,8 +143,13 @@ class ToolDiscovery {
             try {
               const content = await fs.readFile(promptPath, 'utf8');
               if (!content.trim()) {
-                // Skip empty files
-                continue;
+                // Check if we have a default prompt for this tool
+                const { toolPrompts } = require('./tool-prompts');
+                if (!toolPrompts[toolId] || !toolPrompts[toolId].trim()) {
+                  // Skip empty files without defaults
+                  continue;
+                }
+                // Allow empty files that have defaults (they'll be restored when run)
               }
             } catch (error) {
               // Skip files that can't be read

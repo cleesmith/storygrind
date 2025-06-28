@@ -2,6 +2,7 @@
 *.dmg
 *.app
 *.zip
+!tool-prompts.zip 
 !lib/spellchecker/dict/*.zip
 
 out/

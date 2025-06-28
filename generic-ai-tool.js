@@ -32,6 +32,18 @@ class GenericAITool extends ToolBase {
       const content = await fs.readFile(this.promptPath, 'utf8');
       
       if (!content.trim()) {
+        // Check if we have a default prompt for this tool
+        const { toolPrompts } = require('./tool-prompts');
+        if (toolPrompts[this.name] && toolPrompts[this.name].trim()) {
+          // Restore the default prompt
+          const fs = require('fs/promises');
+          await fs.writeFile(this.promptPath, toolPrompts[this.name], 'utf8');
+          this.emitOutput(`Restored default prompt for ${this.name}\n`);
+          this.emitOutput(`Using default prompt for: ${this.name}\n`);
+          this.emitOutput(`${toolPrompts[this.name]}\n`);
+          return toolPrompts[this.name];
+        }
+        
         this.emitOutput(`Error: Prompt file is empty: ${this.promptPath}\n`);
         return null;
       }
