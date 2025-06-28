@@ -1,7 +1,11 @@
 
 // === WINDOWS ===
-// npm run package
-// tar -a -c -f StoryGrind-Windows.zip -C out storygrind-win32-x64
+// does both package & tar
+// npm run make 
+
+// previously:
+//  npm run package
+//  tar -a -c -f StoryGrind-Windows.zip -C out storygrind-win32-x64
 
 // put .zip on github Releases
 // users download and extract a portable app = .exe
@@ -64,7 +68,8 @@
 
 // xcrun stapler validate "out/StoryGrind-darwin-arm64/storygrind.app"
 
-// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Intel_x64_StoryGrind_v3.0.0_June_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
+// change name for Silicon or Intel:
+// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Silicon_arm64_StoryGrind_v3.0.0_June_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // open out/storygrind-darwin-arm64/storygrind.app
 
@@ -76,9 +81,9 @@ import { sign } from '@electron/osx-sign'
 
 const opts = {
   // silicon:
-  // app: 'out/StoryGrind-darwin-arm64/StoryGrind.app',
+  app: 'out/StoryGrind-darwin-arm64/StoryGrind.app',
   // intel:
-  app: 'out/storygrind-darwin-x64/storygrind.app',
+  // app: 'out/storygrind-darwin-x64/storygrind.app',
   // Required for notarization
   optionsForFile: (filePath) => {
     return {
