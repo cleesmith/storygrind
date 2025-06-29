@@ -7,7 +7,9 @@ Let's get it installed and working with OpenRouter
 
 DOWNLOAD & INSTALL
 Go to: 
+
 https://github.com/cleesmith/storygrind/releases/latest
+
 - see link in this video's description and pinned comment
 - now, download the proper file for your Mac:
 - Apple Silicon .dmg for newer Macs (M1, M2, M3, M4 chips)
