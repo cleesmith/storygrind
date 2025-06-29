@@ -11,7 +11,7 @@ StoryGrind is a desktop application that helps writers/authors/editors analyze a
 
 ## TL;DR -> watch YouTube video:
 
-https://www.youtube.com/live/honw_mQZpNw?si=QMcLCnxVSTBFC7UB
+https://www.youtube.com/live/honw_mQZpNw
 
 ---
 
