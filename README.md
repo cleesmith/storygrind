@@ -9,64 +9,9 @@ StoryGrind is a desktop application that helps writers/authors/editors analyze a
 
 ---
 
-## TL;DR -> Quick Start:
+## TL;DR -> watch YouTube video:
 
-### Installing StoryGrind on Your Mac
-
-#### Step 1: 
-- Download StoryGrind at: https://github.com/cleesmith/storygrind/releases/latest
-- Click on **StoryGrind_Apple_silicon.dmg** (not for Intel Mac's)
-- Wait for download
-
-#### Step 2: Install the App
-- Find the downloaded StoryGrind_Apple_silicon.dmg file, probably in your **Downloads** folder
-- Double-click it
-- Drag **storygrind.app** into the **Applications** folder
-- After dragging to Applications, close the installer window and eject
-
-#### Step 3: Open StoryGrind for the First Time
-- Open Finder, click Applications
-- Double-click  **storygrind.app** 
-- You'll see a dialog asking:
-	> "Are you sure you want to open it?"
-
-	> "*Apple checked it for malicious software and none was detected*"
-
-	> *This small print means StoryGrind was **signed and notarized** using the **Apple Developer Program***
-
-*For example:*
-
-![Apple's gatekeeper/security after install](./resources/gatekeeper.png?raw=true)
-
-> This gatekeeper/security dialog is normal - it appears for all apps downloaded from the internet, even when Apple has verified them as safe. So it's ok to click "Open" when you see this message.
-
-- Click "Open"
-	- StoryGrind will open and show a welcome screen asking you to choose an **AI provider**
-	- Pick one (highly recommned **OpenRouter**), then click the blue button to quit and restart
-	- It will also remind you that you need to add your API key to the **.env** file
-
-> That's it! StoryGrind will now open like any other app.
-
----
-
-### What StoryGrind Creates on Your Computer:
-A **.env** file in your home folder where you'll put your API keys
-A folder called "**writing_with_storygrind**" in your home folder
-This is where all your writing projects will live
-You'll copy your manuscript files into project folders using Finder
-
-### How to Edit Your API Key (thankfully, it's a One-Time Setup):
-1. Open Terminal by using Finder, click Applications, click Utilities
-2. Type: **open .env**
-3. Press Enter
-4. The file opens in **TextEdit** automatically
-5. Follow the instructions in the file to add your API key
-
-### Your .env and API keys are setup so to use them:
-1. launch StoryGrind again: use Finder, click Applications, double click **storygrind.app** 
-1. Click "**Select Project**" to create your first writing project
-2. Copy your manuscript (.txt or .docx file) into the project folder
-4. Choose an editing tool and **Setup & Run** it on your manuscript
+https://www.youtube.com/live/honw_mQZpNw?si=QMcLCnxVSTBFC7UB
 
 ---
 
@@ -77,7 +22,7 @@ Visit the full wiki for detailed guides: https://github.com/cleesmith/storygrind
 
 ## Privacy & Security
 
-- API keys are stored in your home directory's .env file
+- API keys are encrypted and stored on your computer
 - You control when AI services are accessed
 - No automatic uploads or background processing
 
