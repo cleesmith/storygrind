@@ -1,34 +1,40 @@
 
+0. Chrome: show openrouter.ai and scroll down to see:
+    1. Signup: Create an account to get started.
+    2. Buy credits
+    3. Get your API key
+    * a fix for video (1)
+
 1. StoryGrind: "No project selected"
-    Show the initial empty state when StoryGrind opens
+    show the initial empty state when StoryGrind opens
 
 2. StoryGrind: Select Project button
-    Click to open project selection dialog
+    click to open project selection dialog
 
 3. StoryGrind: Create Project dialog
-    Walk through project name entry and creation
+    walk through project name entry and creation
 
 4. Finder: Navigate to ~/writing_with_storygrind
-    Show the new project folder that was created
+    show the new project folder that was created
 
 5. Finder: Copy existing manuscripts
-    Navigate to Desktop/Documents, select writing files, Cmd+C
+    navigate to Desktop/Documents, select writing files, Cmd+C
 
 6. Finder: Paste into project folder
-    Navigate back to project folder, Cmd+V to add manuscripts
+    navigate back to project folder, Cmd+V to add manuscripts
 
-7. StoryGrind: Refresh/reload project
-    Show how added files appear in StoryGrind
+7. StoryGrind: Refresh/reload project = just click Select Project button
+    to show how added files appear, no extra config or settings
 
 8. StoryGrind: DOCX conversion
-    Demonstrate .docx files get converted to .txt automatically
+    demo .docx files get converted to .txt automatically
 
 9. StoryGrind: Plain text workflow
-    Show all work happens with .txt files
+    show all work happens with .txt files
 
 10. StoryGrind: Switch projects
-      Use Select Project to demonstrate multiple project workflow
+      use Select Project to demo multiple project workflow
 
 11. StoryGrind: Project loaded and ready
-      Show manuscripts loaded, ready for AI tools
+      show manuscripts loaded, ready for AI tools
 
