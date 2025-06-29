@@ -110,8 +110,6 @@ class AiApiService {
     }
   }
 
-
-
   /**
    * Streams a response using OpenAI Responses API
    * @param {string} prompt - The user prompt to send (will prepend manuscript)

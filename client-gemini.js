@@ -133,9 +133,6 @@ class AiApiService {
     }
   }
 
-
-
-
   /**
    * Stream a response
    * @param {string} prompt - Prompt to complete

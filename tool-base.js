@@ -345,7 +345,7 @@ Date: ${dateTimeStr}
 Prompt tokens: ${promptTokens}
 Response tokens: ${responseTokens}
 
-${content}`;
+${content}\n`;
       
       // Save full response
       const reportFilename = `${baseFilename}.txt`;
