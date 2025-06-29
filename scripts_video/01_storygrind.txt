@@ -1,44 +1,47 @@
 
-INTRO
 Alright, it's time try StoryGrind. 
 
-Let's get it installed and working with OpenRouter (OR)
+Let's get it installed and working with OpenRouter 
 - the easiest AI provider for anyone to start with.
 
 
 DOWNLOAD & INSTALL
-Go to: github.com/cleesmith/storygrind/releases/latest 
-- see link in video's description and comments 
-- and download the proper file for your Mac:
+Go to: 
+https://github.com/cleesmith/storygrind/releases/latest
+- see link in this video's description and pinned comment
+- now, download the proper file for your Mac:
 - Apple Silicon .dmg for newer Macs (M1, M2, M3, M4 chips)
   or
 - Apple Intel .dmg for older Intel Macs
 
-Open it, and in that popup window drag storygrind.app to Applications.
-Now, click on the red dot to close that window.
+Open it in Downloads and an install popup window appears:
+- drag storygrind.app to Applications
+- click on the red dot to close that window, you can eject it too
 
 In the Applications folder in Finder, 
 let's click on storygrind to launch it for the first time,
-you will see Apple's gatekeeper security will popup
-- this is normal for downloaded apps not from the App Store. 
-click Open on the security dialog to continue, 
+you will see Apple's gatekeeper security popup
+- this is normal for downloaded apps that are not from the App Store
+- click Open on the security dialog to continue
 Both Apple versions are signed and notarized through the Apple Developer Program, 
-so they're safe to run, which accounts for the message:
+so they're safe to run, which is why you see this message:
 "Apple checked it for malicious software and none was detected."
 
 On the first launch, StoryGrind will open the Settings window. 
-- choose OpenRouter from the AI provider dropdown
+- choose OpenRouter from the AI provider selection dropdown
 - click 'Save & Quit'
 
 
 OPENROUTER SETUP
-First, get your OpenRouter API key 
-- it's like a key that unlocks the AI door. 
+Now, get your OpenRouter API key 
+- it's like a key that unlocks the door to AI's 
 Go to openrouter.ai and sign up - it's free to start, 
-but to use OpenRouter with your API key considering buying $20 in credits.
-No, I am not affliated with them or anyone, and I feel AI should be free.
+but to use OpenRouter with your API key consider buying $20 in credits.
+No, I am not affliated with them, or anyone, 
+and I feel AI should be free but it's 2025.
 
-Once signed up and logged in, click Keys in the sidebar, then Create Key. 
+Once signed up and logged in
+- click Keys in the sidebar, then Create Key. 
 Give it any name you want and 
 COPY THAT KEY - this is important as you only see the key once!
 However, you can always delete old keys and create new ones, so 
@@ -59,18 +62,22 @@ are in that list: Anthropic's Claude, Google's Gemini, OpenAI's GPTs.
 If not, double check that your API key is correct, you can 
 click the eyeball 👁️ to see and verify.
 
-Select your model, click 'Save & Quit', relaunch StoryGrind, 
+Select your model
+- click 'Save & Quit'
+- relaunch StoryGrind
 and you're ready to create your first project and start getting 
 AI-powered insights on your manuscript. 
 
-Yes, it is confusing to set up the API key the first time: 
+CAVEAT
+Yes, it is confusing to set up the API key for the first time: 
 with all of the Settings, 
 and relaunching the app several times, 
 but it's only a one-time event. 
 And the purpose of all of that is to ensure your API keys are 
-safe and encrypted ... after all, keys are money.
+safe and encrypted ... after all, keys are a bit like money, your money.
 
-THAT'S IT, but...
+THAT'S IT!
+but wait there's more ...
 This is the first in a series of videos about StoryGrind; each aimed at 
 everything from installation, setting up API keys, to actually using 
 the tools and prompts for editing your manuscripts.
