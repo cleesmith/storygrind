@@ -5,8 +5,9 @@ A fix for video (1) in Chrome:
     2. Buy credits
     3. Get your API key
 
+Writing Project - behind the scenes = Finder time
 1. StoryGrind: "No project selected"
-    show the initial empty state when StoryGrind opens
+    show the initial empty state
 
 2. StoryGrind: Select Project button
     click to open project selection dialog
@@ -14,27 +15,37 @@ A fix for video (1) in Chrome:
 3. StoryGrind: Create new Project
     walk through project name entry and creation
 
-4. Finder: Navigate to ~/writing_with_storygrind
+4. Finder: 
+    show Finder settings to reveal home folder
+    navigate to ~/writing_with_storygrind
     show the new project folder that was created
 
-5. Finder: Copy existing manuscripts
-    navigate to Desktop/Documents, select writing files
+5. Finder: copy existing manuscripts
+    navigate to Desktop/Documents, 
+    select writing files,
+    copy folder or file into storygrind
 
-6. Finder: Paste into project folder
-    navigate back to project folder, Cmd+V to add manuscripts
+6. Finder: paste into project folder
+    navigate back to project folder, 
+    paste to add manuscripts
 
-7. StoryGrind: Refresh/reload project = just click Select Project button
-    to show how added files appear, no extra config or settings
+7. StoryGrind: 
+    just click Select Project button
+    to show how added files appear, 
+    no extra config or fussing with settings
 
 8. StoryGrind: DOCX conversion
-    demo .docx files get converted to .txt automatically
+    demo .docx files get converted to .txt
 
 9. StoryGrind: Plain text workflow
     show all work happens with .txt files
 
 10. StoryGrind: Switch projects
-      use Select Project to demo multiple project workflow
+      use Select Project to change project
 
 11. StoryGrind: Project loaded and ready
-      show manuscripts loaded, ready for AI tools
+      show manuscripts loaded, 
+      ready for AI tools
+
+
 
