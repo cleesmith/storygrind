@@ -15,6 +15,22 @@ https://www.youtube.com/live/honw_mQZpNw
 
 ---
 
+## The simplest way to install for any OS/platform
+
+1. install **Node.js** ... https://nodejs.org/en/download
+2. git clone https://github.com/cleesmith/storygrind.git
+   or: **Download ZIP**, unzipped
+3. cd **storygrind**
+4. **npm install**
+5. **npm start**
+
+... *after doing that, it's just:*
+1. cd storygrind
+2. npm start
+
+
+---
+
 Need Help?
 Visit the full wiki for detailed guides: https://github.com/cleesmith/storygrind/wiki
 
