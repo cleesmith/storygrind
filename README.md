@@ -50,3 +50,7 @@ Having issues or suggestions? Please visit our [GitHub Issues page](https://gith
 ## About
 
 StoryGrind speaks directly to the writer's experience of struggling to identify issues in their own work. This app makes the painful process more manageable, and is an integral part of creating great writing. It's honest about the process without being negative—editing is about improvement, after all.
+
+> **A free forever open sourced app.**
+
+
