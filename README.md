@@ -19,7 +19,7 @@ https://www.youtube.com/live/honw_mQZpNw
 
 1. install **Node.js** ... https://nodejs.org/en/download
 2. git clone https://github.com/cleesmith/storygrind.git
-   or: **Download ZIP**, unzipped
+   or: **Download ZIP**, then unzip
 3. cd **storygrind**
 4. **npm install**
 5. **npm start**
