@@ -32,7 +32,8 @@ https://www.youtube.com/live/honw_mQZpNw
 ---
 
 Need More Help?
-Visit the full wiki for detailed guides: https://github.com/cleesmith/storygrind/wiki
+
+- Visit the full wiki for detailed guides: https://github.com/cleesmith/storygrind/wiki
 
 ---
 
