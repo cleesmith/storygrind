@@ -6,6 +6,7 @@ A fix for video (1) in Chrome:
     3. Get your API key
 
 Writing Project - behind the scenes = Finder time
+
 1. StoryGrind: "No project selected"
     show the initial empty state
 

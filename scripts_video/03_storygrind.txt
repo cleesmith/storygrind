@@ -1,0 +1,30 @@
+1. Quick recap
+    - Project loaded with manuscripts ready to use
+
+2. Start with Proofreader Spelling (non-AI)
+    - Show it's a local tool, no AI needed
+    - Demonstrate spell checking functionality
+    - Quick, immediate results
+
+3. User Tools > List Chapters
+    - Show the User Tools menu
+    - Run List Chapters tool
+    - Display chapter structure/outline results
+
+4. Narrative Integrity (the showcase)
+    - Select this AI-powered tool
+    - Set it running (mention it takes time)
+    - Show the progress/waiting experience
+    - Display the comprehensive analysis results
+
+5. Exploring the reports
+    - Navigate through generated files
+    - Show different types of feedback
+    - Highlight the organized, structured analysis
+
+6. Wrap up
+    - Brief mention of other available tools
+
+StoryGrind acts as the coach and organizer 
+- it directs the powerful AI to give you
+structured, useful feedback on your writing.

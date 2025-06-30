@@ -268,18 +268,21 @@ runBtn.addEventListener('click', async () => {
         clearBtn.disabled = false;
         closeBtn.disabled = false;
         
-        // Check if this tool should show the Edit button
-        // Hide for AI Writing Tools and Non-AI Tools
-        const excludedTools = [
-          'brainstorm', 'outline_writer', 'world_writer', 'chapter_writer',
-          'tokens_words_counter'
-        ];
+        // // Check if this tool should show the Edit button
+        // // Hide for AI Writing Tools and Non-AI Tools
+        // const excludedTools = [
+        //   'brainstorm', 'outline_writer', 'world_writer', 'chapter_writer',
+        //   'tokens_words_counter'
+        // ];
         
-        if (!excludedTools.includes(toolData.name)) {
-          // Show Edit button and dropdown for non-excluded tools
-          editBtn.style.display = 'inline-block';
-          toolSelectElement.style.display = 'inline-block';
-        }
+        // if (!excludedTools.includes(toolData.name)) {
+        //   // Show Edit button and dropdown for non-excluded tools
+        //   editBtn.style.display = 'inline-block';
+        //   toolSelectElement.style.display = 'inline-block';
+        // }
+        // Show Edit button and dropdown
+        editBtn.style.display = 'inline-block';
+        toolSelectElement.style.display = 'inline-block';
 
         runBtn.disabled = true;
         // Reset setupCompleted flag to require going through setup again
