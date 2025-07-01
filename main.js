@@ -1189,6 +1189,34 @@ ipcMain.on('close-editor-dialog', () => {
   }
 });
 
+// Open file in default text editor
+ipcMain.on('open-in-default-editor', (event, filePath) => {
+  const { spawn } = require('child_process');
+  
+  try {
+    let child;
+    if (process.platform === 'darwin') {
+      // macOS
+      child = spawn('open', ['-a', 'TextEdit', filePath], {
+        detached: true,
+        stdio: 'ignore'
+      });
+    } else if (process.platform === 'win32') {
+      // Windows
+      child = spawn('notepad.exe', [filePath], {
+        detached: true,
+        stdio: 'ignore'
+      });
+    }
+    
+    if (child) {
+      child.unref();
+    }
+  } catch (error) {
+    // Fail silently as requested
+  }
+});
+
 // Set up all IPC handlers
 function setupIPCHandlers() {
   setupProjectHandlers();

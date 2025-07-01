@@ -19,6 +19,7 @@ let filepath; // Display element showing current file path
 let modeToggle; // Button to switch between edit and preview modes
 let modeTooltip; // Tooltip text for the mode toggle button
 let openButton; // File open button
+let openInEditorButton; // Open in external text editor button
 let saveButton; // File save button
 let saveAsButton; // Save As button for new files
 let closeButton; // Window close button
@@ -88,6 +89,7 @@ function initDomReferences() {
   modeToggle = document.getElementById('mode-toggle');
   modeTooltip = document.getElementById('mode-tooltip');
   openButton = document.getElementById('open-button');
+  openInEditorButton = document.getElementById('open-in-editor-button');
   saveButton = document.getElementById('save-button');
   saveAsButton = document.getElementById('save-as-button');
   closeButton = document.getElementById('close-button');
@@ -538,6 +540,19 @@ function setupControlEvents() {
         });
       } else {
         showNotification('Error: File selection API not available');
+      }
+    });
+  }
+  
+  // Open file in external text editor
+  if (openInEditorButton) {
+    openInEditorButton.addEventListener('click', () => {
+      if (!currentFilePath) {
+        return; // No file open, fail silently
+      }
+      
+      if (window.electronAPI && window.electronAPI.openInDefaultEditor) {
+        window.electronAPI.openInDefaultEditor(currentFilePath);
       }
     });
   }

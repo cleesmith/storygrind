@@ -70,6 +70,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     console.log("PRELOAD: Sending close-editor-dialog IPC");
     ipcRenderer.send('close-editor-dialog');
   },
+  openInDefaultEditor: (filePath) => ipcRenderer.send('open-in-default-editor', filePath),
 
   onFileOpened: (callback) => ipcRenderer.on('file-opened', (_, data) => callback(data)),
   
