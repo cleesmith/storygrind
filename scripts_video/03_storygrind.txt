@@ -1,30 +1,51 @@
-1. Quick recap
-    - Project loaded with manuscripts ready to use
+Dark/Light mode  - toggle between dark and light UI themes
+Settings  - configure AI providers, models, and language preferences
+Cancel  - exit Settings
+Save  - save current Settings
+Save & Quit  - save AI API provider/model/api key and quit app
+Editor  - open window built-in text editor for manuscript editing
+Quit  - exit the StoryGrind application
+Select Project  - choose or switch between writing projects
+Import  - import manuscript files .docx only into current project
+Export  - export manuscripts or reports from current project
+Tool Category selection  - choose between tool categories
+Tool selection  - pick a specific editing tool
+Edit Prompt  - customize AI prompts for most tools
+Setup & Run  - open window
+Setup  - configure tool parameters without running
+Apply  - remember current settings for Run
+Run  - start tool execution
+Edit: select report  - open editior window to view/edit report
+Force Quit  - terminate a hanging run (api's can be flakey)
+Clear  - reset Setup, remove Edit, to run over again
+Close  - close current window
+... StoryGrind has 18 user actions via clicking.
 
-2. Start with Proofreader Spelling (non-AI)
-    - Show it's a local tool, no AI needed
-    - Demonstrate spell checking functionality
-    - Quick, immediate results
 
-3. User Tools > List Chapters
-    - Show the User Tools menu
-    - Run List Chapters tool
-    - Display chapter structure/outline results
+Quick recap
+ - Project loaded with manuscripts ready to use
 
-4. Narrative Integrity (the showcase)
-    - Select this AI-powered tool
-    - Set it running (mention it takes time)
-    - Show the progress/waiting experience
-    - Display the comprehensive analysis results
+Start with Proofreader Spelling (non-AI)
+ - Show it's a local tool, no AI needed
+ - Demonstrate spell checking functionality
+ - Quick, immediate results
+ - show Languages in Settings
+ - show dictionaries in:
+     ~/writing_with_storygrind/tool-prompts/dictionaries
 
-5. Exploring the reports
-    - Navigate through generated files
-    - Show different types of feedback
-    - Highlight the organized, structured analysis
+Narrative Integrity (the showcase = fav)
+ - Set it running (mention it can take the longest time to run)
+ - Show the progress/waiting experience
+ - Display the comprehensive analysis results/report
 
-6. Wrap up
-    - Brief mention of other available tools
+Exploring the reports
+ - Navigate through generated files
+ - Show different types of feedback
+ - Highlight the organized, structured analysis
+
+Wrap up
+ - Brief mention of other available tools
 
 StoryGrind acts as the coach and organizer 
 - it directs the powerful AI to give you
-structured, useful feedback on your writing.
+structured with useful feedback on your writing.
