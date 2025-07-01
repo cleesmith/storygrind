@@ -64,12 +64,12 @@
 
 // xcrun notarytool history --keychain-profile "notarytool-profile"
 
-// xcrun stapler staple "out/StoryGrind-darwin-arm64/storygrind.app"
+// xcrun stapler staple "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
-// xcrun stapler validate "out/StoryGrind-darwin-arm64/storygrind.app"
+// xcrun stapler validate "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // change name for Silicon or Intel:
-// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Silicon_arm64_StoryGrind_v3.0.0_June_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
+// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Silicon_arm64_StoryGrind_v4.0.0_July_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // open out/storygrind-darwin-arm64/storygrind.app
 

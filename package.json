@@ -1,6 +1,6 @@
 {
-  "name": "storygrind",
-  "version": "3.0.0",
+  "name": "StoryGrind",
+  "version": "4.0.0",
   "type": "commonjs",
   "description": "A desktop application for creative fiction writers with AI-powered manuscript analysis and editing tools",
   "main": "main.js",
@@ -54,7 +54,7 @@
   },
   "build": {
     "appId": "com.slipthetrap.storygrind",
-    "productName": "storygrind",
+    "productName": "StoryGrind",
     "files": [
       "*.js",
       "*.html",
