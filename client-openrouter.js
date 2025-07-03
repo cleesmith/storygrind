@@ -161,8 +161,9 @@ class AiApiService {
         }
       }
 
-      const modelName = `\n\nProvider model: ${this.config.model_name}\n`;
-      onText(modelName);
+      // cls: messes up manuscript.txt using: chapter-writer.js
+      // const modelName = `\n\nProvider model: ${this.config.model_name}\n`;
+      // onText(modelName);
 
       if (options.includeMetaData) {
         const metadata = '\n\n--- RESPONSE METADATA ---\n' + JSON.stringify({ model: this.config.model_name }, null, 2);

@@ -102,10 +102,8 @@ const ProofreaderSpelling = loadToolClass('proofreader-spelling');
 const DocxComments = loadToolClass('docx-comments');
 const EpubConverter = loadToolClass('epub-converter');
 
-// AI Writing tools with complex hardcoded prompts:
-const BrainstormTool = loadToolClass('brainstorm');
-const OutlineWriter = loadToolClass('outline-writer');
-const WorldWriter = loadToolClass('world-writer');
+// AI Writing tools with external prompts:
+const WritingAITool = require('./writing-ai-tools');
 const ChapterWriter = loadToolClass('chapter-writer');
 
 const TOOL_DEFS = [
@@ -176,7 +174,7 @@ const TOOL_DEFS = [
         ]
       }
   ]},
-  { id: 'brainstorm', title: `Brainstorm`, description: `Helps generate initial story ideas. Appends more ideas to the existing 'ideas.txt' file.`, Class: BrainstormTool, options: [
+  { id: 'brainstorm', title: `Brainstorm`, description: `Helps generate initial story ideas. Appends more ideas to the existing 'ideas.txt' file.`, Class: WritingAITool, options: [
     {
       "name": "ideas_file",
       "label": "Ideas File",
@@ -187,7 +185,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'outline_writer', title: `Outline Writer`, description: `Generates a plot outline from your brainstorming file.`, Class: OutlineWriter, options: [
+  { id: 'outline_writer', title: `Outline Writer`, description: `Generates a plot outline from your brainstorming file.`, Class: WritingAITool, options: [
     {
       "name": "brainstorm_file",
       "label": "Brainstorm File",
@@ -198,7 +196,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'world_writer', title: `World Writer`, description: `Extract and develop characters and world elements from an outline.  All three files become useful during chapter writing.`, Class: WorldWriter, options: [
+  { id: 'world_writer', title: `World Writer`, description: `Extract and develop characters and world elements from an outline.  All three files become useful during chapter writing.`, Class: WritingAITool, options: [
     {
       "name": "title",
       "label": "TITLE",
@@ -264,15 +262,6 @@ const TOOL_DEFS = [
       "default": "world.txt",
       "group": "Input Files"
     },
-    {
-      "name": "lang",
-      "label": "lang",
-      "type": "text",
-      "description": "Language for writing",
-      "required": false,
-      "default": "English",
-      "group": "Input Files"
-    }
   ]}];
 
 module.exports = TOOL_DEFS;

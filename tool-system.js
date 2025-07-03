@@ -234,7 +234,25 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'chapter_writer', title: `Chapter Writer`, description: `Uses the outline, chapters list, world document, and any existing manuscript to write rough draft chapters.`, Class: ChapterWriter, options: [
+  { id: 'chapter_writer', title: `Chapter Writer`, description: `Uses the outline and world files, along with any existing manuscript to write rough draft chapters that are missing from the manuscript.`, Class: ChapterWriter, options: [
+    {
+      "name": "title",
+      "label": "TITLE",
+      "type": "text",
+      "description": "Title of story",
+      "required": true,
+      "default": "",
+      "group": "Content Configuration"
+    },
+    {
+      "name": "pov",
+      "label": "POV",
+      "type": "text",
+      "description": "Point of view",
+      "required": true,
+      "default": "third person perspective",
+      "group": "Content Configuration"
+    },
     {
       "name": "manuscript",
       "label": "manuscript",

@@ -42,7 +42,8 @@ class PromptManager {
     this.aiWritingTools = [
       'brainstorm',
       'outline_writer',
-      'world_writer'
+      'world_writer',
+      'chapter_writer'
     ];
     
     // Tools that should NOT have prompt files created (they have JS implementations)
@@ -50,8 +51,7 @@ class PromptManager {
       'tokens_words_counter',
       'proofreader_spelling', 
       'docx_comments',
-      'epub_converter',
-      'chapter_writer'
+      'epub_converter'
     ];
   }
 
