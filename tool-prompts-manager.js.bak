@@ -12,11 +12,10 @@ class PromptManager {
   constructor() {
     this.promptsDir = path.join(appState.PROJECTS_DIR, 'tool-prompts');
     
-    // Define the main subfolders
+    // Define the three main subfolders
     this.coreToolsDir = path.join(this.promptsDir, 'Core Editing Tools');
     this.otherToolsDir = path.join(this.promptsDir, 'Other Editing Tools');
     this.userToolsDir = path.join(this.promptsDir, 'User Tools');
-    this.aiWritingToolsDir = path.join(this.promptsDir, 'AI Writing Tools');
     
     // Category mapping for tools in proper editing workflow order
     this.coreEditingTools = [
@@ -38,19 +37,15 @@ class PromptManager {
       'nonfiction_sourcing_audit'
     ];
     
-    // AI Writing Tools
-    this.aiWritingTools = [
-      'brainstorm',
-      'outline_writer',
-      'world_writer'
-    ];
-    
     // Tools that should NOT have prompt files created (they have JS implementations)
     this.builtInToolsToSkip = [
       'tokens_words_counter',
       'proofreader_spelling', 
       'docx_comments',
       'epub_converter',
+      'brainstorm',
+      'outline_writer', 
+      'world_writer',
       'chapter_writer'
     ];
   }
@@ -66,7 +61,6 @@ class PromptManager {
       await fs.mkdir(this.coreToolsDir, { recursive: true });
       await fs.mkdir(this.otherToolsDir, { recursive: true });
       await fs.mkdir(this.userToolsDir, { recursive: true });
-      await fs.mkdir(this.aiWritingToolsDir, { recursive: true });
       return true;
     } catch (error) {
       console.error('Error creating prompts directories:', error);
@@ -84,8 +78,6 @@ class PromptManager {
       return this.coreToolsDir;
     } else if (this.userTools.includes(toolName)) {
       return this.userToolsDir;
-    } else if (this.aiWritingTools.includes(toolName)) {
-      return this.aiWritingToolsDir;
     } else {
       return this.otherToolsDir;
     }
