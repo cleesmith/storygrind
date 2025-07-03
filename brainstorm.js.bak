@@ -27,7 +27,7 @@ class BrainstormTool extends ToolBase {
     const outputFiles = [];
     const conceptOnly = false;
     const charactersOnly = false;
-    let saveDir = appState.CURRENT_PROJECT_PATH;
+    let saveDir = options.save_dir || appState.CURRENT_PROJECT_PATH;
     
     // Validate save directory
     if (!saveDir) {
@@ -104,9 +104,6 @@ class BrainstormTool extends ToolBase {
     let thinkingContent = "";
 
     try {
-      // july 2025 fix for "no manuscript" error:
-      this.apiService.prompt = " "; 
-
       await this.apiService.streamWithThinking(
         prompt,
         (textDelta) => {
