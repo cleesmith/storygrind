@@ -296,9 +296,9 @@ class ChapterWriter extends ToolBase {
       );
         
       if (appendSuccess) {
-        this.emitOutput(`Chapter ${chapterNum} appended to manuscript file: ${manuscriptFile}\n`);
+        this.emitOutput(`\nChapter ${chapterNum} appended to manuscript file: ${manuscriptFile}\n`);
       } else {
-        this.emitOutput(`Warning: Failed to append chapter to manuscript file\n`);
+        this.emitOutput(`\nWarning: Failed to append chapter to manuscript file\n`);
       }
       
       this.emitOutput(`\nCompleted Chapter ${chapterNum}: ${chapterWordCount} words (${minutes}m ${seconds.toFixed(2)}s) - saved to: ${path.basename(chapterPath)} and\nappended to manuscript.\n`);

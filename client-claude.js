@@ -196,35 +196,18 @@ class AiApiService {
         .withResponse();
 
       // Show rate limit headers if metadata is requested
-      if (includeMetaData) {
-        onText('\n=== FYI: Rate Limits ===\n');
-        const headerEntries = Array.from(rawResponse.headers.entries());
-        for (const [name, value] of headerEntries) {
-          if (name.toLowerCase().includes('rate') || name.toLowerCase().includes('limit')) {
-            onText(`${name}: ${value}\n`);
-          }
-        }
-        onText('\n');
-      }
-
-      let isThinking = false;
-      let isResponding = false;
+      // if (includeMetaData) {
+      //   onText('\n=== FYI: Rate Limits ===\n');
+      //   const headerEntries = Array.from(rawResponse.headers.entries());
+      //   for (const [name, value] of headerEntries) {
+      //     if (name.toLowerCase().includes('rate') || name.toLowerCase().includes('limit')) {
+      //       onText(`${name}: ${value}\n`);
+      //     }
+      //   }
+      //   onText('\n');
+      // }
 
       for await (const event of stream) {
-        if (event.type === "content_block_start") {
-          if (event.content_block.type === "thinking") {
-            if (!isThinking) {
-              onText('🤔 Thinking...\n\n');
-              isThinking = true;
-            }
-          } else if (event.content_block.type === "text") {
-            if (!isResponding) {
-              onText('\n🤖 Responding...\n\n');
-              isResponding = true;
-            }
-          }
-        }
-        
         if (event.type === "content_block_delta") {
           if (event.delta.type === "thinking_delta") {
             // console.dir(event.delta.thinking);
