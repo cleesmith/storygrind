@@ -30,7 +30,7 @@ https://www.youtube.com/live/honw_mQZpNw
 - **Free Forever** - No subscriptions to StoryGrind itself
 - **Your Words Stay Yours** - Everything is stored locally on your computer, no Cloud lock-in
 - **100% Plain Text** - All the way down, it's about *words* (**yours**), plain ole text is easy for AI eyes 👀, and portable to everywhere
-- **You Control Your AI Usage** - Use your own API keys with the provider of your choice
+- **You Control Your AI Usage** - Use your own API keys with the AI provider of your choice
 - **Professional-Grade Tools** - Comprehensive editing tools you can customize to match your writing style, plus add your own
 - **Multiple AI Providers** - Choose from Claude, Gemini, OpenAI, or OpenRouter
 - **Writer-Friendly** - Built by a writer, for writers
@@ -43,7 +43,7 @@ https://www.youtube.com/live/honw_mQZpNw
 - Authors preparing manuscripts for publication
 - Editors looking for AI-powered analysis tools
 - Writing Groups who want to share editing resources
-- Budget-Conscious Writers who want professional editing at AI prices with fast thorough responses
+- Budget-Conscious Writers who want professional editing at AI prices with fast thorough 24/7 responses
 
 ---
 
