@@ -124,7 +124,8 @@ Need More Help?
 - API keys are encrypted and stored on your computer
 - You control when AI services are accessed
 - No automatic uploads or background processing
-- StoryGrind practices digital patience 🌴 🧘🏽‍♀️ - present but not intrusive, ready but not demanding, costing nothing while it waits
+- StoryGrind practices digital patience 🌴 🧘🏽‍♀️ 
+  > *present but not intrusive, ready but not demanding, costing nothing while it awaits your return*
 
 ## Support
 
