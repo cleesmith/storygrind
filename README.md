@@ -53,7 +53,7 @@ https://www.youtube.com/live/honw_mQZpNw
 - One AI API key from [Claude](https://console.anthropic.com/), [Gemini](https://aistudio.google.com/app/apikey), [OpenAI](https://platform.openai.com/), or [OpenRouter](https://openrouter.ai/)
 - Your manuscript in any common format - we include converters for .docx ↔ .txt so you can use Word, Pages, Google Docs, Vellum, or any writing tool
 
-StoryGrind is FREE - but AI features require an API key from one of these providers. You control your costs and choose your AI provider.
+StoryGrind is FREE - but AI features require an API key from one of the listed providers. You control your costs and choose your AI provider.
 
 ---
 
