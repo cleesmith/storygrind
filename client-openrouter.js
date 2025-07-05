@@ -152,6 +152,15 @@ class AiApiService {
         ],
         stream: true,
         temperature: options.temperature || this.temp,
+        reasoning: {
+          // ... one of the following (not both):
+          // effort: "high", // "high", "medium", or "low" (OpenAI-style)
+          max_tokens: 32000, // specific token limit (Anthropic-style)
+          // ... optional: Default is false. All models support this.
+          exclude: false, // Set to true to exclude reasoning tokens from response
+          // ... or enable reasoning with the default parameters:
+          enabled: true // inferred from `effort` or `max_tokens`
+        }
       });
       
       for await (const chunk of response) {
