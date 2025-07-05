@@ -23,7 +23,7 @@ class PromptManager {
       'developmental_editing',
       'line_editing', 
       'copy_editing',
-      'proofreader_spelling',    // First proofreading tool
+      'proofreader_spelling',
       'proofreader_punctuation',
       'proofreader_plot_consistency',
       'narrative_integrity'
@@ -309,5 +309,4 @@ class PromptManager {
   }
 }
 
-// Export a singleton instance
 module.exports = new PromptManager();

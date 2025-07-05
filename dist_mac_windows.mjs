@@ -36,7 +36,7 @@
 
 // === MAC ===
 // node -v = v24.2.0
-// node -v = v24.2.0
+// npm -v = 11.3.0
 
 // ... total clean:
 // - remove dev settings:
