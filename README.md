@@ -1,6 +1,6 @@
 # StoryGrind
 
-StoryGrind is a desktop application that helps writers/authors/editors analyze and improve their manuscripts using AI-powered tools. Your manuscripts stay on your computer, and you control when and how A.I. (AI) assistance is applied to your work.
+StoryGrind is a desktop application that helps writers, authors, and editors analyze and improve their manuscripts using AI-powered tools. Your manuscripts stay on your computer, and you control when and how A.I. (AI) assistance is applied to your work.
 
 ---
 
@@ -28,10 +28,10 @@ https://www.youtube.com/live/honw_mQZpNw
 ## Key Features
 
 - **Free Forever** - No subscriptions to StoryGrind itself
-- **Your Words Stay Yours** - Everything is stored locally on your computer, no cloud lock-in
-- **100% Plain Text** - All the way down, it's about words (yours), easy for AI eyes 👀, portable to everywhere
+- **Your Words Stay Yours** - Everything is stored locally on your computer, no Cloud lock-in
+- **100% Plain Text** - All the way down, it's about *words* (**yours**), plain ole text is easy for AI eyes 👀, and portable to everywhere
 - **You Control Your AI Usage** - Use your own API keys with the provider of your choice
-- **Professional-Grade Tools** - Comprehensive editing and analysis tools
+- **Professional-Grade Tools** - Comprehensive editing tools you can customize to match your writing style, plus add your own
 - **Multiple AI Providers** - Choose from Claude, Gemini, OpenAI, or OpenRouter
 - **Writer-Friendly** - Built by a writer, for writers
 
@@ -51,25 +51,65 @@ https://www.youtube.com/live/honw_mQZpNw
 
 - A Mac or Windows computer
 - One AI API key from [Claude](https://console.anthropic.com/), [Gemini](https://aistudio.google.com/app/apikey), [OpenAI](https://platform.openai.com/), or [OpenRouter](https://openrouter.ai/)
-- Your manuscript in .txt or .docx format
+- Your manuscript in any common format - we include converters for .docx ↔ .txt so you can use Word, Pages, Google Docs, Vellum, or any writing tool
 
 StoryGrind is FREE - but AI features require an API key from one of these providers. You control your costs and choose your AI provider.
 
 ---
 
-## The simplest way to install for any OS/platform
+## Verification Option: Building from Source
 
-1. install **Node.js** ... https://nodejs.org/en/download
-2. git clone https://github.com/cleesmith/storygrind.git
-   or: **Download ZIP**, then unzip
-3. cd **storygrind**
-4. **npm install**
-5. **npm start**
+*For writers who want to see exactly what code runs on their computer - like watching your meal being prepared in an open kitchen*:
 
-... *after doing that, it's just:*
-1. cd storygrind
-2. npm start
+**Fair warning**: This method involves using the command line, which can be intimidating if you've never done it before. Most writers prefer the pre-built downloads, which are created from this exact same code. Choose this path only if security verification is important enough to you to learn some technical skills.
 
+**Note**: This method requires typing text commands instead of clicking buttons. It's more complex but gives you complete transparency.
+
+### Steps:
+
+1. **First, install Node.js** (this lets your computer understand JavaScript): https://nodejs.org/en/download
+   - Choose the "LTS" version for your system
+   - Run the installer just like any other program
+
+2. **Get the StoryGrind source code**:
+   - **Easier way**: Download ZIP from this page (green "Code" button above), then unzip
+   - **Technical way**: Use `git clone https://github.com/cleesmith/storygrind.git`
+
+3. **Open Terminal (Mac) or Command Prompt (Windows)**:
+   - **Mac**: Find Terminal in Applications > Utilities
+   - **Windows**: Search for "Command Prompt" in Start menu
+
+4. **Navigate to the StoryGrind folder** by typing:
+   ```
+   cd storygrind
+   ```
+   *(This means "change directory to storygrind")*
+
+5. **Install dependencies** by typing:
+   ```
+   npm install
+   ```
+   *(This downloads all the pieces StoryGrind needs to run - it may take a few minutes)*
+
+6. **Start StoryGrind** by typing:
+   ```
+   npm start
+   ```
+
+### After the first time setup:
+*Once you've done the above, starting StoryGrind is just:*
+
+1. Open Terminal or Command Prompt
+2. Type: `cd storygrind`
+3. Type: `npm start`
+
+### If you get stuck:
+- The commands must be typed exactly as shown (computers are very literal)
+- Make sure you're in the right folder - the terminal should show "storygrind" in its prompt
+- Error messages often contain clues - don't panic, read them carefully
+- Consider asking a tech-savvy friend for help - this is genuinely technical
+
+Remember: The pre-built releases are created from this exact code. This verification option exists for those who prefer to confirm that themselves, but it's not necessary for safe use of StoryGrind.
 
 ---
 
