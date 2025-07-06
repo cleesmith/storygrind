@@ -3,6 +3,9 @@
 // does both package & tar
 // npm run make 
 
+// Windows_StoryGrind_v4.0.0_July_6_2025.zip
+
+
 // previously:
 //  npm run package
 //  tar -a -c -f StoryGrind-Windows.zip -C out storygrind-win32-x64
@@ -69,7 +72,7 @@
 // xcrun stapler validate "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // change name for Silicon or Intel:
-// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Silicon_arm64_StoryGrind_v4.0.0_July_5_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
+// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Silicon_arm64_StoryGrind_v4.0.0_July_6_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // open out/storygrind-darwin-arm64/storygrind.app
 
