@@ -233,6 +233,137 @@ ${chaptersHTML}
   }
 
   /**
+   * Choose the best title format based on title length
+   * @param {string} title - The book title
+   * @returns {string} Format type: 'single', 'two', or 'three'
+   */
+  chooseTitleFormat(title) {
+    const titleLength = title.length;
+    
+    if (titleLength <= 8) {
+      return 'single';
+    } else if (titleLength <= 16) {
+      return 'two';
+    } else {
+      return 'three';
+    }
+  }
+
+  /**
+   * Generate SVG cover from template
+   * @param {string} bookTitle - Title of the book
+   * @param {string} authorName - Author name
+   * @param {string} outputPath - Path to save the SVG file
+   */
+  generateSVGCover(bookTitle, authorName, outputPath) {
+    const fs = require('fs');
+    
+    // Read the SVG template
+    const templatePath = path.join(this.basePath, '123_black_ebook_cover.svg');
+    
+    if (!fs.existsSync(templatePath)) {
+      throw new Error(`SVG template not found: ${templatePath}`);
+    }
+    
+    let svgContent = fs.readFileSync(templatePath, 'utf8');
+    
+    // Convert to uppercase
+    const titleUpper = bookTitle.toUpperCase();
+    const authorUpper = authorName.toUpperCase();
+    
+    // Choose format and prepare title lines
+    const format = this.chooseTitleFormat(titleUpper);
+    
+    if (format === 'single') {
+      // Activate single-line format
+      svgContent = svgContent.replace(
+        /<g id="single-line-title">[\s\S]*?<\/g>/,
+        `<g id="single-line-title">
+    <text x="800" y="700" font-family="Arial, sans-serif" font-size="150" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${titleUpper}</text>
+  </g>`
+      );
+      
+      // Comment out other formats
+      svgContent = svgContent.replace(
+        /<!-- OPTION 2[\s\S]*?-->/,
+        `<!-- OPTION 2: Two-line title format (best for medium titles like "A DARKER ROAST", "THE MUNDANE SPEAKS") -->
+  <!-- 
+  <g id="two-line-title">
+    <text x="800" y="600" font-family="Arial, sans-serif" font-size="130" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">DIRE</text>
+    <text x="800" y="780" font-family="Arial, sans-serif" font-size="130" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">CONSEQUENCES</text>
+  </g>
+  -->`
+      );
+      
+    } else if (format === 'two') {
+      // Split title into two parts
+      const words = titleUpper.split(' ');
+      const midPoint = Math.ceil(words.length / 2);
+      const line1 = words.slice(0, midPoint).join(' ');
+      const line2 = words.slice(midPoint).join(' ');
+      
+      // Comment out single-line format
+      svgContent = svgContent.replace(
+        /<g id="single-line-title">[\s\S]*?<\/g>/,
+        `<!-- 
+  <g id="single-line-title">
+    <text x="800" y="700" font-family="Arial, sans-serif" font-size="150" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">DELTA</text>
+  </g>
+  -->`
+      );
+      
+      // Activate two-line format
+      svgContent = svgContent.replace(
+        /<!-- OPTION 2[\s\S]*?-->/,
+        `<!-- OPTION 2: Two-line title format (best for medium titles like "A DARKER ROAST", "THE MUNDANE SPEAKS") -->
+  <g id="two-line-title">
+    <text x="800" y="600" font-family="Arial, sans-serif" font-size="130" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line1}</text>
+    <text x="800" y="780" font-family="Arial, sans-serif" font-size="130" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line2}</text>
+  </g>`
+      );
+      
+    } else { // three lines
+      // Split title into three parts
+      const words = titleUpper.split(' ');
+      const perLine = Math.ceil(words.length / 3);
+      const line1 = words.slice(0, perLine).join(' ');
+      const line2 = words.slice(perLine, perLine * 2).join(' ');
+      const line3 = words.slice(perLine * 2).join(' ');
+      
+      // Comment out single-line format
+      svgContent = svgContent.replace(
+        /<g id="single-line-title">[\s\S]*?<\/g>/,
+        `<!-- 
+  <g id="single-line-title">
+    <text x="800" y="700" font-family="Arial, sans-serif" font-size="150" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">DELTA</text>
+  </g>
+  -->`
+      );
+      
+      // Activate three-line format
+      svgContent = svgContent.replace(
+        /<!-- OPTION 3[\s\S]*?-->/,
+        `<!-- OPTION 3: Three-line title format (best for longer titles like "SOMETHING FROM NOTHING") -->
+  <g id="three-line-title">
+    <text x="800" y="500" font-family="Arial, sans-serif" font-size="120" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line1}</text>
+    <text x="800" y="680" font-family="Arial, sans-serif" font-size="110" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line2}</text>
+    <text x="800" y="860" font-family="Arial, sans-serif" font-size="120" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line3}</text>
+  </g>`
+      );
+    }
+    
+    // Replace author name
+    svgContent = svgContent.replace(
+      /CLEE SMITH/g,
+      authorUpper
+    );
+    
+    // Write the customized SVG
+    fs.writeFileSync(outputPath, svgContent);
+    console.log(`Generated SVG cover: ${outputPath}`);
+  }
+
+  /**
    * Get the index.html path relative to base path
    * @returns {string} Path to index.html file
    */
@@ -309,7 +440,7 @@ ${chaptersHTML}
     }
     
     const href = `${bookName}/index.html`;
-    const imageSrc = `images/${bookName}.jpeg`;
+    const imageSrc = `images/${bookName}.svg`;
     const title = `Read: ${displayTitle}`;
     
     return `  <div class="project">
@@ -370,9 +501,15 @@ ${chaptersHTML}
    * @param {string} basePath - Path to folder containing book subdirectories
    * @param {string} bookName - Name of the book folder to process
    * @param {number} maxChapters - Maximum chapters to include (optional)
+   * @param {string} authorName - Author name for SVG cover generation (required)
    */
-  processBookAndUpdateIndex(basePath, bookName, maxChapters = null) {
+  processBookAndUpdateIndex(basePath, bookName, maxChapters = null, authorName) {
     const fs = require('fs');
+    
+    // Validate required parameters
+    if (!authorName) {
+      throw new Error('Author name is required for SVG cover generation');
+    }
     
     // Set base path
     this.setBasePath(basePath);
@@ -386,11 +523,16 @@ ${chaptersHTML}
     const bookFolder = path.join(this.basePath, bookName);
     const manuscriptPath = path.join(bookFolder, 'manuscript.txt');
     const outputPath = path.join(bookFolder, 'index.html');
+    const svgPath = path.join(this.basePath, 'images', `${bookName}.svg`);
     
     // Check if manuscript exists
     if (!fs.existsSync(manuscriptPath)) {
       throw new Error(`Manuscript not found: ${manuscriptPath}`);
     }
+    
+    // Generate SVG cover (always)
+    const displayTitle = bookName.replace(/_/g, ' ');
+    this.generateSVGCover(displayTitle, authorName, svgPath);
     
     // Process manuscript
     const manuscriptText = fs.readFileSync(manuscriptPath, 'utf8');
@@ -401,7 +543,7 @@ ${chaptersHTML}
     console.log(`Generated HTML for ${bookName}: ${outputPath}`);
     
     // Update main index
-    this.updateIndex([{ bookName, displayTitle: bookName.replace(/_/g, ' ') }]);
+    this.updateIndex([{ bookName, displayTitle }]);
   }
 }
 
@@ -410,10 +552,13 @@ const fs = require('fs');
 const converter = new ManuscriptTextToHtml();
 
 // Method 1: Process single book and update index automatically
-converter.processBookAndUpdateIndex('/Users/cleesmith/writing', 'Tsu');
+converter.processBookAndUpdateIndex('/Users/cleesmith/writing', 'Tsu', 1, 'CLEE SMITH');
 
 // You can specify number of chapters (default is 1)
-// converter.processBookAndUpdateIndex('/Users/cleesmith/writing', 'Tsu', 5);
+// converter.processBookAndUpdateIndex('/Users/cleesmith/writing', 'Tsu', 5, 'CLEE SMITH');
+
+// Different author example
+// converter.processBookAndUpdateIndex('/Users/cleesmith/writing', 'SomeBook', 1, 'JANE DOE');
 
 /* 
 Method 2: Manual processing (original functionality)
