@@ -1,11 +1,11 @@
 /**
- * StoryGrind Converter - Convert manuscript.txt to HTML
+ * ManuscriptTextToHtml - Convert manuscript.txt to HTML
  * Creates HTML files from manuscript text following the established pattern
  */
 
-class StoryGrindConverter {
+class ManuscriptTextToHtml {
   constructor() {
-    this.maxChapters = 3; // For testing, limit to first 3 chapters
+    this.maxChapters = 2;
   }
 
   /**
@@ -214,19 +214,9 @@ ${chaptersHTML}
   }
 }
 
-// Node.js usage example
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = StoryGrindConverter;
-}
-
-// Browser usage example
-if (typeof window !== 'undefined') {
-  window.StoryGrindConverter = StoryGrindConverter;
-}
-
 // Example usage:
 const fs = require('fs');
-const converter = new StoryGrindConverter();
+const converter = new ManuscriptTextToHtml();
 
 // Read manuscript file
 const manuscriptText = fs.readFileSync('/Users/cleesmith/writing/Tsu/manuscript.txt', 'utf8');
