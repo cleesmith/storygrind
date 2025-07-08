@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EPUB.js Vertical Reader</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: sans-serif;
+    }
+    #viewer {
+      height: 100%;
+      width: 100%;
+      overflow: auto;
+    }
+  </style>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3/dist/epub.min.js"></script> -->
+  <script src="epub.min.js"></script>
+</head>
+<body>
+  <div id="viewer"></div>
+
+  <script>
+    // Replace 'book.epub' with the name of your actual EPUB file in the same folder
+    const book = ePub("book.epub");
+    const rendition = book.renderTo("viewer", {
+      width: "100%",
+      height: "100%",
+      flow: "scrolled", // vertical scrolling
+    });
+    rendition.display();
+  </script>
+</body>
+</html>

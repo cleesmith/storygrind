@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPUB Vertical Reader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #ffffff;
+            transition: background-color 0.3s ease;
+        }
+        
+        body.dark-ui {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        #controls-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+        
+        #controls-toggle {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        body.dark-ui #controls-toggle {
+            background: rgba(45, 45, 45, 0.9);
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        
+        #controls-toggle:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        body.dark-ui #controls-toggle:hover {
+            background: rgba(45, 45, 45, 1);
+        }
+        
+        #controls-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        #controls-panel.open {
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+        
+        #theme-controls, #font-controls, #bookmark-controls {
+            display: flex;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        #bookmark-controls {
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        body.dark-ui #theme-controls,
+        body.dark-ui #font-controls,
+        body.dark-ui #bookmark-controls {
+            background: rgba(45, 45, 45, 0.95);
+            border-color: #444;
+        }
+        
+        .control-btn {
+            padding: 6px 10px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            min-width: 32px;
+        }
+        
+        body.dark-ui .control-btn {
+            color: #e0e0e0;
+        }
+        
+        .control-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        body.dark-ui .control-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-btn.active {
+            background: #007AFF;
+            color: white;
+        }
+        
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #font-size-display, #progress-display {
+            font-size: 11px;
+            padding: 4px 6px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        body.dark-ui #font-size-display,
+        body.dark-ui #progress-display {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        #font-family-select, #bookmark-list {
+            padding: 4px 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            color: #333;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        
+        #bookmark-list {
+            min-width: 120px;
+            max-width: 150px;
+        }
+        
+        body.dark-ui #font-family-select,
+        body.dark-ui #bookmark-list {
+            background: #333;
+            color: #e0e0e0;
+            border-color: #555;
+        }
+        
+        #viewer {
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            position: relative;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #666;
+        }
+        
+        body.dark-ui #loading {
+            color: #aaa;
+        }
+        
+        #error {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background: #ffebee;
+            border: 1px solid #f44336;
+            border-radius: 4px;
+            color: #c62828;
+            display: none;
+            max-width: 80%;
+            text-align: center;
+        }
+        
+        body.dark-ui #error {
+            background: #2d1b1b;
+            border-color: #d32f2f;
+            color: #ef5350;
+        }
+        
+        /* Auto-hide controls on scroll */
+        #controls-container.auto-hide {
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        
+        #controls-container:hover {
+            opacity: 1 !important;
+        }
+        
+        /* Status notifications */
+        .status-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(34, 197, 94, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+        
+        .status-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .status-notification.bookmark {
+            background: rgba(59, 130, 246, 0.9);
+        }
+        
+        .status-notification.restored {
+            background: rgba(168, 85, 247, 0.9);
+        }
+        
+        .status-notification.deleted {
+            background: rgba(239, 68, 68, 0.9);
+        }
+        
+        @media (max-width: 600px) {
+            #controls-container {
+                right: 10px;
+                top: 10px;
+            }
+            
+            #controls-toggle {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+            
+            #theme-controls, #font-controls, #bookmark-controls {
+                flex-wrap: wrap;
+                padding: 6px;
+            }
+            
+            .control-btn {
+                font-size: 12px;
+                padding: 5px 8px;
+            }
+            
+            #bookmark-list {
+                min-width: 100px;
+                max-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="controls-container">
+        <button id="controls-toggle" title="Toggle controls">⚙️</button>
+        
+        <div id="controls-panel">
+            <div id="theme-controls">
+                <button class="control-btn active" data-theme="light" title="Light theme">☀️</button>
+                <button class="control-btn" data-theme="auto" title="Auto theme">🌗</button>
+                <button class="control-btn" data-theme="dark" title="Dark theme">🌙</button>
+                <button class="control-btn" data-theme="sepia" title="Sepia theme">📜</button>
+            </div>
+            
+            <div id="font-controls">
+                <button class="control-btn" id="font-smaller" title="Decrease font size (-)">A-</button>
+                <div id="font-size-display">100%</div>
+                <button class="control-btn" id="font-larger" title="Increase font size (+)">A+</button>
+                <select id="font-family-select" title="Font family">
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="'Times New Roman', serif">Times</option>
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="Helvetica, sans-serif">Helvetica</option>
+                    <option value="'San Francisco', -apple-system, sans-serif">SF Pro</option>
+                    <option value="'Palatino', serif">Palatino</option>
+                    <option value="'Baskerville', serif">Baskerville</option>
+                    <option value="'Iowan Old Style', serif">Iowan</option>
+                </select>
+            </div>
+            
+            <div id="bookmark-controls">
+                <button class="control-btn" id="bookmark-btn" title="Add bookmark (B)">🔖+</button>
+                <div id="progress-display">0%</div>
+                <select id="bookmark-list" title="Saved bookmarks">
+                    <option value="">No bookmarks</option>
+                </select>
+                <button class="control-btn" id="goto-bookmark" title="Go to selected bookmark (G)" disabled>📖</button>
+                <button class="control-btn" id="delete-bookmark" title="Delete selected bookmark (Del)" disabled>🗑️</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewer">
+        <div id="loading">Loading EPUB...</div>
+        <div id="error">
+            <h3>Error Loading EPUB</h3>
+            <p id="error-message"></p>
+            <p><small>Check the console for more details</small></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="epub.min.js"></script>
+
+    <script>
+        console.log('🚀 Starting EPUB.js reader with multiple bookmarks...');
+        
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+        const errorMessage = document.getElementById('error-message');
+        let rendition = null;
+        let book = null;
+        
+        // Default settings
+        let settings = {
+            theme: 'light',
+            fontSize: 100,
+            fontFamily: 'Georgia, serif',
+            controlsOpen: false,
+            // lastPosition: null, // CFI disabled - use bookmarks instead
+            bookmarks: [], // Array of {name, cfi, percentage, timestamp} objects
+            bookId: null // To track different books
+        };
+        
+        // Elements
+        const controlsContainer = document.getElementById('controls-container');
+        const controlsToggle = document.getElementById('controls-toggle');
+        const controlsPanel = document.getElementById('controls-panel');
+        const fontSmallerBtn = document.getElementById('font-smaller');
+        const fontLargerBtn = document.getElementById('font-larger');
+        const fontSizeDisplay = document.getElementById('font-size-display');
+        const fontFamilySelect = document.getElementById('font-family-select');
+        const bookmarkBtn = document.getElementById('bookmark-btn');
+        const bookmarkList = document.getElementById('bookmark-list');
+        const gotoBookmarkBtn = document.getElementById('goto-bookmark');
+        const deleteBookmarkBtn = document.getElementById('delete-bookmark');
+        const progressDisplay = document.getElementById('progress-display');
+        
+        let scrollTimeout;
+        let savePositionTimeout;
+        
+        // Settings persistence
+        function getBookId() {
+            // Generate a simple ID based on book title or filename
+            if (book && book.package && book.package.metadata && book.package.metadata.title) {
+                return book.package.metadata.title.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+            }
+            return 'book'; // fallback
+        }
+        
+        function loadSettings() {
+            try {
+                const bookId = getBookId();
+                const saved = localStorage.getItem(`epub-reader-${bookId}`);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    settings = { ...settings, ...parsed, bookId };
+                    console.log('📁 Loaded saved settings for book:', bookId, settings);
+                }
+            } catch (e) {
+                console.warn('⚠️ Could not load saved settings:', e);
+            }
+        }
+        
+        function saveSettings() {
+            try {
+                const bookId = getBookId();
+                const toSave = { ...settings, bookId };
+                localStorage.setItem(`epub-reader-${bookId}`, JSON.stringify(toSave));
+                console.log('💾 Settings saved for book:', bookId);
+            } catch (e) {
+                console.warn('⚠️ Could not save settings:', e);
+            }
+        }
+        
+        function showNotification(message, type = 'default') {
+            let notification = document.querySelector('.status-notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.className = 'status-notification';
+                document.body.appendChild(notification);
+            }
+            
+            notification.className = `status-notification ${type}`;
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+        
+        // Position saving disabled - use bookmarks for navigation
+        // function savePosition(location) {
+        //     if (location && location.start && location.start.cfi) {
+        //         settings.lastPosition = location.start.cfi;
+        //         clearTimeout(savePositionTimeout);
+        //         // Debounce saving to avoid too frequent saves
+        //         savePositionTimeout = setTimeout(() => {
+        //             saveSettings();
+        //         }, 1000);
+        //     }
+        // }
+        
+        function updateProgress(location) {
+            if (location && typeof location.percentage === 'number') {
+                const percent = Math.round(location.percentage * 100);
+                progressDisplay.textContent = percent + '%';
+            }
+        }
+        
+        function updateBookmarksList() {
+            bookmarkList.innerHTML = '';
+            
+            if (settings.bookmarks.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No bookmarks';
+                bookmarkList.appendChild(option);
+                gotoBookmarkBtn.disabled = true;
+                deleteBookmarkBtn.disabled = true;
+            } else {
+                settings.bookmarks.forEach((bookmark, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = bookmark.name;
+                    bookmarkList.appendChild(option);
+                });
+                gotoBookmarkBtn.disabled = false;
+                deleteBookmarkBtn.disabled = false;
+            }
+        }
+        
+        function createBookmark() {
+            if (rendition) {
+                const location = rendition.currentLocation();
+                if (location && location.start && location.start.cfi) {
+                    const percentage = Math.round((location.percentage || 0) * 100);
+                    const timestamp = new Date().toLocaleString();
+                    
+                    // Simple naming: "Bookmark 1 (25%)", "Bookmark 2 (50%)", etc.
+                    const bookmarkNum = settings.bookmarks.length + 1;
+                    const name = `Bookmark ${bookmarkNum} (${percentage}%)`;
+                    
+                    const newBookmark = {
+                        name: name,
+                        cfi: location.start.cfi,
+                        percentage: percentage,
+                        timestamp: timestamp
+                    };
+                    
+                    settings.bookmarks.push(newBookmark);
+                    saveSettings();
+                    updateBookmarksList();
+                    
+                    // Select the new bookmark
+                    bookmarkList.value = settings.bookmarks.length - 1;
+                    
+                    showNotification(`🔖 ${name} created`, 'bookmark');
+                    console.log('🔖 Bookmark created:', newBookmark);
+                }
+            }
+        }
+        
+        function gotoSelectedBookmark() {
+            const selectedIndex = bookmarkList.value;
+            if (selectedIndex !== '' && settings.bookmarks[selectedIndex] && rendition) {
+                const bookmark = settings.bookmarks[selectedIndex];
+                rendition.display(bookmark.cfi).then(() => {
+                    showNotification(`📖 Jumped to ${bookmark.name}`, 'restored');
+                    console.log('📖 Jumped to bookmark:', bookmark);
+                }).catch(err => {
+                    console.error('Failed to go to bookmark:', err);
+                    showNotification('❌ Bookmark location not found', 'default');
+                });
+            }
+        }
+        
+        function deleteSelectedBookmark() {
+            const selectedIndex = bookmarkList.value;
+            if (selectedIndex !== '' && settings.bookmarks[selectedIndex]) {
+                const bookmark = settings.bookmarks[selectedIndex];
+                settings.bookmarks.splice(selectedIndex, 1);
+                saveSettings();
+                updateBookmarksList();
+                showNotification(`🗑️ Deleted ${bookmark.name}`, 'deleted');
+                console.log('🗑️ Bookmark deleted:', bookmark);
+            }
+        }
+        
+        function restoreLastPosition() {
+            // Always start from beginning - use bookmarks for navigation
+            rendition.display();
+            console.log('📖 Starting from beginning - use bookmarks for navigation');
+        }
+        
+        // Toggle controls panel
+        function toggleControls() {
+            settings.controlsOpen = !settings.controlsOpen;
+            controlsPanel.classList.toggle('open', settings.controlsOpen);
+            controlsToggle.textContent = settings.controlsOpen ? '❌' : '⚙️';
+            controlsToggle.title = settings.controlsOpen ? 'Close controls' : 'Open controls';
+            saveSettings();
+        }
+        
+        // Auto-hide controls on scroll
+        function handleScroll() {
+            if (!settings.controlsOpen) {
+                controlsContainer.classList.add('auto-hide');
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    controlsContainer.classList.remove('auto-hide');
+                }, 2000);
+            }
+        }
+        
+        // Close controls when clicking outside
+        function handleClickOutside(e) {
+            if (settings.controlsOpen && !controlsContainer.contains(e.target)) {
+                toggleControls();
+            }
+        }
+        
+        // Event listeners for controls
+        controlsToggle.addEventListener('click', toggleControls);
+        bookmarkBtn.addEventListener('click', createBookmark);
+        gotoBookmarkBtn.addEventListener('click', gotoSelectedBookmark);
+        deleteBookmarkBtn.addEventListener('click', deleteSelectedBookmark);
+        bookmarkList.addEventListener('change', () => {
+            const hasSelection = bookmarkList.value !== '';
+            gotoBookmarkBtn.disabled = !hasSelection;
+            deleteBookmarkBtn.disabled = !hasSelection;
+        });
+        document.addEventListener('click', handleClickOutside);
+        window.addEventListener('scroll', handleScroll);
+        
+        // Auto theme detection
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        
+        function updateUITheme(theme) {
+            if (theme === 'auto') {
+                theme = prefersDark.matches ? 'dark' : 'light';
+            }
+            
+            if (theme === 'dark' || theme === 'sepia') {
+                document.body.classList.add('dark-ui');
+            } else {
+                document.body.classList.remove('dark-ui');
+            }
+        }
+        
+        function setTheme(theme, save = true) {
+            settings.theme = theme;
+            
+            // Update UI
+            updateUITheme(theme);
+            
+            // Update active button
+            document.querySelectorAll('[data-theme]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.theme === theme);
+            });
+            
+            // Apply theme to EPUB content if rendition exists
+            if (rendition && rendition.themes) {
+                applyThemeToRendition(theme);
+            }
+            
+            if (save) {
+                saveSettings();
+            }
+            
+            console.log('🎨 Theme changed to:', theme);
+        }
+        
+        function setFontSize(size, save = true) {
+            settings.fontSize = Math.max(50, Math.min(300, size)); // Clamp between 50% and 300%
+            fontSizeDisplay.textContent = settings.fontSize + '%';
+            
+            // Update button states
+            fontSmallerBtn.disabled = settings.fontSize <= 50;
+            fontLargerBtn.disabled = settings.fontSize >= 300;
+            
+            if (rendition && rendition.themes) {
+                rendition.themes.fontSize(settings.fontSize + '%');
+            }
+            
+            if (save) {
+                saveSettings();
+            }
+            
+            console.log('📏 Font size changed to:', settings.fontSize + '%');
+        }
+        
+        function setFontFamily(fontFamily, save = true) {
+            settings.fontFamily = fontFamily;
+            fontFamilySelect.value = fontFamily;
+            
+            if (rendition && rendition.themes) {
+                rendition.themes.font(fontFamily);
+            }
+            
+            if (save) {
+                saveSettings();
+            }
+            
+            console.log('🔤 Font family changed to:', fontFamily);
+        }
+        
+        function applyThemeToRendition(theme) {
+            let actualTheme = theme;
+            if (theme === 'auto') {
+                actualTheme = prefersDark.matches ? 'dark' : 'light';
+            }
+            
+            // Register and select themes using EPUB.js native system
+            switch (actualTheme) {
+                case 'light':
+                    rendition.themes.default({
+                        'body': {
+                            'background': '#ffffff !important',
+                            'color': '#333333 !important'
+                        },
+                        'p, div, span': {
+                            'color': '#333333 !important'
+                        },
+                        'h1, h2, h3, h4, h5, h6': {
+                            'color': '#333333 !important'
+                        }
+                    });
+                    break;
+                    
+                case 'dark':
+                    rendition.themes.default({
+                        'body': {
+                            'background': '#1a1a1a !important',
+                            'color': '#e0e0e0 !important'
+                        },
+                        'p, div, span': {
+                            'color': '#e0e0e0 !important'
+                        },
+                        'h1, h2, h3, h4, h5, h6': {
+                            'color': '#e0e0e0 !important'
+                        }
+                    });
+                    break;
+                    
+                case 'sepia':
+                    rendition.themes.default({
+                        'body': {
+                            'background': '#f4f1ea !important',
+                            'color': '#5c4a37 !important'
+                        },
+                        'p, div, span': {
+                            'color': '#5c4a37 !important'
+                        },
+                        'h1, h2, h3, h4, h5, h6': {
+                            'color': '#5c4a37 !important'
+                        }
+                    });
+                    break;
+            }
+            
+            // Reapply font settings
+            rendition.themes.fontSize(settings.fontSize + '%');
+            rendition.themes.font(settings.fontFamily);
+        }
+        
+        // Font control event listeners
+        fontSmallerBtn.addEventListener('click', () => {
+            setFontSize(settings.fontSize - 10);
+        });
+        
+        fontLargerBtn.addEventListener('click', () => {
+            setFontSize(settings.fontSize + 10);
+        });
+        
+        fontFamilySelect.addEventListener('change', (e) => {
+            setFontFamily(e.target.value);
+        });
+        
+        // Listen for system theme changes
+        prefersDark.addEventListener('change', (e) => {
+            if (settings.theme === 'auto') {
+                setTheme('auto', false); // Re-apply auto theme without saving
+            }
+        });
+        
+        // Theme button event listeners
+        document.querySelectorAll('[data-theme]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                setTheme(btn.dataset.theme);
+            });
+        });
+        
+        function showError(message) {
+            console.error('❌ Error:', message);
+            loading.style.display = 'none';
+            errorMessage.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+        
+        // Check if EPUB.js loaded
+        if (typeof ePub === 'undefined') {
+            showError('EPUB.js library failed to load');
+        } else {
+            console.log('✅ EPUB.js library loaded successfully');
+            
+            // Initialize the book
+            console.log('📖 Loading book.epub...');
+            book = ePub("Liz.epub");
+            
+            // Handle book loading
+            book.ready.then(() => {
+                console.log('✅ Book metadata loaded successfully');
+                console.log('📚 Title:', book.package.metadata.title);
+                console.log('👤 Author:', book.package.metadata.creator);
+                
+                // Load settings after we have book metadata for ID
+                loadSettings();
+                
+                // Apply loaded settings to UI
+                setTheme(settings.theme, false);
+                setFontSize(settings.fontSize, false);
+                setFontFamily(settings.fontFamily, false);
+                
+                // Update bookmarks list
+                updateBookmarksList();
+                
+                // Set initial controls state
+                if (settings.controlsOpen) {
+                    controlsPanel.classList.add('open');
+                    controlsToggle.textContent = '❌';
+                    controlsToggle.title = 'Close controls';
+                }
+            }).catch(err => {
+                showError('Failed to load book.epub: ' + err.message);
+                return;
+            });
+            
+            // Create rendition with vertical scrolling
+            console.log('🖼 Creating rendition...');
+            rendition = book.renderTo("viewer", {
+                width: "100%",
+                height: "100%",
+                flow: "scrolled",
+                manager: "continuous",
+                allowScriptedContent: true
+            });
+            
+            // Handle rendition events
+            rendition.on("started", () => {
+                console.log('🎬 Rendition started');
+                hideLoading();
+                
+                // Apply saved settings
+                applyThemeToRendition(settings.theme);
+                setFontSize(settings.fontSize, false);
+                setFontFamily(settings.fontFamily, false);
+                
+                // Restore reading position
+                restoreLastPosition();
+            });
+            
+            rendition.on("rendered", (section) => {
+                console.log('🖼 Section rendered:', section.href);
+                // Reapply settings when new sections render
+                setTimeout(() => {
+                    applyThemeToRendition(settings.theme);
+                    rendition.themes.fontSize(settings.fontSize + '%');
+                    rendition.themes.font(settings.fontFamily);
+                }, 100);
+            });
+            
+            // Automatic position tracking disabled - use bookmarks instead
+            // rendition.on("relocated", (location) => {
+            //     console.log('📍 Current location:', location.start.href);
+            //     savePosition(location);
+            //     updateProgress(location);
+            // });
+            
+            rendition.on("layout", (layout) => {
+                console.log('📐 Layout settings:', layout);
+            });
+            
+            // Display the book (position will be handled in "started" event)
+            rendition.display().then(() => {
+                console.log('✅ Book displayed successfully');
+                hideLoading();
+            }).catch(err => {
+                showError('Failed to display book: ' + err.message);
+            });
+            
+            // Add keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                switch(e.key) {
+                    case 'ArrowUp':
+                        window.scrollBy(0, -100);
+                        break;
+                    case 'ArrowDown':
+                        window.scrollBy(0, 100);
+                        break;
+                    case 'PageUp':
+                        window.scrollBy(0, -window.innerHeight * 0.8);
+                        break;
+                    case 'PageDown':
+                        window.scrollBy(0, window.innerHeight * 0.8);
+                        break;
+                    case 'Home':
+                        window.scrollTo(0, 0);
+                        break;
+                    case 'End':
+                        window.scrollTo(0, document.body.scrollHeight);
+                        break;
+                    case '1':
+                        setTheme('light');
+                        break;
+                    case '2':
+                        setTheme('auto');
+                        break;
+                    case '3':
+                        setTheme('dark');
+                        break;
+                    case '4':
+                        setTheme('sepia');
+                        break;
+                    case '=':
+                    case '+':
+                        setFontSize(settings.fontSize + 10);
+                        break;
+                    case '-':
+                        setFontSize(settings.fontSize - 10);
+                        break;
+                    case '0':
+                        setFontSize(100); // Reset to 100%
+                        break;
+                    case 'b':
+                    case 'B':
+                        if (!e.ctrlKey && !e.metaKey) {
+                            createBookmark();
+                        }
+                        break;
+                    case 'g':
+                    case 'G':
+                        if (!e.ctrlKey && !e.metaKey) {
+                            gotoSelectedBookmark();
+                        }
+                        break;
+                    case 'Delete':
+                        if (bookmarkList.value !== '') {
+                            deleteSelectedBookmark();
+                        }
+                        break;
+                    case ' ':
+                        if (e.ctrlKey || e.metaKey) {
+                            e.preventDefault();
+                            toggleControls();
+                        }
+                        break;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
