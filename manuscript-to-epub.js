@@ -1,22 +1,129 @@
-#!/usr/bin/env node
-
+// manuscript-to-epub.js
+const ToolBase = require('./tool-base');
 const fs = require('fs');
+const fsPromises = require('fs/promises');
 const path = require('path');
 const JSZip = require('jszip');
+const appState = require('./state.js');
 
 /**
- * Text to EPUB 3.0 Converter for StoryGrind
- * Full-width layout like Vellum
+ * ManuscriptToEpub Tool
+ * Converts manuscript text files to EPUB format
  */
-class StoryGrindEpub3Converter {
-  constructor() {
+class ManuscriptToEpub extends ToolBase {
+  /**
+   * Constructor
+   * @param {string} name - Tool name
+   * @param {Object} config - Tool configuration
+   */
+  constructor(name, config = {}) {
+    super(name, config);
     this.defaultMetadata = {
-      title: 'Untitled Book',
-      author: 'Unknown Author',
+      title: 'Unknown',
+      author: 'Unknown',
       language: 'en',
       publisher: 'StoryGrind',
       description: 'Created with StoryGrind EPUB Converter'
     };
+  }
+
+  /**
+   * Execute the tool
+   * @param {Object} options - Tool options
+   * @returns {Promise<Object>} - Execution result
+   */
+  async execute(options) {
+    let errorMsg = "";
+    
+    // Extract options
+    let textFile = options.text_file;
+    const saveDir = appState.CURRENT_PROJECT_PATH;
+    
+    if (!saveDir) {
+      const errorMsg = 'Error: No project selected. Please select a project first.';
+      this.emitOutput(errorMsg);
+      throw new Error('No project selected');
+    }
+
+    // Ensure file paths are absolute
+    textFile = this.ensureAbsolutePath(textFile, saveDir);
+
+    const outputFiles = [];
+    
+    try {
+      // Read the input file
+      this.emitOutput(`Reading text file: ${textFile}\n`);
+      
+      // Check if file exists
+      if (!fs.existsSync(textFile)) {
+        throw new Error(`File not found: ${textFile}`);
+      }
+      
+      // Check file size first to prevent memory issues
+      const stats = fs.statSync(textFile);
+      const fileSizeInMB = stats.size / (1024 * 1024);
+      
+      if (fileSizeInMB > 10) {
+        errorMsg = `\nFile too large (${fileSizeInMB.toFixed(1)}MB). Please use files smaller than 10MB.`;
+      }
+      
+      this.emitOutput(`Converting text to EPUB 3.0...\n`);
+      
+      if (errorMsg) {
+        this.emitOutput(errorMsg + '\n');
+        return {
+          success: false,
+          message: errorMsg,
+          outputFiles: [],
+          stats: {
+            chapterCount: 0,
+            wordCount: 0
+          }
+        };
+      }
+
+      // Extract metadata from options or use defaults
+      const metadata = {
+        title: options.title || this.defaultMetadata.title,
+        author: options.author || this.defaultMetadata.author,
+        language: options.language || this.defaultMetadata.language,
+        publisher: options.publisher || this.defaultMetadata.publisher,
+        description: options.description || this.defaultMetadata.description
+      };
+
+      // Convert to EPUB and get chapter info
+      const result = await this.convertToEpub(textFile, metadata);
+      
+      // Create output filename with timestamp
+      const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
+      const baseFileName = path.basename(textFile, path.extname(textFile));
+      const outputFilename = `${baseFileName}_${timestamp}.epub`;
+      const outputPath = path.join(saveDir, outputFilename);
+      
+      // Write the EPUB file
+      await fsPromises.writeFile(outputPath, result.epubBuffer);
+      
+      this.emitOutput(`\nEPUB saved to: ${outputPath}\n`);
+      outputFiles.push(outputPath);
+      
+      // Get word count from the text file
+      const textContent = fs.readFileSync(textFile, 'utf8');
+      const chapters = result.chapters;
+      
+      // Return the result
+      return {
+        success: true,
+        outputFiles,
+        stats: {
+          chapterCount: chapters.length,
+          wordCount: this.countWords(textContent)
+        }
+      };
+    } catch (error) {
+      console.error('Error in Manuscript to EPUB Converter:', error);
+      this.emitOutput(`\nError: ${error.message}\n`);
+      throw error;
+    }
   }
 
   /**
@@ -48,7 +155,7 @@ class StoryGrindEpub3Converter {
    * Convert text file to EPUB 3.0
    * @param {string} textFilePath - Path to text file
    * @param {Object} metadata - Book metadata
-   * @returns {Promise<Buffer>} - EPUB file as buffer
+   * @returns {Promise<Object>} - Object with epubBuffer and chapters
    */
   async convertToEpub(textFilePath, metadata = {}) {
     const textContent = fs.readFileSync(textFilePath, 'utf8');
@@ -62,31 +169,28 @@ class StoryGrindEpub3Converter {
 
     const bookMeta = { ...this.defaultMetadata, ...metadata };
     
-    console.log(`Converting to EPUB 3.0: ${textFilePath}`);
-    console.log(`Folder: ${path.basename(path.dirname(textFilePath))}`);
-    console.log(`Title: ${bookMeta.title}`);
-    console.log(`Author: ${bookMeta.author}`);
+    const chapters = this.parseManuscriptText(textContent);
     
-    const chapters = this.parseStoryGrindText(textContent);
-    console.log(`Found ${chapters.length} chapters`);
+    const epubBuffer = await this.createEpub3Structure(chapters, bookMeta);
     
-    const epub = await this.createEpub3Structure(chapters, bookMeta);
-    
-    return epub;
+    return {
+      epubBuffer,
+      chapters
+    };
   }
 
   /**
-   * Parse StoryGrind text into chapters
+   * Parse Manuscript text into chapters
    * @param {string} text - Raw text content
    * @returns {Array} - Array of chapter objects
    */
-  parseStoryGrindText(text) {
+  parseManuscriptText(text) {
     const chapters = [];
     
     // Normalize line endings
     text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     
-    // StoryGrind chapter patterns
+    // Manuscript chapter patterns
     const chapterPatterns = [
       /\n\s*Chapter\s+\d+:\s*[^\n]*\n/gi,        // Primary: "Chapter 1: The Big Show"
       /\n\s*Chapter\s+\d+[^\n]*\n/gi,            // Fallback: "Chapter 1"
@@ -108,7 +212,6 @@ class StoryGrindEpub3Converter {
         for (let i = 1; i < splits.length; i++) {
           splits[i] = matches[i - 1].trim() + '\n\n' + splits[i];
         }
-        console.log(`Using StoryGrind pattern (found ${matches.length} chapters)`);
         break;
       }
     }
@@ -133,7 +236,7 @@ class StoryGrindEpub3Converter {
 
       const firstLine = lines[0].trim();
       
-      if (this.isStoryGrindChapterTitle(firstLine)) {
+      if (this.isManuscriptChapterTitle(firstLine)) {
         title = firstLine;
         content = lines.slice(1).join('\n').trim();
       } else {
@@ -152,13 +255,11 @@ class StoryGrindEpub3Converter {
           title: title,
           content: paragraphs
         });
-        console.log(`  Chapter: "${title}" (${paragraphs.length} paragraphs)`);
       }
     });
 
     // If still no chapters, create one big chapter
     if (chapters.length === 0) {
-      console.log('Creating single chapter from entire text...');
       const paragraphs = text
         .split(/\n\s*\n/)
         .map(p => p.replace(/\n/g, ' ').trim())
@@ -175,11 +276,11 @@ class StoryGrindEpub3Converter {
   }
 
   /**
-   * Check if a line looks like a StoryGrind chapter title
+   * Check if a line looks like a Manuscript chapter title
    * @param {string} line - Line to check
    * @returns {boolean} - True if likely a chapter title
    */
-  isStoryGrindChapterTitle(line) {
+  isManuscriptChapterTitle(line) {
     if (line.length > 120) return false;
     
     const patterns = [
@@ -464,77 +565,31 @@ nav[epub|type~="toc"] a {
   }
 
   /**
-   * Save EPUB file to disk
-   * @param {Buffer} epubBuffer - EPUB file as buffer
-   * @param {string} filename - Filename for output
+   * Count words in text
+   * @param {string} text - Text to count words in
+   * @returns {number} - Word count
    */
-  saveEpub(epubBuffer, filename) {
-    const outputPath = filename.endsWith('.epub') ? filename : filename + '.epub';
-    fs.writeFileSync(outputPath, epubBuffer);
-    console.log(`✅ EPUB 3.0 saved: ${outputPath}`);
-    console.log(`📊 File size: ${(epubBuffer.length / 1024).toFixed(1)} KB`);
+  countWords(text) {
+    return text.split(/\s+/).filter(word => word.length > 0).length;
   }
-}
-
-// CLI Usage
-async function main() {
-  const args = process.argv.slice(2);
   
-  if (args.length === 0) {
-    console.log('StoryGrind EPUB 3.0 Converter - Full Width');
-    console.log('=========================================');
-    console.log('Usage: node epub3-converter.js <path/to/manuscript.txt> [output.epub]');
-    console.log('');
-    console.log('Features:');
-    console.log('• EPUB 3.0 format (like Vellum)');
-    console.log('• Full-width layout (no max-width constraint)');
-    console.log('• Uses folder name as book title');
-    console.log('• StoryGrind chapter format support');
-    process.exit(1);
-  }
-
-  const inputFile = args[0];
-  const outputFile = args[1];
-
-  if (!fs.existsSync(inputFile)) {
-    console.error(`❌ File not found: ${inputFile}`);
-    process.exit(1);
-  }
-
-  try {
-    const converter = new StoryGrindEpub3Converter();
+  /**
+   * Ensure file path is absolute
+   * @param {string} filePath - File path (may be relative or absolute)
+   * @param {string} basePath - Base path to prepend for relative paths
+   * @returns {string} - Absolute file path
+   */
+  ensureAbsolutePath(filePath, basePath) {
+    if (!filePath) return filePath;
     
-    const parentDir = path.dirname(inputFile);
-    const folderName = path.basename(parentDir);
-    const bookTitle = converter.formatFolderNameAsTitle(folderName);
+    // Check if the path is already absolute
+    if (path.isAbsolute(filePath)) {
+      return filePath;
+    }
     
-    const defaultOutput = bookTitle.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '') + '.epub';
-    const finalOutput = outputFile || defaultOutput;
-    
-    const metadata = {
-      title: bookTitle,
-      author: 'StoryGrind Author',
-      description: `Generated from StoryGrind project: ${folderName}`
-    };
-
-    console.log('StoryGrind EPUB 3.0 Converter');
-    console.log('=============================');
-    
-    const epubBuffer = await converter.convertToEpub(inputFile, metadata);
-    converter.saveEpub(epubBuffer, finalOutput);
-    
-    console.log('=============================');
-    console.log('✅ EPUB 3.0 conversion complete!');
-    console.log('📱 Full-width layout like Vellum');
-    
-  } catch (error) {
-    console.error('❌ Error creating EPUB:', error.message);
-    process.exit(1);
+    // Make the path absolute by joining with the base path
+    return path.join(basePath, filePath);
   }
 }
 
-if (require.main === module) {
-  main();
-}
-
-module.exports = StoryGrindEpub3Converter;
+module.exports = ManuscriptToEpub;
