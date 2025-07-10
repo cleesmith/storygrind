@@ -243,7 +243,7 @@ const TOOL_DEFS = [
         "name": "max_chapters",
         "label": "Max Chapters",
         "type": "select",
-        "description": "Maximum number of chapters to include",
+        "description": "Select Chapter 1 for a taste of your writing, or All Chapters for entire manuscript.",
         "required": false,
         "default": "1",
         "choices": [

@@ -104,7 +104,8 @@ class ManuscriptToEpub extends ToolBase {
       await fsPromises.writeFile(outputPath, result.epubBuffer);
       
       this.emitOutput(`\nEPUB saved to: ${outputPath}\n`);
-      outputFiles.push(outputPath);
+      // do NOT do this for .epub's = errors:
+      // outputFiles.push(outputPath);
       
       // Get word count from the text file
       const textContent = fs.readFileSync(textFile, 'utf8');
