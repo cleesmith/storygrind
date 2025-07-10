@@ -280,6 +280,13 @@ runBtn.addEventListener('click', async () => {
         //   editBtn.style.display = 'inline-block';
         //   toolSelectElement.style.display = 'inline-block';
         // }
+        // Function to check if file is editable based on extension
+        function isEditableFile(filePath) {
+          const editableExtensions = ['.txt', '.md', '.html'];
+          const ext = path.extname(filePath).toLowerCase();
+          return editableExtensions.includes(ext);
+        }
+
         // Show Edit button and dropdown
         editBtn.style.display = 'inline-block';
         toolSelectElement.style.display = 'inline-block';
@@ -317,14 +324,30 @@ runBtn.addEventListener('click', async () => {
             fileList.textContent = fileListItems;
             outputElement.appendChild(fileList);
             
-            // Add created files to dropdown
+            // Add created files to dropdown (only editable files)
+            let hasEditableFiles = false;
             result.createdFiles.forEach(file => {
-              const option = document.createElement('option');
-              option.value = file;
-              option.textContent = path.basename(file);
-              toolSelectElement.appendChild(option);
+              if (isEditableFile(file)) {
+                hasEditableFiles = true;
+                const option = document.createElement('option');
+                option.value = file;
+                option.textContent = path.basename(file);
+                toolSelectElement.appendChild(option);
+              }
             });
+            
+            // Hide Edit button if no editable files were created
+            if (!hasEditableFiles && !(toolData.isUserCreated || toolData.category === 'User Tools')) {
+              editBtn.style.display = 'none';
+              toolSelectElement.style.display = 'none';
+            }
           }
+        }
+        
+        // Final check: if dropdown only has the default option, hide Edit button for non-user tools
+        if (toolSelectElement.children.length <= 1 && !(toolData.isUserCreated || toolData.category === 'User Tools')) {
+          editBtn.style.display = 'none';
+          toolSelectElement.style.display = 'none';
         }
 
         currentRunId = null;

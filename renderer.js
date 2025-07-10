@@ -155,7 +155,7 @@ window.electronAPI.onProjectUpdated((event) => {
 // Function to determine if a tool is an AI tool
 function isAiTool(tool) {
   // Check if tool requires AI API service - non-AI tools don't need AI
-  const nonAiTools = ['docx_comments', 'epub_converter', 'manuscript_to_epub'];
+  const nonAiTools = ['docx_comments', 'epub_converter', 'manuscript_to_epub', 'manuscript_to_html'];
   return !nonAiTools.includes(tool.name);
 }
 

@@ -84,7 +84,7 @@ class ManuscriptToEpub extends ToolBase {
 
       // Extract metadata from options or use defaults
       const metadata = {
-        title: options.title || this.defaultMetadata.title,
+        title: (options.title && options.title.trim()) ? options.title.trim() : undefined,
         author: options.author || this.defaultMetadata.author,
         language: options.language || this.defaultMetadata.language,
         publisher: options.publisher || this.defaultMetadata.publisher,

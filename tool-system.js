@@ -102,6 +102,7 @@ const ProofreaderSpelling = loadToolClass('proofreader-spelling');
 const DocxComments = loadToolClass('docx-comments');
 const EpubConverter = loadToolClass('epub-converter');
 const ManuscriptToEpub = loadToolClass('manuscript-to-epub');
+const ManuscriptToHtml = loadToolClass('manuscript-to-html');
 
 // AI Writing tools with external prompts:
 const WritingAITool = require('./writing-ai-tools');
@@ -182,6 +183,7 @@ const TOOL_DEFS = [
         "type": "file",
         "description": "Manuscript text file to convert to EPUB",
         "required": true,
+        "default": "manuscript.txt",
         "filters": [
           {
             "name": "Text Files",
@@ -204,6 +206,50 @@ const TOOL_DEFS = [
         "description": "Author name",
         "required": false,
         "default": "Unknown"
+      }
+  ]},
+  { id: 'manuscript_to_html', title: 'Manuscript to HTML Converter', description: 'Converts manuscript text files to HTML format with dark mode support', Class: ManuscriptToHtml, options: [
+      {
+        "name": "manuscript_file",
+        "label": "Manuscript File",
+        "type": "file",
+        "description": "Manuscript text file to convert to HTML",
+        "required": true,
+        "default": "manuscript.txt",
+        "filters": [
+          {
+            "name": "Text Files",
+            "extensions": ["txt"]
+          }
+        ]
+      },
+      {
+        "name": "title",
+        "label": "Story Title",
+        "type": "text",
+        "description": "Title of the story (optional - will use folder name if not provided)",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "author",
+        "label": "Author",
+        "type": "text",
+        "description": "Author name",
+        "required": false,
+        "default": "Unknown"
+      },
+      {
+        "name": "max_chapters",
+        "label": "Max Chapters",
+        "type": "select",
+        "description": "Maximum number of chapters to include",
+        "required": false,
+        "default": "1",
+        "choices": [
+          { "value": "1", "label": "Chapter 1" },
+          { "value": "all", "label": "All Chapters" }
+        ]
       }
   ]},
   { id: 'brainstorm', title: `Brainstorm`, description: `Helps generate initial story ideas. Appends more ideas to the existing 'ideas.txt' file.`, Class: WritingAITool, options: [
@@ -351,7 +397,7 @@ async function initializeToolSystem(settings) {
     const allToolDefs = [...TOOL_DEFS, ...filteredUserTools];
     
     // Define which tools are non-AI and don't need AI API service
-    const nonAiToolIds = ['docx_comments', 'epub_converter', 'proofreader_spelling', 'manuscript_to_epub', 'tokens_words_counter'];
+    const nonAiToolIds = ['docx_comments', 'epub_converter', 'proofreader_spelling', 'manuscript_to_epub', 'manuscript_to_html', 'tokens_words_counter'];
     
     // Register each tool with proper configuration
     let toolCount = 0;

@@ -3,119 +3,12 @@
  * Creates HTML files from manuscript text following the established pattern
  */
 
-const ToolBase = require('./tool-base');
-const fs = require('fs');
-const fsPromises = require('fs/promises');
 const path = require('path');
-const appState = require('./state.js');
 
-class ManuscriptTextToHtml extends ToolBase {
-  /**
-   * Constructor
-   * @param {string} name - Tool name
-   * @param {Object} config - Tool configuration
-   */
-  constructor(name, config = {}) {
-    super(name, config);
-    this.maxChapters = config.maxChapters || 1;
+class ManuscriptTextToHtml {
+  constructor(maxChapters = 1) {
+    this.maxChapters = maxChapters;
     this.basePath = null;
-  }
-
-  /**
-   * Execute the tool
-   * @param {Object} options - Tool options
-   * @returns {Promise<Object>} - Execution result
-   */
-  async execute(options) {
-    let errorMsg = "";
-    
-    // Extract options
-    let manuscriptFile = options.manuscript_file;
-    const saveDir = appState.CURRENT_PROJECT_PATH;
-    
-    if (!saveDir) {
-      const errorMsg = 'Error: No project selected. Please select a project first.';
-      this.emitOutput(errorMsg);
-      throw new Error('No project selected');
-    }
-
-    // Ensure file paths are absolute
-    manuscriptFile = this.ensureAbsolutePath(manuscriptFile, saveDir);
-
-    const outputFiles = [];
-    
-    try {
-      // Read the input file
-      this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
-      
-      // Check if file exists
-      if (!fs.existsSync(manuscriptFile)) {
-        throw new Error(`File not found: ${manuscriptFile}`);
-      }
-      
-      // Check file size first to prevent memory issues
-      const stats = fs.statSync(manuscriptFile);
-      const fileSizeInMB = stats.size / (1024 * 1024);
-      
-      if (fileSizeInMB > 10) {
-        errorMsg = `\nFile too large (${fileSizeInMB.toFixed(1)}MB). Please use files smaller than 10MB.`;
-      }
-      
-      this.emitOutput(`Converting manuscript to HTML...\n`);
-      
-      if (errorMsg) {
-        this.emitOutput(errorMsg + '\n');
-        return {
-          success: false,
-          message: errorMsg,
-          outputFiles: [],
-          stats: {
-            chapterCount: 0,
-            wordCount: 0
-          }
-        };
-      }
-
-      // Read manuscript content
-      const manuscriptContent = fs.readFileSync(manuscriptFile, 'utf8');
-      
-      // Set max chapters based on option
-      const maxChapters = options.max_chapters === 'all' ? 999 : parseInt(options.max_chapters || '1');
-      this.setMaxChapters(maxChapters);
-      
-      // Convert to HTML
-      const htmlContent = this.processStory(manuscriptFile, manuscriptContent);
-      
-      // Create output filename with timestamp
-      const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
-      const baseFileName = path.basename(manuscriptFile, path.extname(manuscriptFile));
-      const outputFilename = `${baseFileName}_${timestamp}.html`;
-      const outputPath = path.join(saveDir, outputFilename);
-      
-      // Write the HTML file
-      await fsPromises.writeFile(outputPath, htmlContent, 'utf8');
-      
-      this.emitOutput(`\nHTML saved to: ${outputPath}\n`);
-      outputFiles.push(outputPath);
-      
-      // Get chapter count and word count
-      const chapters = this.parseManuscript(manuscriptContent);
-      const wordCount = this.countWords(manuscriptContent);
-      
-      // Return the result
-      return {
-        success: true,
-        outputFiles,
-        stats: {
-          chapterCount: chapters.length,
-          wordCount: wordCount
-        }
-      };
-    } catch (error) {
-      console.error('Error in Manuscript to HTML Converter:', error);
-      this.emitOutput(`\nError: ${error.message}\n`);
-      throw error;
-    }
   }
 
   /**
@@ -289,31 +182,6 @@ ${chaptersHTML}
   }
 
   /**
-   * Convert folder name to proper book title
-   * @param {string} folderName - Raw folder name
-   * @returns {string} - Formatted book title
-   */
-  formatFolderNameAsTitle(folderName) {
-    let title = folderName;
-    
-    // Handle camelCase: "ADarkerRoast" → "A Darker Roast"
-    title = title.replace(/([a-z])([A-Z])/g, '$1 $2');
-    
-    // Handle kebab-case and snake_case
-    title = title.replace(/[-_]/g, ' ');
-    
-    // Convert to Title Case
-    title = title.replace(/\b\w+/g, word => {
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    });
-    
-    // Clean up multiple spaces
-    title = title.replace(/\s+/g, ' ').trim();
-    
-    return title;
-  }
-
-  /**
    * Extract story title from manuscript file path
    * @param {string} manuscriptPath - Path to manuscript file
    * @returns {string} Story title from folder name
@@ -322,7 +190,7 @@ ${chaptersHTML}
     const pathParts = manuscriptPath.replace(/\\/g, '/').split('/');
     // Get the folder name that contains the manuscript
     const folderName = pathParts[pathParts.length - 2] || 'Story';
-    return this.formatFolderNameAsTitle(folderName);
+    return folderName;
   }
 
   /**
@@ -679,4 +547,33 @@ ${chaptersHTML}
   }
 }
 
-module.exports = ManuscriptTextToHtml;
+// Example usage:
+const fs = require('fs');
+const converter = new ManuscriptTextToHtml();
+
+// Method 1: Process single book and update index automatically
+converter.processBookAndUpdateIndex('/Users/cleesmith/writing', 'Tsu', 1, 'CLEE SMITH');
+
+// You can specify number of chapters (default is 1)
+// converter.processBookAndUpdateIndex('/Users/cleesmith/writing', 'Tsu', 5, 'CLEE SMITH');
+
+// Different author example
+// converter.processBookAndUpdateIndex('/Users/cleesmith/writing', 'SomeBook', 1, 'JANE DOE');
+
+/* 
+Method 2: Manual processing (original functionality)
+// Read manuscript file
+const manuscriptText = fs.readFileSync('/Users/cleesmith/writing/Tsu/manuscript.txt', 'utf8');
+
+// Convert to HTML
+const html = converter.processStory('/Users/cleesmith/writing/Tsu/manuscript.txt', manuscriptText);
+// OR if you know the title:
+// const html = converter.processStoryWithTitle('Tsu', manuscriptText);
+
+// Write HTML file
+fs.writeFileSync('./output.html', html);
+*/
+
+// Method 3: Update index only
+// converter.setBasePath('/Users/cleesmith/writing');
+// converter.updateIndex([{ bookName: 'NewBook', displayTitle: 'New Book' }]);
