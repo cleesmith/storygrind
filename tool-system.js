@@ -103,6 +103,7 @@ const DocxComments = loadToolClass('docx-comments');
 const EpubConverter = loadToolClass('epub-converter');
 const ManuscriptToEpub = loadToolClass('manuscript-to-epub');
 const ManuscriptToHtml = loadToolClass('manuscript-to-html');
+const PublishManuscript = loadToolClass('publish-manuscript');
 
 // AI Writing tools with external prompts:
 const WritingAITool = require('./writing-ai-tools');
@@ -252,6 +253,38 @@ const TOOL_DEFS = [
         ]
       }
   ]},
+  { id: 'publish_manuscript', title: 'Publish Manuscript', description: 'Publishes manuscript files to ~/writing_with_storygrind project folder and generates a generic cover, updates the book index.', Class: PublishManuscript, options: [
+      {
+        "name": "manuscript_file",
+        "label": "Manuscript File",
+        "type": "file",
+        "description": "Base manuscript file that has corresponding .html and .epub files",
+        "required": true,
+        "default": "manuscript",
+        "filters": [
+          {
+            "name": "Manuscript Files",
+            "extensions": ["html", "epub"]
+          }
+        ]
+      },
+      {
+        "name": "author",
+        "label": "Author",
+        "type": "text",
+        "description": "Author name for the publication",
+        "required": true,
+        "default": "Unknown"
+      },
+      {
+        "name": "title",
+        "label": "Title",
+        "type": "text",
+        "description": "Book title (optional - will use manuscript filename if not provided)",
+        "required": false,
+        "default": ""
+      }
+  ]},
   { id: 'brainstorm', title: `Brainstorm`, description: `Helps generate initial story ideas. Appends more ideas to the existing 'ideas.txt' file.`, Class: WritingAITool, options: [
     {
       "name": "ideas_file",
@@ -397,7 +430,7 @@ async function initializeToolSystem(settings) {
     const allToolDefs = [...TOOL_DEFS, ...filteredUserTools];
     
     // Define which tools are non-AI and don't need AI API service
-    const nonAiToolIds = ['docx_comments', 'epub_converter', 'proofreader_spelling', 'manuscript_to_epub', 'manuscript_to_html', 'tokens_words_counter'];
+    const nonAiToolIds = ['docx_comments', 'epub_converter', 'proofreader_spelling', 'manuscript_to_epub', 'manuscript_to_html', 'tokens_words_counter', 'publish_manuscript'];
     
     // Register each tool with proper configuration
     let toolCount = 0;
