@@ -253,7 +253,7 @@ const TOOL_DEFS = [
         ]
       }
   ]},
-  { id: 'publish_manuscript', title: 'Publish Manuscript', description: 'Publishes manuscript files to ~/writing_with_storygrind project folder and generates a generic cover, updates the book index.', Class: PublishManuscript, options: [
+  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files to ~/writing_with_storygrind project folder and generates a generic cover, updates the book index.', Class: PublishManuscript, options: [
       {
         "name": "manuscript_file",
         "label": "Manuscript File",
@@ -280,9 +280,29 @@ const TOOL_DEFS = [
         "name": "title",
         "label": "Title",
         "type": "text",
-        "description": "Book title (optional - will use manuscript filename if not provided)",
+        "description": "Book title (optional - will use formatted project folder name if not provided)",
         "required": false,
         "default": ""
+      },
+      {
+        "name": "purchase_url",
+        "label": "Purchase URL",
+        "type": "text",
+        "description": "URL for purchasing the book (e.g., Amazon, bookstore link)",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "unpublish",
+        "label": "Unpublish this book",
+        "type": "select",
+        "description": "Remove this book from the published index instead of publishing it",
+        "required": false,
+        "default": "no",
+        "choices": [
+          { "value": "no", "label": "No - Publish/Update book" },
+          { "value": "yes", "label": "Yes - Unpublish book" }
+        ]
       }
   ]},
   { id: 'brainstorm', title: `Brainstorm`, description: `Helps generate initial story ideas. Appends more ideas to the existing 'ideas.txt' file.`, Class: WritingAITool, options: [

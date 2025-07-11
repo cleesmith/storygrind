@@ -4,7 +4,7 @@
   <title>Books</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="shortcut icon" href="images/me-hermit-1-121x119.png" type="image/x-icon">
+  <link rel="shortcut icon" href="images/icon.png" type="image/x-icon">
   <meta name="description" content="books and writing projects">
 
   <style>
@@ -68,10 +68,12 @@
       flex-direction: column;
       align-items: center;
       margin-bottom: 20px;
+      height: 110px;
+      justify-content: space-between;
     }
 
     .project img {
-      width: 150px;
+      width: 170px;
       height: auto;
       object-fit: cover;
       transition: all 0.3s ease;
@@ -87,10 +89,13 @@
       margin: 10px 0 5px 0;
       display: flex;
       justify-content: center;
+      align-items: center;
       color: var(--project-title-dark);
       text-align: center;
       transition: color 0.3s;
       cursor: pointer;
+      flex-shrink: 0;
+      overflow: hidden;
     }
     
     body.light-mode .project-title {
@@ -102,7 +107,49 @@
       justify-content: center;
     }
 
-    /* Button styling */
+    /* Button container styling */
+    .button-container {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Small button styling */
+    .book-button {
+      border: none;
+      padding: 4px 8px;
+      text-decoration: none;
+      text-align: center;
+      cursor: pointer;
+      font-size: 9px;
+      letter-spacing: 1px;
+      border-radius: 12px;
+      color: white;
+      opacity: 0.7;
+      transition: all 0.3s ease;
+      min-width: 35px;
+    }
+
+    .book-button:hover {
+      opacity: 1;
+      transform: translateY(-1px);
+    }
+
+    .html-button {
+      background-color: #2196F3;
+    }
+
+    .ebook-button {
+      background-color: #FF9800;
+    }
+
+    .buy-button {
+      background-color: #4CAF50;
+    }
+
+    /* Original read button (keeping for compatibility) */
     .read-button {
       border: none;
       padding: 8px 16px;
@@ -180,7 +227,6 @@
     @media (min-width: 901px) and (max-width: 1200px) {
       .book-grid {
         grid-template-columns: repeat(3, 1fr);
-      }
     }
     
     @media (min-width: 1201px) {
@@ -200,14 +246,22 @@
 
 <body>
 <div class="book-grid">
+<!-- BOOKS_START -->
 
+
+<!-- BOOK_START:Example -->
   <div class="project">
-    <a href="book_index.html" style="text-decoration: none;" title="Book">
-      <img src="book.svg" alt="book Cover" style="border-radius: 4px;">
-      <div class="project-title">Book</div>
-    </a>
+    <img src="images/Example.svg" alt="Example Book Cover" style="border-radius: 4px;">
+    <div class="button-container">
+      <a href="Example/index.html" class="book-button html-button" title="Read 'Example' online">HTML</a>
+      <a href="Example/Example.epub" class="book-button ebook-button" title="Download 'Example' EPUB" download>EBOOK</a>
+      <a href="https://www.amazon.com/" target="_blank" class="book-button buy-button" title="Purchase 'Example'">BUY</a>
+    </div>
   </div>
+<!-- BOOK_END:Example -->
 
+
+<!-- BOOKS_END -->
 </div>
 
 <div class="footer-spacer"></div>

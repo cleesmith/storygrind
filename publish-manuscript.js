@@ -35,6 +35,11 @@ class PublishManuscript extends ToolBase {
     }
 
     try {
+      // Check if this is an unpublish operation
+      if (options.unpublish === 'yes') {
+        return await this.unpublishBook(projectPath, options);
+      }
+
       // Check if manuscript files exist
       const manuscriptFiles = await this.findManuscriptFiles(projectPath);
       
@@ -48,33 +53,45 @@ class PublishManuscript extends ToolBase {
         };
       }
 
-      this.emitOutput(`Found ${manuscriptFiles.length} manuscript file(s):\n`);
-      manuscriptFiles.forEach(file => {
-        this.emitOutput(`  - ${path.basename(file)}\n`);
-      });
+      // Show only the selected file
+      const selectedFile = options.manuscript_file;
+      const selectedFileName = path.basename(selectedFile);
+      
+      this.emitOutput(`Using manuscript file: ${selectedFileName}\n`);
 
       // Extract project name from path
       const projectName = path.basename(projectPath);
-      const displayTitle = this.formatProjectName(projectName);
+      
+      // Use user-provided title or fall back to formatted project name
+      const displayTitle = options.title || this.formatProjectName(projectName);
       
       // Get manuscript base name from options
-      const selectedFile = options.manuscript_file;
       const manuscriptBaseName = selectedFile ? path.basename(selectedFile, path.extname(selectedFile)) : 'manuscript';
       
       this.emitOutput(`\nPublishing project: ${displayTitle}\n`);
 
-      // Generate SVG cover
+      // Generate SVG cover with user-provided title and author
       const svgOutputPath = await this.generateSVGCover(projectName, displayTitle, options.author || this.authorName);
       
-      // Update book index
-      await this.updateBookIndex(projectName, displayTitle, manuscriptBaseName, selectedFile);
+      // Update book index and get the HTML file used
+      const htmlFile = await this.updateBookIndex(projectName, displayTitle, manuscriptBaseName, selectedFile, options.purchase_url || '');
 
       this.emitOutput(`\nPublication complete!\n`);
       
+      // Only return HTML files for editing (no SVG files)
+      const editableFiles = [];
+      if (htmlFile) {
+        const projectDir = path.join(appState.PROJECTS_DIR, projectName);
+        const htmlPath = path.join(projectDir, htmlFile);
+        if (fs.existsSync(htmlPath)) {
+          editableFiles.push(htmlPath);
+        }
+      }
+
       return {
         success: true,
         message: `Published ${displayTitle} successfully`,
-        outputFiles: [svgOutputPath],
+        outputFiles: editableFiles,
         stats: {
           manuscriptFiles: manuscriptFiles.length,
           projectName: projectName,
@@ -164,91 +181,186 @@ class PublishManuscript extends ToolBase {
   }
 
   /**
-   * Update book_index.html with new project entry
+   * Update index.html with new project entry
    * @param {string} projectName - Project folder name
    * @param {string} displayTitle - Formatted title for display
+   * @param {string} manuscriptBaseName - Base name of manuscript file
+   * @param {string} selectedFile - Selected manuscript file
+   * @param {string} purchaseUrl - Purchase URL for the BUY button
    * @returns {Promise<void>}
    */
-  async updateBookIndex(projectName, displayTitle, manuscriptBaseName, selectedFile) {
-    const bookIndexPath = path.join(appState.PROJECTS_DIR, 'book_index.html');
+  async updateBookIndex(projectName, displayTitle, manuscriptBaseName, selectedFile, purchaseUrl) {
+    const bookIndexPath = path.join(appState.PROJECTS_DIR, 'index.html');
     const templatePath = path.join(__dirname, 'book_index.html');
     const projectDir = path.join(appState.PROJECTS_DIR, projectName);
 
     this.emitOutput(`Updating book index: ${bookIndexPath}\n`);
 
-    // If book_index.html doesn't exist in projects dir, copy from template
+    // If index.html doesn't exist in projects dir, copy from book_index.html template
     if (!fs.existsSync(bookIndexPath)) {
-      this.emitOutput(`Creating book_index.html from template\n`);
+      this.emitOutput(`Creating index.html from book_index.html template\n`);
       await fsPromises.copyFile(templatePath, bookIndexPath);
     }
 
     // Read current book index
     let indexContent = await fsPromises.readFile(bookIndexPath, 'utf8');
 
-    // Check if this project already exists in the index
-    const projectPattern = new RegExp(`<a href="${projectName}/`, 'i');
-    if (projectPattern.test(indexContent)) {
-      this.emitOutput(`Project ${projectName} already exists in book index\n`);
-      return;
+    // Check if this project already exists and remove it for replacement
+    const projectStartPattern = new RegExp(`<!-- BOOK_START:${projectName} -->`, 'i');
+    const projectEndPattern = new RegExp(`<!-- BOOK_END:${projectName} -->`, 'i');
+    
+    if (projectStartPattern.test(indexContent) && projectEndPattern.test(indexContent)) {
+      this.emitOutput(`Project ${projectName} already exists - replacing entry\n`);
+      
+      // Remove existing entry
+      const startMatch = indexContent.match(projectStartPattern);
+      const endMatch = indexContent.match(projectEndPattern);
+      
+      if (startMatch && endMatch) {
+        const startIndex = indexContent.indexOf(startMatch[0]);
+        const endIndex = indexContent.indexOf(endMatch[0]) + endMatch[0].length;
+        
+        // Remove the existing entry including the newline after it
+        indexContent = indexContent.slice(0, startIndex) + indexContent.slice(endIndex + 1);
+      }
     }
 
-    // Use the selected file directly as link target
-    let linkTarget = 'index.html'; // fallback
+    // Find HTML and EPUB files for the buttons
+    const projectFiles = await fsPromises.readdir(projectDir);
     
-    if (selectedFile) {
-      // Use the selected file directly - get just the filename
-      linkTarget = path.basename(selectedFile);
-console.dir(linkTarget);
-
+    // Find HTML file
+    let htmlFile = null;
+    if (selectedFile && selectedFile.endsWith('.html')) {
+      htmlFile = path.basename(selectedFile);
     } else {
-      // Find the latest HTML file to link to
-      const projectFiles = await fsPromises.readdir(projectDir);
       const htmlFiles = projectFiles.filter(file => file.endsWith('.html'));
-      
       if (htmlFiles.length > 0) {
-        // Sort by modification time (newest first) or use the manuscript file if it exists
         const manuscriptHtml = htmlFiles.find(file => file.startsWith(manuscriptBaseName + '_') || file === manuscriptBaseName + '.html');
         if (manuscriptHtml) {
-          linkTarget = manuscriptHtml;
-        } else {
-          // Use the most recent HTML file
-          const stats = await Promise.all(htmlFiles.map(async file => ({
-            file,
-            mtime: (await fsPromises.stat(path.join(projectDir, file))).mtime
-          })));
-          stats.sort((a, b) => b.mtime - a.mtime);
-          linkTarget = stats[0].file;
+          htmlFile = manuscriptHtml;
         }
       }
     }
-console.dir(linkTarget);
-
-    // Create new project entry
-    const newProjectEntry = `
-  <div class="project">
-    <a href="${projectName}/${linkTarget}" style="text-decoration: none;" title="Read: ${displayTitle}">
-      <img src="images/${projectName}.svg" alt="${displayTitle} Cover" style="border-radius: 4px;">
-      <div class="project-title">${displayTitle}</div>
-    </a>
-  </div>
-`;
-
-    // Find insertion point (after <div class="book-grid">)
-    const gridStartTag = '<div class="book-grid">';
-    const insertionIndex = indexContent.indexOf(gridStartTag);
     
-    if (insertionIndex === -1) {
-      throw new Error('Could not find book-grid div in book_index.html');
+    // Find EPUB file
+    let epubFile = null;
+    if (selectedFile && selectedFile.endsWith('.epub')) {
+      epubFile = path.basename(selectedFile);
+    } else {
+      const epubFiles = projectFiles.filter(file => file.endsWith('.epub'));
+      if (epubFiles.length > 0) {
+        const manuscriptEpub = epubFiles.find(file => file.startsWith(manuscriptBaseName + '_') || file === manuscriptBaseName + '.epub');
+        if (manuscriptEpub) {
+          epubFile = manuscriptEpub;
+        }
+      }
     }
 
-    // Insert after the opening tag
-    const insertAfter = insertionIndex + gridStartTag.length;
+    // Create new project entry with 3-button layout
+    const newProjectEntry = `
+<!-- BOOK_START:${projectName} -->
+  <div class="project">
+    <img src="images/${projectName}.svg" alt="${displayTitle} Book Cover" style="border-radius: 4px;">
+    <div class="button-container">
+      <a href="${projectName}/${htmlFile || 'index.html'}" class="book-button html-button" title="Read '${displayTitle}' online">HTML</a>
+      <a href="${projectName}/${epubFile || projectName + '.epub'}" class="book-button ebook-button" title="Download '${displayTitle}' EPUB" download>EBOOK</a>
+      <a href="${purchaseUrl || 'https://www.amazon.com/'}" target="_blank" class="book-button buy-button" title="Purchase '${displayTitle}'">BUY</a>
+    </div>
+  </div>
+<!-- BOOK_END:${projectName} -->
+`;
+
+    // Find insertion point (after <!-- BOOKS_START --> comment)
+    const booksStartTag = '<!-- BOOKS_START -->';
+    const insertionIndex = indexContent.indexOf(booksStartTag);
+    
+    if (insertionIndex === -1) {
+      throw new Error('Could not find BOOKS_START comment marker in index.html');
+    }
+
+    // Insert after the BOOKS_START comment
+    const insertAfter = insertionIndex + booksStartTag.length;
     indexContent = indexContent.slice(0, insertAfter) + newProjectEntry + indexContent.slice(insertAfter);
 
     // Write updated index
     await fsPromises.writeFile(bookIndexPath, indexContent, 'utf8');
     
     this.emitOutput(`Added ${displayTitle} to book index\n`);
+    
+    // Return the HTML file for editing
+    return htmlFile;
+  }
+
+  /**
+   * Unpublish a book from the index.html file
+   * @param {string} projectPath - Path to the project directory
+   * @param {Object} options - Tool options
+   * @returns {Promise<Object>} - Unpublish result
+   */
+  async unpublishBook(projectPath, options) {
+    const projectName = path.basename(projectPath);
+    const indexPath = path.join(appState.PROJECTS_DIR, 'index.html');
+    
+    this.emitOutput(`Unpublishing project: ${projectName}\n`);
+    
+    // Check if index.html exists
+    if (!fs.existsSync(indexPath)) {
+      const errorMsg = 'No published books found (index.html does not exist)';
+      this.emitOutput(errorMsg);
+      return {
+        success: false,
+        message: errorMsg,
+        outputFiles: []
+      };
+    }
+    
+    // Read current index content
+    let indexContent = await fsPromises.readFile(indexPath, 'utf8');
+    
+    // Reuse the existing removal logic from updateBookIndex
+    const projectStartPattern = new RegExp(`<!-- BOOK_START:${projectName} -->`, 'i');
+    const projectEndPattern = new RegExp(`<!-- BOOK_END:${projectName} -->`, 'i');
+    
+    if (!projectStartPattern.test(indexContent) || !projectEndPattern.test(indexContent)) {
+      const errorMsg = `Book "${projectName}" not found in published index`;
+      this.emitOutput(errorMsg);
+      return {
+        success: false,
+        message: errorMsg,
+        outputFiles: []
+      };
+    }
+    
+    // Remove existing entry (same logic as updateBookIndex)
+    const startMatch = indexContent.match(projectStartPattern);
+    const endMatch = indexContent.match(projectEndPattern);
+    
+    if (startMatch && endMatch) {
+      const startIndex = indexContent.indexOf(startMatch[0]);
+      const endIndex = indexContent.indexOf(endMatch[0]) + endMatch[0].length;
+      
+      // Remove the existing entry including the newline after it
+      indexContent = indexContent.slice(0, startIndex) + indexContent.slice(endIndex + 1);
+      
+      // Write updated index (but don't add anything new)
+      await fsPromises.writeFile(indexPath, indexContent, 'utf8');
+      this.emitOutput(`Removed book entry from index.html\n`);
+    }
+    
+    // Remove SVG file if it exists
+    const svgPath = path.join(appState.PROJECTS_DIR, 'images', `${projectName}.svg`);
+    if (fs.existsSync(svgPath)) {
+      await fsPromises.unlink(svgPath);
+      this.emitOutput(`Removed SVG cover: ${svgPath}\n`);
+    }
+    
+    this.emitOutput(`\nBook "${projectName}" unpublished successfully!\n`);
+    
+    return {
+      success: true,
+      message: `Book "${projectName}" unpublished successfully`,
+      outputFiles: []
+    };
   }
 }
 
