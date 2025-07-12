@@ -970,7 +970,24 @@ function setupToolHandlers() {
 
   ipcMain.handle('get-tool-options', (e, toolName) => {
     const t = toolSystem.toolRegistry.getTool(toolName);
-    return t ? (t.config.options || []) : [];
+    
+    let options = t ? (t.config.options || []) : [];
+    
+    // For publishing tools, set author default to appState.AUTHOR_NAME
+    const publishingTools = ['manuscript_to_html', 'manuscript_to_epub', 'publish_manuscript'];
+    if (publishingTools.includes(toolName) && options.length > 0) {
+      options = options.map(option => {
+        if (option.name === 'author') {
+          return {
+            ...option,
+            default: appState.AUTHOR_NAME
+          };
+        }
+        return option;
+      });
+    }
+    
+    return options;
   });
   
   // Show tool setup dialog

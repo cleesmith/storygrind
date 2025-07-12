@@ -76,6 +76,11 @@ class ManuscriptTextToHtml extends ToolBase {
         };
       }
 
+      // If user provided a new author name, persist it for future use
+      if (options.author && options.author.trim() && options.author.trim() !== appState.AUTHOR_NAME) {
+        appState.setAuthorName(options.author.trim());
+      }
+
       // Read manuscript content
       const manuscriptContent = fs.readFileSync(manuscriptFile, 'utf8');
       

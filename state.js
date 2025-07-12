@@ -45,7 +45,8 @@ class AppState {
     this.PROJECTS_DIR = path.join(os.homedir(), 'writing_with_storygrind');
     this.DEFAULT_SAVE_DIR = this.PROJECTS_DIR;
     
-    // Project tracking
+    // Project and default Author name (pen name)
+    this.AUTHOR_NAME = "Anonymous";
     this.CURRENT_PROJECT = null;
     this.CURRENT_PROJECT_PATH = null;
     
@@ -134,6 +135,11 @@ class AppState {
         this.LANGUAGE = settings.language;
       }
     }
+    
+    // Load author name setting
+    if (settings.author_name) {
+      this.AUTHOR_NAME = settings.author_name;
+    }
   }
   
   // Helper method to migrate old language strings to new object format
@@ -182,7 +188,8 @@ class AppState {
       current_project: this.CURRENT_PROJECT,
       current_project_path: this.CURRENT_PROJECT_PATH,
       ai_provider: this.AI_PROVIDER,
-      language: this.LANGUAGE
+      language: this.LANGUAGE,
+      author_name: this.AUTHOR_NAME
     };
     
     this.store.set('settings', settings);
@@ -198,6 +205,13 @@ class AppState {
   // Update language
   setLanguage(language) {
     this.LANGUAGE = language;
+    this.saveSettings();
+  }
+  
+  // Update author name
+  setAuthorName(authorName) {
+    // if empty or falsey fallback to Anonymous:
+    this.AUTHOR_NAME = authorName.trim() || "Anonymous";
     this.saveSettings();
   }
   

@@ -44,7 +44,7 @@ class PublishManuscript extends ToolBase {
       const manuscriptFiles = await this.findManuscriptFiles(projectPath);
       
       if (manuscriptFiles.length === 0) {
-        const errorMsg = 'No manuscript_*.html or manuscript_*.epub files found in current project.';
+        const errorMsg = '\nNo manuscript_*.html or manuscript_*.epub files found in current project.\n';
         this.emitOutput(errorMsg);
         return {
           success: false,
@@ -53,11 +53,13 @@ class PublishManuscript extends ToolBase {
         };
       }
 
+      this.emitOutput(`Project: ${appState.CURRENT_PROJECT}\n`);
+
       // Show only the selected file
       const selectedFile = options.manuscript_file;
       const selectedFileName = path.basename(selectedFile);
       
-      this.emitOutput(`Using manuscript file: ${selectedFileName}\n`);
+      this.emitOutput(`\nUsing manuscript file: ${selectedFileName}\n`);
 
       // Extract project name from path
       const projectName = path.basename(projectPath);
@@ -68,10 +70,12 @@ class PublishManuscript extends ToolBase {
       // Get manuscript base name from options
       const manuscriptBaseName = selectedFile ? path.basename(selectedFile, path.extname(selectedFile)) : 'manuscript';
       
-      this.emitOutput(`\nPublishing project: ${displayTitle}\n`);
+      this.emitOutput(`\nTitle: ${displayTitle}\n`);
+
+      appState.setAuthorName(options.author);
 
       // Generate SVG cover with user-provided title and author
-      const svgOutputPath = await this.generateSVGCover(projectName, displayTitle, options.author || this.authorName);
+      const svgOutputPath = await this.generateSVGCover(projectName, displayTitle, appState.AUTHOR_NAME);
       
       // Update book index and get the HTML file used
       const htmlFile = await this.updateBookIndex(projectName, displayTitle, manuscriptBaseName, selectedFile, options.purchase_url || '#');
@@ -153,7 +157,7 @@ class PublishManuscript extends ToolBase {
     const imagesDir = path.join(appState.PROJECTS_DIR, 'images');
     const outputPath = path.join(imagesDir, `${projectName}.svg`);
 
-    this.emitOutput(`Generating SVG cover from embedded template\n`);
+    this.emitOutput(`\nGenerating SVG cover from embedded template\n`);
     
     // Ensure images directory exists
     await fsPromises.mkdir(imagesDir, { recursive: true });
@@ -229,7 +233,7 @@ class PublishManuscript extends ToolBase {
     // Write the customized SVG
     await fsPromises.writeFile(outputPath, svgContent, 'utf8');
     
-    this.emitOutput(`Generated SVG cover: ${outputPath}\n`);
+    this.emitOutput(`\nGenerated SVG cover: ${outputPath}\n`);
     return outputPath;
   }
 

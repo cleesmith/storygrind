@@ -41,6 +41,7 @@ function safeLog(message) {
 const AiApiService = require('./client');
 const toolDiscovery = require('./tool-discovery');
 const GenericAITool = require('./generic-ai-tool');
+const appState = require('./state.js');
 
 const toolRegistry = require('./registry');
 
@@ -206,7 +207,7 @@ const TOOL_DEFS = [
         "type": "text",
         "description": "Author name",
         "required": false,
-        "default": "Unknown"
+        "default": ""
       }
   ]},
   { id: 'manuscript_to_html', title: 'Manuscript to HTML Converter', description: 'Converts manuscript text files to HTML format with dark mode support', Class: ManuscriptToHtml, options: [
@@ -238,7 +239,7 @@ const TOOL_DEFS = [
         "type": "text",
         "description": "Author name",
         "required": false,
-        "default": "Unknown"
+        "default": ""
       },
       {
         "name": "max_chapters",
@@ -253,14 +254,14 @@ const TOOL_DEFS = [
         ]
       }
   ]},
-  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files to ~/writing_with_storygrind project folder and generates a generic cover, updates the book index.', Class: PublishManuscript, options: [
+  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html and .epub) to ~/writing_with_storygrind project folder, generates a generic SVG cover with title/author, then updates the book index.', Class: PublishManuscript, options: [
       {
         "name": "manuscript_file",
         "label": "Manuscript File",
         "type": "file",
-        "description": "Base manuscript file that has corresponding .html and .epub files",
+        "description": "Manuscript file that has corresponding .html and .epub files",
         "required": true,
-        "default": "manuscript",
+        "default": "manuscript.txt",
         "filters": [
           {
             "name": "Manuscript Files",
@@ -273,8 +274,8 @@ const TOOL_DEFS = [
         "label": "Author",
         "type": "text",
         "description": "Author name for the publication",
-        "required": true,
-        "default": "Unknown"
+        "required": false,
+        "default": ""
       },
       {
         "name": "title",
@@ -423,6 +424,8 @@ async function initializeToolSystem(settings) {
   }
   
   try {
+    // Initialize appState to ensure AUTHOR_NAME is loaded from persistent storage
+    await appState.initialize();
     // Get the API service constructor from the factory
     const createApiService = require('./client');
     const AiApiServiceClass = createApiService();
@@ -445,6 +448,17 @@ async function initializeToolSystem(settings) {
     if (typeof global.logToFile === 'function') {
       global.logToFile(`[tool-system] Discovered ${filteredUserTools.length} user-created tools`);
     }
+    
+    // Update author field defaults with persisted author name
+    const publishingToolIds = ['manuscript_to_epub', 'manuscript_to_html', 'publish_manuscript'];
+    TOOL_DEFS.forEach(toolDef => {
+      if (publishingToolIds.includes(toolDef.id)) {
+        const authorOption = toolDef.options.find(option => option.name === 'author');
+        if (authorOption) {
+          authorOption.default = appState.AUTHOR_NAME;
+        }
+      }
+    });
     
     // Combine built-in and user tools
     const allToolDefs = [...TOOL_DEFS, ...filteredUserTools];

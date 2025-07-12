@@ -143,6 +143,9 @@ setupBtn.addEventListener('click', async () => {
       outputElement.textContent = "Error: Unable to setup tool - missing tool data";
       return;
     }
+
+    // update options after clicking Setup button for multiple Run's:
+    currentToolOptions = await window.electronAPI.getToolOptions(toolData.name);
     
     // Generate form controls for options
     await generateOptionsForm(currentToolOptions || []);

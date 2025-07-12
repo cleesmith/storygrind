@@ -82,14 +82,19 @@ class ManuscriptToEpub extends ToolBase {
         };
       }
 
-      // Extract metadata from options or use defaults
+      // Extract metadata from options or use appState
       const metadata = {
         title: (options.title && options.title.trim()) ? options.title.trim() : undefined,
-        author: options.author || this.defaultMetadata.author,
+        author: options.author || appState.AUTHOR_NAME,
         language: options.language || this.defaultMetadata.language,
         publisher: options.publisher || this.defaultMetadata.publisher,
         description: options.description || this.defaultMetadata.description
       };
+
+      // If user provided a new author name, persist it for future use
+      if (options.author && options.author.trim() && options.author.trim() !== appState.AUTHOR_NAME) {
+        appState.setAuthorName(options.author.trim());
+      }
 
       // Convert to EPUB and get chapter info
       const result = await this.convertToEpub(textFile, metadata);
