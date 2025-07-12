@@ -612,23 +612,17 @@ class PublishManuscript extends ToolBase {
   <div class="project">
     <img src="images/${projectName}.svg" alt="${displayTitle} Book Cover" style="border-radius: 4px;">
     <div class="button-container">
+      <a href="${projectName}/${htmlFile || 'index.html'}" class="book-button html-button" title="Read '${displayTitle}' online">HTML</a>
+      <a href="${projectName}/${epubFile || projectName + '.epub'}" class="book-button ebook-button" title="Download '${displayTitle}' EPUB" download>EBOOK</a>
 `;
-    
-    // Only add HTML button if HTML file exists
-    if (htmlFile) {
-      newProjectEntry += `      <a href="${projectName}/${htmlFile}" class="book-button html-button" title="Read '${displayTitle}' online">HTML</a>
-`;
-    }
-    
-    // Only add EPUB button if EPUB file exists
-    if (epubFile) {
-      newProjectEntry += `      <a href="${projectName}/${epubFile}" class="book-button ebook-button" title="Download '${displayTitle}' EPUB" download>EBOOK</a>
-`;
-    }
 
-    // Only add BUY button if there's a valid purchase URL
-    if (purchaseUrl && purchaseUrl !== '#') {
-      newProjectEntry += `      <a href="${purchaseUrl}" target="_blank" class="book-button buy-button" title="Purchase '${displayTitle}'">BUY</a>
+    if (purchaseUrl == '#') {
+      newProjectEntry += `
+      <a class="book-button no-buy-button" title="'${displayTitle}' is not available to buy!"><s>BUY</s></a>
+`;
+    } else {
+      newProjectEntry += `
+      <a href="${purchaseUrl}" target="_blank" class="book-button buy-button" title="Purchase '${displayTitle}'">BUY</a>
 `;
     }
 
