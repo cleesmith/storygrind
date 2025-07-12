@@ -203,15 +203,6 @@ async function initializeApp() {
           }
       }
     }
-    
-    // Initial project dialog logic
-    // if (!appState.CURRENT_PROJECT && shouldShowProjectDialog) {
-    //   setTimeout(() => {
-    //     if (mainWindow && !mainWindow.isDestroyed()) {
-    //         showProjectDialog();
-    //     }
-    //   }, 500);
-    // }
 
   } catch (error) {
     console.error('Failed to initialize application:', error);
@@ -265,7 +256,6 @@ if (isPackaged) {
 
 // Global function to get complete settings 
 function getCompleteApiSettings() {
-  console.log('*** getCompleteApiSettings() called ***');
   // Start with an empty settings object
   const completeSettings = {};
   
@@ -274,10 +264,6 @@ function getCompleteApiSettings() {
   if (storedModel) {
     completeSettings.model_name = storedModel;
   }
-  
-  console.log('getCompleteApiSettings returning:', completeSettings);
-  console.log('- selectedApiProvider:', appState.store ? appState.store.get('selectedApiProvider') : 'no store');
-  console.log('- selectedAiModel:', storedModel);
   
   return completeSettings;
 }

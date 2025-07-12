@@ -379,23 +379,15 @@ function refreshModelInfo() {
 }
 
 async function loadNonAiTools() {
-  console.log('*** loadNonAiTools: Starting...');
-  
   const tools = await window.electronAPI.getTools();
-  console.log(`*** loadNonAiTools: Received ${tools.length} total tools from main process`);
-  console.log('*** loadNonAiTools: All tools:', tools);
   
   // Filter to only include non-AI tools - use same logic as isAiTool function
   const nonAiTools = tools.filter(tool => !isAiTool(tool));
-  console.log(`*** loadNonAiTools: Filtered to ${nonAiTools.length} non-AI tools`);
-  console.log('*** loadNonAiTools: Non-AI tools:', nonAiTools);
   
   // Clear any existing options
   nonAiToolSelect.innerHTML = '';
-  console.log('Cleared existing options from nonAiToolSelect');
   
   if (!nonAiTools || nonAiTools.length === 0) {
-    console.log('No non-AI tools found, adding disabled message');
     const option = document.createElement('option');
     option.disabled = true;
     option.textContent = 'No non-AI tools available';
@@ -405,19 +397,15 @@ async function loadNonAiTools() {
   
   // Add all non-AI tools
   nonAiTools.forEach((tool, index) => {
-    console.log(`Adding non-AI tool ${index + 1}:`, tool);
-    console.log(`Tool title: "${tool.title}", Tool description: "${tool.description}"`);
     const option = document.createElement('option');
     option.value = tool.name;
     option.textContent = tool.title;
     option.dataset.description = tool.description || 'No description available.';
     nonAiToolSelect.appendChild(option);
-    console.log(`Added non-AI tool: ${tool.name} with title: ${tool.title}`);
   });
   
   // Count the actual options
   const actualOptions = nonAiTools.length;
-  console.log(`Added ${actualOptions} selectable non-AI tool options to dropdown`);
   
   // Verify the options were actually added to the DOM
   console.log('Final nonAiToolSelect content:', nonAiToolSelect.innerHTML);
