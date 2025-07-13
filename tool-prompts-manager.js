@@ -31,7 +31,7 @@ class PromptManager {
     
     // User Tools (demo tools)
     this.userTools = [
-      'list_chapters',
+      'anything_goes',
       'nonfiction_SelfHelp_editing',
       'nonfiction_creative_editing', 
       'nonfiction_integrity_editing',

@@ -1565,8 +1565,10 @@ Write a complete, polished chapter that could be published as part of the final 
 
 Use the outline as your guide for plot events, the world document for setting and background details, and the existing manuscript to maintain consistency in style and continuity.`,
 
-// User Tools (non-fiction editing demos)
-list_chapters: `
+// User Tools
+anything_goes: `
+... without using Markdown formatting:
+
 List the chapters in the manuscript.`,
 
 nonfiction_SelfHelp_editing: `Thoroughly complete the following 2 TASKS for SELF-HELP NON-FICTION:

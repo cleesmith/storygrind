@@ -43,7 +43,7 @@ Inside the main `~/storygrind_projects/` folder, you'll find individual subfolde
       │   ├── rhythm_analyzer.txt
       │   └── tense_consistency_checker.txt
       ├── User Tools
-      │   ├── list_chapters.txt
+      │   ├── anything_goes.txt
       │   ├── nonfiction_SelfHelp_editing.txt
       │   ├── nonfiction_creative_editing.txt
       │   ├── nonfiction_integrity_editing.txt
