@@ -74,7 +74,7 @@ class ToolBase {
    * @returns {Promise<object>} - Tool execution result
    */
   async execute(options) {
-    console.log(`Executing ${this.title} with options:`, options);
+    // console.log(`Executing ${this.title} with options:`, options);
     
     // Make sure we have an API service (required for AI tools)
     if (!this.apiService) {
