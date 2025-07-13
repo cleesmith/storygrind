@@ -1137,7 +1137,6 @@ function createEditorDialog(fileToOpen = null) {
         // Verify the file path is within the allowed directory
         const homePath = os.homedir();
         const writingPath = appState.PROJECTS_DIR;
-        console.dir(writingPath);
         
         if (!fileToOpen.startsWith(writingPath)) {
           console.error('Attempted to open file outside allowed directory:', fileToOpen);
