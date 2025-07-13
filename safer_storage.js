@@ -7,7 +7,7 @@ const path = require('path');
 class SaferStorage {
   constructor() {
     // Store in user data directory, not app bundle
-    this.configPath = path.join(os.homedir(), 'writing_with_storygrind', 'encrypted-keys.json');
+    this.configPath = path.join(os.homedir(), 'storygrind_projects', 'encrypted-keys.json');
     this.ensureDirectory();
   }
 

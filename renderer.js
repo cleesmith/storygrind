@@ -276,7 +276,7 @@ function loadToolsForCategory(category) {
       option.textContent = 'Create your own custom tools!';
       aiToolSelect.appendChild(option);
       aiToolGroup.style.display = 'block';
-      aiToolDescription.textContent = 'Add .txt files with custom prompts to ~/writing_with_storygrind/tool-prompts/User Tools/ folder. Each file becomes a custom AI tool (max 10). Restart app to see new custom tools.';
+      aiToolDescription.textContent = 'Add .txt files with custom prompts to ~/storygrind_projects/tool-prompts/User Tools/ folder. Each file becomes a custom AI tool (max 10). Restart app to see new custom tools.';
     } else {
       option.textContent = 'No tools available in this category';
       aiToolSelect.appendChild(option);

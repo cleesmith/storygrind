@@ -12,7 +12,7 @@ Make sure you have:
 ## 📁 Understanding Projects
 
 StoryGrind organizes your work into **projects**. Each project:
-- Gets its own folder in `~/writing_with_storygrind/`
+- Gets its own folder in `~/storygrind_projects/`
 - Contains your manuscript files
 - Stores all analysis and editing results
 - Keeps everything organized with timestamps
@@ -35,7 +35,7 @@ Think of a project as a workspace for one book, story collection, or writing pro
 You'll need to copy your manuscript file into the project folder:
 
 **Option A: Using File Explorer/Finder**
-1. Navigate to `~/writing_with_storygrind/YourProjectName/`
+1. Navigate to `~/storygrind_projects/YourProjectName/`
 2. Copy your .txt or .docx file into this folder
 
 **Option B: Using StoryGrind's Import Feature**

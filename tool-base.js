@@ -30,7 +30,7 @@ class ToolBase {
   async getPrompt() {
     try {
       //            ************************************************************
-      // IMPORTANT: all prompts are in: ~/writing_with_storygrind/tool-prompts
+      // IMPORTANT: all prompts are in: ~/storygrind_projects/tool-prompts
       //            ************************************************************
       //            so double check they agree with: tool-prompts.js !!
 

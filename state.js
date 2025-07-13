@@ -42,7 +42,7 @@ class AppState {
     
     // File system paths
     // users can not change this:
-    this.PROJECTS_DIR = path.join(os.homedir(), 'writing_with_storygrind');
+    this.PROJECTS_DIR = path.join(os.homedir(), 'storygrind_projects');
     this.DEFAULT_SAVE_DIR = this.PROJECTS_DIR;
     
     // Project and default Author name (pen name)

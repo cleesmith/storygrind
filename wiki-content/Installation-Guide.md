@@ -46,10 +46,10 @@ This message **confirms that Apple has verified the app is safe**, *read the sma
 When you first run StoryGrind, it creates:
 
 ### In Your Home Directory
-- **`writing_with_storygrind/` folder** - Contains all your projects
+- **`storygrind_projects/` folder** - Contains all your projects
 
 ### File Access Restrictions
-For security, StoryGrind can only access files in the `writing_with_storygrind` folder. This means:
+For security, StoryGrind can only access files in the `storygrind_projects` folder. This means:
 - ✅ Your writing projects are safe and organized
 - ✅ StoryGrind can't access other files on your computer
 - ⚠️ You'll need to copy manuscripts into project folders

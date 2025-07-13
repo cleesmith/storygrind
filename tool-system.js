@@ -254,7 +254,7 @@ const TOOL_DEFS = [
         ]
       }
   ]},
-  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html and .epub) to ~/writing_with_storygrind project folder, generates a generic SVG cover with title/author, then updates the book index.', Class: PublishManuscript, options: [
+  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html and .epub) to ~/storygrind_projects project folder, generates a generic SVG cover with title/author, then updates the book index.', Class: PublishManuscript, options: [
       {
         "name": "manuscript_file",
         "label": "Manuscript File",
@@ -464,7 +464,7 @@ async function initializeToolSystem(settings) {
     const allToolDefs = [...TOOL_DEFS, ...filteredUserTools];
     
     // Define which tools are non-AI and don't need AI API service
-    const nonAiToolIds = ['docx_comments', 'epub_converter', 'proofreader_spelling', 'manuscript_to_epub', 'manuscript_to_html', 'tokens_words_counter', 'publish_manuscript'];
+    const nonAiToolIds = ['docx_comments', 'epub_converter', 'proofreader_spelling', 'manuscript_to_epub', 'manuscript_to_html', 'publish_manuscript'];
     
     // Register each tool with proper configuration
     let toolCount = 0;

@@ -18,7 +18,6 @@ let mainWindow = null;
 
 let editorDialogWindow = null;
 
-
 let settingsWindow = null;
 
 // Declare AiApiServiceInstance at a scope accessible by 
@@ -78,7 +77,7 @@ async function ensureEssentialPathsExist() {
   const writingDir = appState.PROJECTS_DIR;
   const writingDirExists = fs.existsSync(writingDir);
 
-  // If ~/writing_with_storygrind is missing, 
+  // If ~/storygrind_projects is missing, 
   // reset Electron Store to defaults to avoid 
   // previous Project and settings issues
   if (!writingDirExists) {
@@ -88,7 +87,7 @@ async function ensureEssentialPathsExist() {
   }
 
   try {
-    // Create ~/writing_with_storygrind directory if it doesn't exist
+    // Create ~/storygrind_projects directory if it doesn't exist
     if (!writingDirExists) {
       await fs.promises.mkdir(writingDir, { recursive: true });
       
@@ -585,7 +584,7 @@ function checkApiProviderConfiguration() {
     hasApiKey = !!apiKey;
   }
   
-  // console.log(`API key for ${selectedProvider}: ${hasApiKey ? 'present' : 'missing'}`);
+  // console.log(`>>> API key for ${selectedProvider}: ${hasApiKey ? 'present' : 'missing'}`);
   
   return hasApiKey; // Return true if API key exists
 }
@@ -1039,10 +1038,8 @@ function setupToolHandlers() {
             throw new Error(`Tool not found: ${toolName}`);
           }
           
-
           // Execute the tool (passing sendOutput so it can assign emitOutput)
           const result = await toolSystem.executeToolById(toolName, optionValues, runId, sendOutput);
-          
           
           // Use files returned by the tool
           const allFiles = result.outputFiles || [];
@@ -1139,7 +1136,8 @@ function createEditorDialog(fileToOpen = null) {
       try {
         // Verify the file path is within the allowed directory
         const homePath = os.homedir();
-        const writingPath = path.join(homePath, 'writing');
+        const writingPath = appState.PROJECTS_DIR;
+        console.dir(writingPath);
         
         if (!fileToOpen.startsWith(writingPath)) {
           console.error('Attempted to open file outside allowed directory:', fileToOpen);
@@ -1701,7 +1699,7 @@ function setupIPCHandlers() {
       const writingPath = appState.PROJECTS_DIR;
       let startPath = options.defaultPath || appState.DEFAULT_SAVE_DIR || writingPath;
       
-      // Force path to be within ~/writing_with_storygrind
+      // Force path to be within ~/storygrind_projects
       if (!startPath.startsWith(writingPath)) {
         startPath = writingPath;
       }
@@ -1825,7 +1823,7 @@ function setupIPCHandlers() {
       const writingPath = appState.PROJECTS_DIR;
       let startPath = options.defaultPath || appState.DEFAULT_SAVE_DIR || writingPath;
       
-      // Force path to be within ~/writing_with_storygrind
+      // Force path to be within ~/storygrind_projects
       if (!startPath.startsWith(writingPath)) {
         startPath = writingPath;
       }

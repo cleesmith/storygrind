@@ -18,7 +18,7 @@ Writing Project - behind the scenes = Finder time
 
 4. Finder: 
     show Finder settings to reveal home folder
-    navigate to ~/writing_with_storygrind
+    navigate to ~/storygrind_projects
     show the new project folder that was created
 
 5. Finder: copy existing manuscripts

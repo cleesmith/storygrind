@@ -9,12 +9,12 @@ Yes! StoryGrind itself is completely free and open source. However, AI-powered t
 StoryGrind works with plain text only- `.txt` files, and the Tools only use `.txt`. For convenience, it can also convert between these formats: `.docx` to `.txt` and vice versa. All output files are saved as `.txt` for maximum compatibility.
 
 ### Where are my files stored?
-Everything is stored locally on your computer in the `~/writing_with_storygrind/` directory. Where `~` is `C:\` or root drive on Windows, well kind of 🤥.
+Everything is stored locally on your computer in the `~/storygrind_projects/` directory. Where `~` is `C:\` or root drive on Windows, well kind of 🤥.
 
-Inside the main `~/writing_with_storygrind/` folder, you'll find individual subfolders for each of your projects. Each subfolder represents a separate story, book, novel, or writing project. Along with the editable tool prompts. For example:
+Inside the main `~/storygrind_projects/` folder, you'll find individual subfolders for each of your projects. Each subfolder represents a separate story, book, novel, or writing project. Along with the editable tool prompts. For example:
 
 ```
-~/writing_with_storygrind/
+~/storygrind_projects/
   ├── TheNecklace/
   ├── JawsAndMobyDick/
   ├── MirrorMeTheMemoir/
@@ -118,10 +118,10 @@ StoryGrind includes a basic text editor for viewing and making quick edits to re
 Every tool run creates a new timestamped file. Old results are never overwritten, so you can track your progress over time.
 
 ### Can I delete tool results?
-Yes, you can delete any files in your project folders using your computer's file manager (Finder on Mac, File Explorer on Windows). You have full control over your writing and subfolders within `~/writing_with_storygrind/` and if you delete a subfolder then StoryGrind is no longer aware of that writing project.
+Yes, you can delete any files in your project folders using your computer's file manager (Finder on Mac, File Explorer on Windows). You have full control over your writing and subfolders within `~/storygrind_projects/` and if you delete a subfolder then StoryGrind is no longer aware of that writing project.
 
 ### How do I backup my projects?
-Simply copy the entire `~/writing_with_storygrind/` folder to your backup location. Everything is stored in standard text files. Even better, create a repository on Github for  `~/writing_with_storygrind/` and use the Github Desktop app to commit/push your writing. That repository then serves as a backup with a history (you can view and restore old writing). So your precious words are taken of care, a legacy, and the repository can be made private so only you can see.
+Simply copy the entire `~/storygrind_projects/` folder to your backup location. Everything is stored in standard text files. Even better, create a repository on Github for  `~/storygrind_projects/` and use the Github Desktop app to commit/push your writing. That repository then serves as a backup with a history (you can view and restore old writing). So your precious words are taken of care, a legacy, and the repository can be made private so only you can see.
 
 ## 🔧 Technical Issues
 
