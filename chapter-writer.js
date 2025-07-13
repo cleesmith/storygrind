@@ -246,7 +246,7 @@ class ChapterWriter extends ToolBase {
       const promptTokens = await this.apiService.countTokens(prompt);
       
       // Debug: Show the actual prompt being sent (commented out - uncomment if needed for debugging)
-      // this.emitOutput(`\n=== FINAL PROMPT SENT TO AI ===\n${prompt}\n=== END FINAL PROMPT ===\n\n`);
+      // this.emitOutput(`\n\npromptTokens=${promptTokens}\n=== FINAL PROMPT SENT TO AI ===\n${prompt}\n=== END FINAL PROMPT ===\n\n`);
       
       // Call AI API with streaming
       this.emitOutput(`\nSending request to AI API (streaming)...\n\n`);
@@ -255,8 +255,8 @@ class ChapterWriter extends ToolBase {
       let fullResponse = "";
 
       try {
-        // Fix for "no manuscript" error:
-        this.apiService.prompt = " ";
+        // Set the complete prompt for the AI service
+        this.apiService.prompt = prompt;
         
         await this.apiService.streamWithThinking(
           prompt,
@@ -437,10 +437,68 @@ class ChapterWriter extends ToolBase {
    * @returns {string} - Complete prompt for AI API
    */
   async createChapterPrompt(formattedHeading, formattedOutlineHeading, outlineContent, worldContent, novelContent, language) {
-    const basePrompt = await this.getPrompt();
-    if (!basePrompt) {
-      throw new Error('Could not load prompt for chapter writer tool');
-    }
+    const basePrompt = `You are a professional fiction writer with expertise in creating engaging, readable prose.
+
+=== OUTLINE ===
+[OUTLINE_CONTENT]
+=== END OUTLINE ===
+
+=== WORLD ===
+[WORLD_CONTENT]
+=== END WORLD ===
+
+=== EXISTING MANUSCRIPT ===
+[MANUSCRIPT_CONTENT]
+=== END EXISTING MANUSCRIPT ===
+
+You are a skilled novelist writing [CHAPTER_HEADING] in fluent, authentic [LANGUAGE]. 
+Draw upon your knowledge of worldwide literary traditions, narrative techniques, and creative approaches from across cultures, while expressing everything in natural, idiomatic [LANGUAGE] that honors its unique linguistic character.
+
+YOUR TASK:
+Write [CHAPTER_HEADING] according to these guidelines. DO NOT SHOW ANY THOUGHT PROCESS - ONLY WRITE THE ACTUAL CHAPTER TEXT.
+
+WRITING REQUIREMENTS:
+- When writing Chapter 1, give extra thinking to creating a thoughtful opening paragraph, especially that first sentence
+- Give extra thought to the first and last sentence of every chapter
+- Read thoroughly the included OUTLINE, WORLD, and MANUSCRIPT
+- Refer to the world of characters and settings provided
+- Create compelling opening and closing scenes
+- Incorporate sensory details and vivid descriptions
+- Maintain consistent tone and style with previous chapters
+- Begin with: [OUTLINE_HEADING] and write in plain text only
+- Write 2,500-3,000 words
+- Do not repeat content from existing chapters
+- Do not start working on the next chapter
+- Do not begin each chapter with: the weather or sunrise description, or someone waking up; be more creative
+- Always give the last chapter extra thought (ultrathink) before writing it, especially the first and last paragraphs
+
+CHARACTER RESTRICTIONS:
+- Do NOT create any new named characters
+- Only use characters explicitly mentioned in the WORLD, OUTLINE, or MANUSCRIPT
+- Only add minimal unnamed incidental characters when absolutely necessary (e.g., waiter, cashier)
+
+WORLD BUILDING:
+- Make extensive use of the world details provided in the WORLD section
+- Incorporate the settings, locations, history, culture, and atmosphere described there
+
+DIALOGUE EMPHASIS:
+- Significantly increase the amount of dialogue (40% of content)
+- Include both external conversations and internal thoughts/monologues
+- Ensure each character's dialogue reflects their unique personality, location, and time period
+
+STYLISTIC REQUIREMENTS:
+- NO Markdown formatting - plain text only
+- Use hyphens only for legitimate [LANGUAGE] words
+- Write all times in 12-hour numerical format with a space before lowercase am/pm (e.g., "10:30 am")
+- Maintain engaging narrative pacing through varied sentence structure
+- Avoid whispers, echoes, eyes widening, and other overused phrases
+- EXPAND your vocabulary beyond common expressions, especially for:
+  • Dialogue attribution (beyond said, asked, replied)
+  • Character movements (beyond nodding, sighing, shrugging)
+  • Emotional reactions (beyond physical clichés like racing hearts)
+  • Environmental descriptions (use specific terminology)
+
+IMPORTANT: Provide ONLY the chapter text itself with no explanation, commentary, or thinking process.`;
     
     // Replace placeholders in the base prompt
     let prompt = basePrompt.replace(/\[OUTLINE_CONTENT\]/g, outlineContent);
@@ -452,6 +510,7 @@ class ChapterWriter extends ToolBase {
     
     return prompt;
   }
+
   async appendToManuscript(chapterText, manuscriptPath) {
     try {
       // Read the existing manuscript

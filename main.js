@@ -1029,7 +1029,7 @@ function setupToolHandlers() {
       (async () => {
         try {
           // Send initial output notification
-          sendOutput(`Starting ${toolName}...\n\n`);
+          sendOutput(`Starting: ${toolName} ...\n\n`);
           
           // Get the tool
           const tool = toolSystem.toolRegistry.getTool(toolName);

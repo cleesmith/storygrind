@@ -240,7 +240,7 @@ runBtn.addEventListener('click', async () => {
   }
   
   // Clear output and show starting message - clear all previous output
-  outputElement.textContent = `Starting ${toolData.title || toolData.name}...\n\n`;
+  outputElement.textContent = `Starting: ${toolData.title || toolData.name} ...\n\n`;
   
   try {
     // Remove any previous output listeners to avoid duplicate output
