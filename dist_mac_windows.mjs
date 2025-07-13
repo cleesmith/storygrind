@@ -1,6 +1,8 @@
 
 // === WINDOWS ===
 // does both package & tar
+// git clone 
+// npm install
 // npm run make 
 
 // Windows_StoryGrind_v4.0.0_July_6_2025.zip
