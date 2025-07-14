@@ -309,6 +309,53 @@ class ManuscriptToEpub extends ToolBase {
    * @param {Object} metadata - Book metadata
    * @returns {Promise<Buffer>} - EPUB file as buffer
    */
+  // async createEpub3Structure(chapters, metadata, coverSvgPath) {
+  //   const zip = new JSZip();
+
+  //   // 1. Add mimetype (uncompressed)
+  //   zip.file('mimetype', 'application/epub+zip', { compression: 'STORE' });
+
+  //   // 2. META-INF/container.xml
+  //   const containerXML = `<?xml version="1.0" encoding="UTF-8"?>\n<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">\n  <rootfiles>\n    <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>\n  </rootfiles>\n</container>`;
+  //   zip.file('META-INF/container.xml', containerXML);
+
+  //   // 3. Chapters (as before)
+  //   chapters.forEach(chapter => {
+  //     const chapterHTML = this.createChapterHTML(chapter, metadata);
+  //     zip.file(`OEBPS/${chapter.id}.xhtml`, chapterHTML);
+  //   });
+
+  //   // 4. SVG Cover Support (no binaries)
+  //   let coverImageId = null;
+  //   if (coverSvgPath && fs.existsSync(coverSvgPath)) {
+  //     const svgBuf = fs.readFileSync(coverSvgPath);
+  //     zip.file('OEBPS/images/cover.svg', svgBuf);
+  //     coverImageId = 'cover-svg';
+  //     // Add cover.xhtml referencing SVG
+  //     const coverXHTML = `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">\n<head>\n  <title>Cover</title>\n  <link rel="stylesheet" type="text/css" href="style.css"/>\n</head>\n<body>\n  <section epub:type="cover">\n    <img src="images/cover.svg" alt="Book Cover" style="max-width:100%;height:auto;display:block;margin:auto;"/>\n  </section>\n</body>\n</html>`;
+  //     zip.file('OEBPS/cover.xhtml', coverXHTML);
+  //   }
+
+  //   // 5. content.opf (OPF file) with SVG cover
+  //   const contentOPF = this.createEpub3ContentOPF(chapters, metadata, coverImageId, true /*svg*/);
+  //   zip.file('OEBPS/content.opf', contentOPF);
+
+  //   // 6. Navigation
+  //   const navXHTML = this.createNavXHTML(chapters, metadata);
+  //   zip.file('OEBPS/nav.xhtml', navXHTML);
+
+  //   // 7. Styles
+  //   const styleCSS = this.createFullWidthCSS();
+  //   zip.file('OEBPS/style.css', styleCSS);
+
+  //   // 8. Build EPUB file
+  //   const epubBuffer = await zip.generateAsync({ 
+  //     type: 'nodebuffer',
+  //     compression: 'DEFLATE',
+  //     compressionOptions: { level: 9 }
+  //   });
+  //   return epubBuffer;
+  // }
   async createEpub3Structure(chapters, metadata) {
     const zip = new JSZip();
 
@@ -317,11 +364,11 @@ class ManuscriptToEpub extends ToolBase {
 
     // 2. Create META-INF/container.xml
     const containerXML = `<?xml version="1.0" encoding="UTF-8"?>
-<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+  <container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
   <rootfiles>
     <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
   </rootfiles>
-</container>`;
+  </container>`;
     zip.file('META-INF/container.xml', containerXML);
 
     // 3. Create chapter HTML files

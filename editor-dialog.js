@@ -684,7 +684,7 @@ function removeMarkdown(md, options) {
       .replace(/^[=\-]{2,}\s*$/g, '') // Remove setext headers
       .replace(/\[\^.+?\](\: .*?$)?/g, '') // Remove footnotes
       .replace(/\s{0,2}\[.*?\]: .*?$/g, '') // Remove reference links
-      .replace(/\!\[(.*?)\][\[\(].*?[\]\)]/g, options.useImgAltText ? '$1' : '') // Handle images
+      .replace(/\!\[(.*?)\][\[\(].*?[\]\)]/g, options.useImgAltText ? '$1' : '')
       .replace(/\[(.*?)\][\[\(].*?[\]\)]/g, '$1') // Handle links
       .replace(/^\s*>+\s?/gm, function(match) {
         return options.preserveBlockSpacing ? '\n' : '';

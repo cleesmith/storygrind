@@ -158,85 +158,474 @@ class PublishManuscript extends ToolBase {
    * @param {string} authorName - Author name
    * @returns {Promise<string>} - Path to generated SVG file
    */
+  // async generateSVGCover(projectName, displayTitle, authorName) {
+  //   const imagesDir = path.join(appState.PROJECTS_DIR, 'images');
+  //   const outputPath = path.join(imagesDir, `${projectName}.svg`);
+  //   await fsPromises.mkdir(imagesDir, { recursive: true });
+
+  //   // Gradient logic
+  //   const getRandomGradient = () => {
+  //     const gradientPresets = [
+  //       { start: '#CC4444', end: '#3AA399' }, { start: '#C48829', end: '#4A5CC8' },
+  //       { start: '#C94A64', end: '#5566C9' }, { start: '#C85A7A', end: '#CCB030' },
+  //       { start: '#4455B8', end: '#5A3B7A' }, { start: '#1A77C1', end: '#C23629' },
+  //       { start: '#3444A8', end: '#A040A0' }, { start: '#0077B7', end: '#66A8A5' },
+  //       { start: '#0D7766', end: '#2BBD5D' }, { start: '#448925', end: '#88B851' },
+  //       { start: '#CC7844', end: '#CC5566' }, { start: '#9B2951', end: '#1A1F59' },
+  //       { start: '#6E25B2', end: '#3800B0' }, { start: '#CC0077', end: '#392A38' },
+  //       { start: '#903772', end: '#C14B61' }, { start: '#2D2F36', end: '#3466C2' },
+  //       { start: '#2A0029', end: '#096B71' }, { start: '#1A1724', end: '#746B83' },
+  //       { start: '#4F356D', end: '#414F7D' }, { start: '#24313C', end: '#2A76A9' }
+  //     ];
+  //     const gradient = gradientPresets[Math.floor(Math.random() * gradientPresets.length)];
+  //     if (Math.random() < 0.2) return { start: gradient.end, end: gradient.start };
+  //     return gradient;
+  //   };
+
+  //   // Enhanced Abstract Art Generator
+  //   function getAbstractArt(innerX, innerY, innerWidth, innerHeight) {
+  //     const shapes = [];
+  //     const colors = [
+  //       '#ffffff', '#ededed', '#c9f1fa', '#ffa5b0', '#ffd6a5', '#f3f0ff', '#b9fbc0', '#c0b6f7', '#fff5c8',
+  //       '#a9def9', '#e4c1f9', '#f694c1', '#f6c6ea', '#b8bedd', '#d0f4de', '#fed6bc', '#c7ceea', '#e2f0cb'
+  //     ];
+  //     const numShapes = 20 + Math.floor(Math.random() * 7);
+  //     for (let i = 0; i < numShapes; i++) {
+  //       const shapeTypeRand = Math.random();
+  //       const color = colors[Math.floor(Math.random() * colors.length)];
+  //       const opacity = 0.09 + Math.random() * 0.18; // 0.09–0.27
+  //       if (shapeTypeRand < 0.27) {
+  //         // Circles
+  //         const maxR = Math.min(innerWidth, innerHeight) / 4.5;
+  //         const r = 38 + Math.random() * (maxR - 38);
+  //         const cx = innerX + r + Math.random() * (innerWidth - 2*r);
+  //         const cy = innerY + r + Math.random() * (innerHeight - 2*r);
+  //         shapes.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
+  //       } else if (shapeTypeRand < 0.46) {
+  //         // Triangles/Quads
+  //         const px = [];
+  //         const baseX = innerX + 20 + Math.random() * (innerWidth - 40);
+  //         const baseY = innerY + 20 + Math.random() * (innerHeight - 40);
+  //         const pts = (Math.random() < 0.7 ? 3 : 4);
+  //         for (let p = 0; p < pts; p++) {
+  //           const angle = (Math.PI * 2 / pts) * p + Math.random() * 0.65;
+  //           const radius = 36 + Math.random() * 95;
+  //           const x = baseX + Math.cos(angle) * radius;
+  //           const y = baseY + Math.sin(angle) * radius;
+  //           px.push(`${Math.max(innerX, Math.min(innerX+innerWidth, x)).toFixed(1)},${Math.max(innerY, Math.min(innerY+innerHeight, y)).toFixed(1)}`);
+  //         }
+  //         shapes.push(`<polygon points="${px.join(' ')}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
+  //       } else if (shapeTypeRand < 0.63) {
+  //         // Wavy Paths
+  //         const startX = innerX + 14 + Math.random() * (innerWidth - 28);
+  //         const startY = innerY + 14 + Math.random() * (innerHeight - 28);
+  //         const curveX = innerX + 14 + Math.random() * (innerWidth - 28);
+  //         const curveY = innerY + 14 + Math.random() * (innerHeight - 28);
+  //         const endX = innerX + 14 + Math.random() * (innerWidth - 28);
+  //         const endY = innerY + 14 + Math.random() * (innerHeight - 28);
+  //         shapes.push(`<path d="M${startX},${startY} Q${curveX},${curveY} ${endX},${endY}" stroke="${color}" stroke-width="${16 + Math.random() * 24}" fill="none" opacity="${opacity.toFixed(2)}" />`);
+  //       } else if (shapeTypeRand < 0.83) {
+  //         // Ellipses
+  //         const rx = 28 + Math.random() * 90;
+  //         const ry = 20 + Math.random() * 90;
+  //         const cx = innerX + rx + Math.random() * (innerWidth - 2*rx);
+  //         const cy = innerY + ry + Math.random() * (innerHeight - 2*ry);
+  //         shapes.push(`<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
+  //       } else {
+  //         // Abstract rectangles ("bars")
+  //         const w = 40 + Math.random() * 120;
+  //         const h = 10 + Math.random() * 90;
+  //         const x = innerX + Math.random() * (innerWidth - w);
+  //         const y = innerY + Math.random() * (innerHeight - h);
+  //         const angle = Math.random() * 360;
+  //         shapes.push(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" transform="rotate(${angle.toFixed(1)},${(x+w/2).toFixed(1)},${(y+h/2).toFixed(1)})" rx="${(h/3).toFixed(1)}" />`);
+  //       }
+  //     }
+  //     return shapes.join('\n    ');
+  //   }
+
+  //   // Semicolon newlines (user control), up to 8 lines
+  //   const splitTitle = (title) => {
+  //     const maxLines = 20;
+  //     let rawLines = title.toUpperCase().split(';').map(l => l.trim()).filter(l => l);
+  //     if (rawLines.length > maxLines) {
+  //       rawLines = rawLines.slice(0, maxLines - 1).concat([
+  //         rawLines.slice(maxLines - 1).join(' ')
+  //       ]);
+  //     }
+  //     return rawLines.map(line => {
+  //       const maxWordLen = 20;
+  //       const words = line.split(' ');
+  //       let safeLine = '';
+  //       for (let word of words) {
+  //         if (word.length > maxWordLen) {
+  //           let chunks = word.match(new RegExp(`.{1,${maxWordLen}}`, 'g'));
+  //           safeLine += (safeLine ? ' ' : '') + chunks.join(' ');
+  //         } else {
+  //           safeLine += (safeLine ? ' ' : '') + word;
+  //         }
+  //       }
+  //       return safeLine;
+  //     });
+  //   };
+
+  //   const testSVGTextWidth = (text, size) => {
+  //     return text.length * size * 0.56;
+  //   };
+
+  //   // Inner rectangle config
+  //   const innerX = 120, innerY = 120, innerWidth = 1360, innerHeight = 2320;
+  //   const topPadding = 90, bottomPadding = 180;
+  //   const sidePadding = 48;
+  //   const usableWidth = innerWidth - 2 * sidePadding;
+  //   const usableHeight = innerHeight - topPadding - bottomPadding;
+
+  //   // Gradient and abstract art
+  //   const gradient = getRandomGradient();
+  //   const artSVG = getAbstractArt(innerX, innerY, innerWidth, innerHeight);
+  //   const titleLines = splitTitle(displayTitle);
+  //   const numLines = titleLines.length;
+
+  //   // Fit font size so all lines fit horizontally and vertically
+  //   let fontSize = 180;
+  //   let lineSpacing = Math.max(Math.floor(fontSize * 0.13), 12);
+  //   const minFontSize = 44;
+  //   while (fontSize > minFontSize) {
+  //     lineSpacing = Math.max(Math.floor(fontSize * 0.13), 12);
+  //     let fits = true;
+  //     for (const line of titleLines) {
+  //       if (testSVGTextWidth(line, fontSize) > usableWidth) {
+  //         fits = false;
+  //         break;
+  //       }
+  //     }
+  //     const totalTitleHeight = fontSize * numLines + lineSpacing * (numLines - 1);
+  //     if (totalTitleHeight > usableHeight) fits = false;
+  //     if (fits) break;
+  //     fontSize -= 2;
+  //   }
+  //   if (fontSize < minFontSize) fontSize = minFontSize;
+  //   lineSpacing = Math.max(Math.floor(fontSize * 0.13), 12);
+  //   const firstLineY = innerY + topPadding + fontSize;
+
+  //   const titleSVG = titleLines.map((line, index) => {
+  //     const y = firstLineY + index * (fontSize + lineSpacing);
+  //     return `<text x="${innerX + innerWidth/2}" y="${y}" font-family="Arial, sans-serif" font-size="${fontSize}" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line}</text>`;
+  //   }).join('\n  ');
+
+  //   // Author name near bottom
+  //   const authorY = innerY + innerHeight - bottomPadding/2;
+  //   const authorText = (authorName || this.authorName || '').toUpperCase();
+
+  //   // SVG template
+  //   const svgTemplate = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 2560" width="1600" height="2560">
+  //     <defs>
+  //       <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+  //         <stop offset="0%" stop-color="${gradient.start}" />
+  //         <stop offset="100%" stop-color="${gradient.end}" />
+  //       </linearGradient>
+  //       <linearGradient id="spineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+  //         <stop offset="0%" stop-color="#000000" stop-opacity="0.3" />
+  //         <stop offset="30%" stop-color="#000000" stop-opacity="0.1" />
+  //         <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+  //       </linearGradient>
+  //       <linearGradient id="edgeHighlight" x1="0%" y1="0%" x2="100%" y2="0%">
+  //         <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4" />
+  //         <stop offset="50%" stop-color="#ffffff" stop-opacity="0.2" />
+  //         <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+  //       </linearGradient>
+  //       <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
+  //         <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.5" />
+  //       </filter>
+  //       <filter id="bookShadow" x="-50%" y="-50%" width="200%" height="200%">
+  //         <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+  //         <feOffset dx="10" dy="10" result="offsetblur"/>
+  //         <feFlood flood-color="#000000" flood-opacity="0.3"/>
+  //         <feComposite in2="offsetblur" operator="in"/>
+  //         <feMerge>
+  //           <feMergeNode/>
+  //           <feMergeNode in="SourceGraphic"/>
+  //         </feMerge>
+  //       </filter>
+  //     </defs>
+  //     <rect x="50" y="50" width="1500" height="2460" fill="#000000" opacity="0.2" rx="15" ry="15" />
+  //     <rect x="40" y="40" width="1520" height="2480" fill="url(#bgGradient)" rx="12" ry="12" filter="url(#bookShadow)" />
+  //     <rect x="40" y="40" width="80" height="2480" fill="url(#spineGradient)" rx="12" ry="12" />
+  //     <rect x="40" y="40" width="1520" height="3" fill="url(#edgeHighlight)" />
+  //     <rect x="1540" y="40" width="20" height="2480" fill="#000000" opacity="0.1" rx="12" ry="12" />
+  //     <rect x="40" y="2510" width="1520" height="10" fill="#000000" opacity="0.15" rx="12" ry="12" />
+  //     <rect x="120" y="120" width="1360" height="2320" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.1" rx="8" ry="8" />
+  //     <!-- Abstract Art Shapes -->
+  //     <g>
+  //       ${artSVG}
+  //     </g>
+  //     <!-- Title -->
+  //     ${titleSVG}
+  //     <!-- Author name -->
+  //     <text x="${innerX + innerWidth/2}" y="${authorY}" font-family="Arial, sans-serif" font-size="90" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${authorText}</text>
+  //   </svg>`;
+
+  //   await fsPromises.writeFile(outputPath, svgTemplate, 'utf8');
+  //   this.emitOutput(`\nGenerated SVG cover: ${outputPath}\n`);
+  //   this.emitOutput(`Color gradient: ${gradient.start} to ${gradient.end}\n`);
+  //   return outputPath;
+  // }
   async generateSVGCover(projectName, displayTitle, authorName) {
     const imagesDir = path.join(appState.PROJECTS_DIR, 'images');
     const outputPath = path.join(imagesDir, `${projectName}.svg`);
-    
-    // Ensure images directory exists
     await fsPromises.mkdir(imagesDir, { recursive: true });
 
-    // Embedded SVG template
+    // Gradient logic (same)
+    const getRandomGradient = () => {
+      const gradientPresets = [
+        { start: '#CC4444', end: '#3AA399' }, { start: '#C48829', end: '#4A5CC8' },
+        { start: '#C94A64', end: '#5566C9' }, { start: '#C85A7A', end: '#CCB030' },
+        { start: '#4455B8', end: '#5A3B7A' }, { start: '#1A77C1', end: '#C23629' },
+        { start: '#3444A8', end: '#A040A0' }, { start: '#0077B7', end: '#66A8A5' },
+        { start: '#0D7766', end: '#2BBD5D' }, { start: '#448925', end: '#88B851' },
+        { start: '#CC7844', end: '#CC5566' }, { start: '#9B2951', end: '#1A1F59' },
+        { start: '#6E25B2', end: '#3800B0' }, { start: '#CC0077', end: '#392A38' },
+        { start: '#903772', end: '#C14B61' }, { start: '#2D2F36', end: '#3466C2' },
+        { start: '#2A0029', end: '#096B71' }, { start: '#1A1724', end: '#746B83' },
+        { start: '#4F356D', end: '#414F7D' }, { start: '#24313C', end: '#2A76A9' }
+      ];
+      const gradient = gradientPresets[Math.floor(Math.random() * gradientPresets.length)];
+      if (Math.random() < 0.2) return { start: gradient.end, end: gradient.start };
+      return gradient;
+    };
+
+    // Advanced Abstract Art Generator: adds stars, blobs, zigzags
+    function getAbstractArt(innerX, innerY, innerWidth, innerHeight) {
+      const shapes = [];
+      const colors = [
+        '#ffffff', '#ededed', '#c9f1fa', '#ffa5b0', '#ffd6a5', '#f3f0ff', '#b9fbc0', '#c0b6f7', '#fff5c8',
+        '#a9def9', '#e4c1f9', '#f694c1', '#f6c6ea', '#b8bedd', '#d0f4de', '#fed6bc', '#c7ceea', '#e2f0cb'
+      ];
+      const numShapes = 28 + Math.floor(Math.random() * 9); // 28–36 shapes
+      for (let i = 0; i < numShapes; i++) {
+        const shapeTypeRand = Math.random();
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const opacity = 0.08 + Math.random() * 0.19; // 0.08–0.27
+        if (shapeTypeRand < 0.15) {
+          // Circles
+          const maxR = Math.min(innerWidth, innerHeight) / 5.5;
+          const r = 22 + Math.random() * (maxR - 22);
+          const cx = innerX + r + Math.random() * (innerWidth - 2*r);
+          const cy = innerY + r + Math.random() * (innerHeight - 2*r);
+          shapes.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
+        } else if (shapeTypeRand < 0.26) {
+          // Stars (5 or 6 points)
+          const cx = innerX + 40 + Math.random() * (innerWidth - 80);
+          const cy = innerY + 40 + Math.random() * (innerHeight - 80);
+          const points = Math.random() < 0.7 ? 5 : 6;
+          const outer = 32 + Math.random() * 55;
+          const innerR = outer * (0.38 + Math.random()*0.22);
+          let starPts = [];
+          for (let j = 0; j < points * 2; j++) {
+            const ang = Math.PI * j / points;
+            const r = (j % 2 === 0) ? outer : innerR;
+            const x = cx + Math.cos(ang) * r;
+            const y = cy + Math.sin(ang) * r;
+            starPts.push(`${Math.max(innerX, Math.min(innerX+innerWidth, x)).toFixed(1)},${Math.max(innerY, Math.min(innerY+innerHeight, y)).toFixed(1)}`);
+          }
+          shapes.push(`<polygon points="${starPts.join(' ')}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
+        } else if (shapeTypeRand < 0.38) {
+          // Blobs: SVG path, 7–9 points, random radii
+          const cx = innerX + 60 + Math.random() * (innerWidth - 120);
+          const cy = innerY + 60 + Math.random() * (innerHeight - 120);
+          const pts = 7 + Math.floor(Math.random()*3);
+          const baseR = 38 + Math.random() * 36;
+          let d = '';
+          for (let k = 0; k < pts; k++) {
+            const ang = Math.PI * 2 * k / pts;
+            const r = baseR * (0.8 + Math.random()*0.5);
+            const x = cx + Math.cos(ang) * r;
+            const y = cy + Math.sin(ang) * r;
+            d += (k === 0 ? `M${x.toFixed(1)},${y.toFixed(1)}` : ` Q${cx.toFixed(1)},${cy.toFixed(1)} ${x.toFixed(1)},${y.toFixed(1)}`);
+          }
+          d += ` Z`;
+          shapes.push(`<path d="${d}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
+        } else if (shapeTypeRand < 0.53) {
+          // Zigzags (polyline)
+          const zigX = innerX + 20 + Math.random() * (innerWidth - 40);
+          const zigY = innerY + 20 + Math.random() * (innerHeight - 40);
+          const zigLen = 6 + Math.floor(Math.random()*3);
+          let pts = [];
+          let lastX = zigX, lastY = zigY;
+          const segment = 28 + Math.random() * 22;
+          for (let z = 0; z < zigLen; z++) {
+            lastX += segment * (z%2 === 0 ? 1 : -1);
+            lastY += 22 + Math.random()*22;
+            pts.push(`${Math.max(innerX, Math.min(innerX+innerWidth, lastX)).toFixed(1)},${Math.max(innerY, Math.min(innerY+innerHeight, lastY)).toFixed(1)}`);
+          }
+          shapes.push(`<polyline points="${zigX.toFixed(1)},${zigY.toFixed(1)} ${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="${7 + Math.random()*6}" opacity="${opacity.toFixed(2)}" />`);
+        } else if (shapeTypeRand < 0.65) {
+          // Triangles/Quads
+          const px = [];
+          const baseX = innerX + 20 + Math.random() * (innerWidth - 40);
+          const baseY = innerY + 20 + Math.random() * (innerHeight - 40);
+          const pts = (Math.random() < 0.7 ? 3 : 4);
+          for (let p = 0; p < pts; p++) {
+            const angle = (Math.PI * 2 / pts) * p + Math.random() * 0.65;
+            const radius = 36 + Math.random() * 95;
+            const x = baseX + Math.cos(angle) * radius;
+            const y = baseY + Math.sin(angle) * radius;
+            px.push(`${Math.max(innerX, Math.min(innerX+innerWidth, x)).toFixed(1)},${Math.max(innerY, Math.min(innerY+innerHeight, y)).toFixed(1)}`);
+          }
+          shapes.push(`<polygon points="${px.join(' ')}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
+        } else if (shapeTypeRand < 0.80) {
+          // Ellipses
+          const rx = 18 + Math.random() * 80;
+          const ry = 12 + Math.random() * 65;
+          const cx = innerX + rx + Math.random() * (innerWidth - 2*rx);
+          const cy = innerY + ry + Math.random() * (innerHeight - 2*ry);
+          shapes.push(`<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
+        } else if (shapeTypeRand < 0.95) {
+          // Bars (rectangles)
+          const w = 30 + Math.random() * 60;
+          const h = 8 + Math.random() * 42;
+          const x = innerX + Math.random() * (innerWidth - w);
+          const y = innerY + Math.random() * (innerHeight - h);
+          const angle = Math.random() * 360;
+          shapes.push(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" transform="rotate(${angle.toFixed(1)},${(x+w/2).toFixed(1)},${(y+h/2).toFixed(1)})" rx="${(h/3).toFixed(1)}" />`);
+        } else {
+          // Wavy Paths
+          const startX = innerX + 14 + Math.random() * (innerWidth - 28);
+          const startY = innerY + 14 + Math.random() * (innerHeight - 28);
+          const curveX = innerX + 14 + Math.random() * (innerWidth - 28);
+          const curveY = innerY + 14 + Math.random() * (innerHeight - 28);
+          const endX = innerX + 14 + Math.random() * (innerWidth - 28);
+          const endY = innerY + 14 + Math.random() * (innerHeight - 28);
+          shapes.push(`<path d="M${startX},${startY} Q${curveX},${curveY} ${endX},${endY}" stroke="${color}" stroke-width="${7 + Math.random()*12}" fill="none" opacity="${opacity.toFixed(2)}" />`);
+        }
+      }
+      return shapes.join('\n    ');
+    }
+
+    // Semicolon newlines (user control), up to 20 lines
+    const splitTitle = (title) => {
+      const maxLines = 20;
+      let rawLines = title.toUpperCase().split(';').map(l => l.trim()).filter(l => l);
+      if (rawLines.length > maxLines) {
+        rawLines = rawLines.slice(0, maxLines - 1).concat([
+          rawLines.slice(maxLines - 1).join(' ')
+        ]);
+      }
+      return rawLines.map(line => {
+        const maxWordLen = 20;
+        const words = line.split(' ');
+        let safeLine = '';
+        for (let word of words) {
+          if (word.length > maxWordLen) {
+            let chunks = word.match(new RegExp(`.{1,${maxWordLen}}`, 'g'));
+            safeLine += (safeLine ? ' ' : '') + chunks.join(' ');
+          } else {
+            safeLine += (safeLine ? ' ' : '') + word;
+          }
+        }
+        return safeLine;
+      });
+    };
+
+    const testSVGTextWidth = (text, size) => {
+      return text.length * size * 0.56;
+    };
+
+    // Inner rectangle config
+    const innerX = 120, innerY = 120, innerWidth = 1360, innerHeight = 2320;
+    const topPadding = 90, bottomPadding = 180;
+    const sidePadding = 48;
+    const usableWidth = innerWidth - 2 * sidePadding;
+    const usableHeight = innerHeight - topPadding - bottomPadding;
+
+    // Gradient and abstract art
+    const gradient = getRandomGradient();
+    const artSVG = getAbstractArt(innerX, innerY, innerWidth, innerHeight);
+    const titleLines = splitTitle(displayTitle);
+    const numLines = titleLines.length;
+
+    // Fit font size so all lines fit horizontally and vertically
+    let fontSize = 180;
+    let lineSpacing = Math.max(Math.floor(fontSize * 0.13), 12);
+    const minFontSize = 44;
+    while (fontSize > minFontSize) {
+      lineSpacing = Math.max(Math.floor(fontSize * 0.13), 12);
+      let fits = true;
+      for (const line of titleLines) {
+        if (testSVGTextWidth(line, fontSize) > usableWidth) {
+          fits = false;
+          break;
+        }
+      }
+      const totalTitleHeight = fontSize * numLines + lineSpacing * (numLines - 1);
+      if (totalTitleHeight > usableHeight) fits = false;
+      if (fits) break;
+      fontSize -= 2;
+    }
+    if (fontSize < minFontSize) fontSize = minFontSize;
+    lineSpacing = Math.max(Math.floor(fontSize * 0.13), 12);
+    const firstLineY = innerY + topPadding + fontSize;
+
+    const titleSVG = titleLines.map((line, index) => {
+      const y = firstLineY + index * (fontSize + lineSpacing);
+      return `<text x="${innerX + innerWidth/2}" y="${y}" font-family="Arial, sans-serif" font-size="${fontSize}" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line}</text>`;
+    }).join('\n  ');
+
+    // Author name near bottom
+    const authorY = innerY + innerHeight - bottomPadding/2;
+    const authorText = (authorName || this.authorName || '').toUpperCase();
+
+    // SVG template
     const svgTemplate = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 2560" width="1600" height="2560">
+      <defs>
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="${gradient.start}" />
+          <stop offset="100%" stop-color="${gradient.end}" />
+        </linearGradient>
+        <linearGradient id="spineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#000000" stop-opacity="0.3" />
+          <stop offset="30%" stop-color="#000000" stop-opacity="0.1" />
+          <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="edgeHighlight" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4" />
+          <stop offset="50%" stop-color="#ffffff" stop-opacity="0.2" />
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+        </linearGradient>
+        <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.5" />
+        </filter>
+        <filter id="bookShadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+          <feOffset dx="10" dy="10" result="offsetblur"/>
+          <feFlood flood-color="#000000" flood-opacity="0.3"/>
+          <feComposite in2="offsetblur" operator="in"/>
+          <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <rect x="50" y="50" width="1500" height="2460" fill="#000000" opacity="0.2" rx="15" ry="15" />
+      <rect x="40" y="40" width="1520" height="2480" fill="url(#bgGradient)" rx="12" ry="12" filter="url(#bookShadow)" />
+      <rect x="40" y="40" width="80" height="2480" fill="url(#spineGradient)" rx="12" ry="12" />
+      <rect x="40" y="40" width="1520" height="3" fill="url(#edgeHighlight)" />
+      <rect x="1540" y="40" width="20" height="2480" fill="#000000" opacity="0.1" rx="12" ry="12" />
+      <rect x="40" y="2510" width="1520" height="10" fill="#000000" opacity="0.15" rx="12" ry="12" />
+      <rect x="120" y="120" width="1360" height="2320" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.1" rx="8" ry="8" />
+      <!-- Abstract Art Shapes -->
+      <g>
+        ${artSVG}
+      </g>
+      <!-- Title -->
+      ${titleSVG}
+      <!-- Author name -->
+      <text x="${innerX + innerWidth/2}" y="${authorY}" font-family="Arial, sans-serif" font-size="90" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${authorText}</text>
+    </svg>`;
 
-  <!-- xattr -c some.svg = can open with an app! -->
-
-  <!-- Background with elegant gradient -->
-  <defs>
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#2a2a2a" />
-      <stop offset="100%" stop-color="#121212" />
-    </linearGradient>
-    <!-- Text shadow filter for better readability -->
-    <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.3" />
-    </filter>
-  </defs>
-  
-  <!-- Main background covering the entire area -->
-  <rect width="1600" height="2560" fill="url(#bgGradient)" />
-  
-  <!-- Title areas with proper width constraints -->
-  <!-- 
-    TEMPLATE STRUCTURE:
-    - Each title format (1, 2, or 3 lines) has its own group
-    - Comment/uncomment the appropriate group based on your title needs
-    - Each text element has appropriate font sizing for its position
-    - Width is controlled through font size adjustments
-  -->
-  
-  <!-- OPTION 1: Single-line title format (best for short titles like "Liz", "Tsu", "Delta") -->
-  <!--   
-  -->  
-  <g id="single-line-title">
-    <text x="800" y="700" font-family="Arial, sans-serif" font-size="150" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">BOOK</text>
-  </g>
-
-  <!-- OPTION 2: Two-line title format (best for medium titles like "A DARKER ROAST", "THE MUNDANE SPEAKS") -->
-  <!-- 
-  <g id="two-line-title">
-    <text x="800" y="600" font-family="Arial, sans-serif" font-size="130" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">BOOK</text>
-    <text x="800" y="780" font-family="Arial, sans-serif" font-size="130" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">TITLE</text>
-  </g>
-  -->
-  
-  <!-- OPTION 3: Three-line title format (best for longer titles like "Something From Nothing") -->
-  <!-- 
-  <g id="three-line-title">
-    <text x="800" y="500" font-family="Arial, sans-serif" font-size="120" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">A</text>
-    <text x="800" y="680" font-family="Arial, sans-serif" font-size="110" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">BOOK</text>
-    <text x="800" y="860" font-family="Arial, sans-serif" font-size="120" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">TITLE</text>
-  </g>
-  -->
-  
-  <!-- Author name - consistent across all formats -->
-  <text x="800" y="2300" font-family="Arial, sans-serif" font-size="90" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">AUTHOR NAME</text>
-</svg>`;
-    
-    // Replace placeholders
-    let svgContent = svgTemplate;
-    
-    // Replace book title (handle the "BOOK" placeholder)
-    const titleUpper = displayTitle.toUpperCase();
-    svgContent = svgContent.replace(/BOOK/g, titleUpper);
-    
-    // Replace author name
-    const authorUpper = (authorName || this.authorName).toUpperCase();
-    svgContent = svgContent.replace(/AUTHOR NAME/g, authorUpper);
-
-    // Write the customized SVG
-    await fsPromises.writeFile(outputPath, svgContent, 'utf8');
-    
+    await fsPromises.writeFile(outputPath, svgTemplate, 'utf8');
     this.emitOutput(`\nGenerated SVG cover: ${outputPath}\n`);
+    this.emitOutput(`Color gradient: ${gradient.start} to ${gradient.end}\n`);
     return outputPath;
   }
 
@@ -284,13 +673,22 @@ class PublishManuscript extends ToolBase {
       --project-title-dark: #607d8b;
     }
     
+    * {
+      box-sizing: border-box;
+    }
+    
     body, h1, h2, h3, h4, h5, h6  {
       font-family: Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
     }
+    
     body {
       background-color: var(--background-dark);
       color: var(--text-dark);
       transition: background-color 0.3s, color 0.3s;
+      padding: 20px;
+      min-height: 100vh;
     }
     
     body.light-mode {
@@ -320,62 +718,56 @@ class PublishManuscript extends ToolBase {
     .book-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      grid-gap: 20px;
+      gap: 20px;
       margin: 0 auto;
       max-width: 1200px;
+      padding-bottom: 80px; /* Space for footer */
     }
 
     .project {
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 20px;
-      height: 110px;
-      justify-content: space-between;
+      text-align: center;
     }
 
     .project img {
-      width: 170px;
+      width: 100%;
+      max-width: 170px;
       height: auto;
       object-fit: cover;
       transition: all 0.3s ease;
+      border-radius: 4px;
+      aspect-ratio: 2/3; /* Maintain book cover aspect ratio */
     }
 
     .project img:hover {
       filter: sepia(90%);
+      transform: translateY(-2px);
     }
 
     .project-title {
-      height: 40px;
-      line-height: 20px;
       margin: 10px 0 5px 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       color: var(--project-title-dark);
-      text-align: center;
+      font-size: 14px;
+      line-height: 1.4;
       transition: color 0.3s;
       cursor: pointer;
-      flex-shrink: 0;
-      overflow: hidden;
+      word-wrap: break-word;
+      hyphens: auto;
     }
     
     body.light-mode .project-title {
       color: var(--project-title-light);
     }
 
-    .w3-bar {
-      display: flex;
-      justify-content: center;
-    }
-
     /* Button container styling */
     .button-container {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       margin-top: 8px;
       justify-content: center;
-      flex-shrink: 0;
+      flex-wrap: wrap;
     }
 
     /* Small button styling */
@@ -392,6 +784,7 @@ class PublishManuscript extends ToolBase {
       opacity: 0.7;
       transition: all 0.3s ease;
       min-width: 35px;
+      white-space: nowrap;
     }
 
     .book-button:hover {
@@ -415,40 +808,22 @@ class PublishManuscript extends ToolBase {
       background-color: red;
     }
 
-    /* Original read button (keeping for compatibility) */
-    .read-button {
-      border: none;
-      padding: 8px 16px;
-      text-decoration: none;
-      text-align: center;
-      cursor: pointer;
-      font-size: 10px;
-      letter-spacing: 4px;
-      border-radius: 32px;
-      background-color: #4CAF50;
-      color: white;
-      opacity: 0.6;
-      transition: all 0.3s ease;
-    }
-
-    .read-button:hover {
-      opacity: 1;
-    }
-
     /* Footer styling */
     .footer {
       position: fixed;
       bottom: 0;
-      width: 100%;
+      left: 0;
+      right: 0;
       background-color: #000;
       color: #9e9e9e;
-      padding: 10px 0;
+      padding: 10px 20px;
       text-align: center;
       font-size: 15px;
       transition: background-color 0.3s;
       display: flex;
       justify-content: center;
       align-items: center;
+      z-index: 1000;
     }
     
     body.light-mode .footer {
@@ -472,40 +847,69 @@ class PublishManuscript extends ToolBase {
       transform: scale(1.1);
     }
 
-    /* Spacing for footer */
-    .footer-spacer {
-      height: 60px;
-    }
-
-    /* Media queries for different screen sizes */
+    /* Mobile-specific adjustments */
     @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      
       .book-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .project img {
+        max-width: 200px;
+      }
+      
+      .project-title {
+        font-size: 13px;
+      }
+      
+      .book-button {
+        font-size: 9px;
+        padding: 4px 8px;
       }
     }
     
-    @media (min-width: 601px) and (max-width: 900px) {
+    /* Tablet screens */
+    @media (min-width: 601px) and (max-width: 768px) {
       .book-grid {
         grid-template-columns: repeat(2, 1fr);
       }
     }
     
-    @media (min-width: 901px) and (max-width: 1200px) {
+    /* Larger tablets */
+    @media (min-width: 769px) and (max-width: 900px) {
       .book-grid {
         grid-template-columns: repeat(3, 1fr);
+      }
     }
     
-    @media (min-width: 1201px) {
+    /* Desktop screens */
+    @media (min-width: 901px) and (max-width: 1200px) {
       .book-grid {
         grid-template-columns: repeat(4, 1fr);
       }
     }
     
-    /* Extra large screens */
-    @media (min-width: 1600px) {
+    /* Large desktop screens */
+    @media (min-width: 1201px) and (max-width: 1600px) {
       .book-grid {
         grid-template-columns: repeat(5, 1fr);
       }
+    }
+    
+    /* Extra large screens */
+    @media (min-width: 1601px) {
+      .book-grid {
+        grid-template-columns: repeat(6, 1fr);
+      }
+    }
+
+    /* Spacing for footer */
+    .footer-spacer {
+      height: 60px;
     }
   </style>
 </head>
@@ -513,7 +917,6 @@ class PublishManuscript extends ToolBase {
 <body>
 <div class="book-grid">
 <!-- BOOKS_START -->
-
 
 
 

@@ -281,7 +281,7 @@ const TOOL_DEFS = [
         "name": "title",
         "label": "Title",
         "type": "text",
-        "description": "Book title (optional - will use formatted project folder name if not provided)",
+        "description": "Book title (optional - will use formatted project folder name if not provided, also use a ; (semicolon) to create a title with separate lines - ; is removed)",
         "required": false,
         "default": ""
       },
