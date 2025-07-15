@@ -1,5 +1,5 @@
 // manuscript-to-epub.js
-// Updated with toc.ncx, title page, contents page, and font support for Vellum compatibility
+// ... remove cover.xhtml wrapper, reference SVG directly like Vellum
 const ToolBase = require('./tool-base');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
@@ -68,7 +68,7 @@ class ManuscriptToEpub extends ToolBase {
         errorMsg = `\nFile too large (${fileSizeInMB.toFixed(1)}MB). Please use files smaller than 10MB.`;
       }
       
-      this.emitOutput(`Converting text to EPUB 3.0 (Vellum-compatible)...\n`);
+      this.emitOutput(`Converting text to EPUB 3.0 with advanced SVG cover (Vellum-compatible)...\n`);
       
       if (errorMsg) {
         this.emitOutput(errorMsg + '\n');
@@ -109,7 +109,10 @@ class ManuscriptToEpub extends ToolBase {
       // Write the EPUB file
       await fsPromises.writeFile(outputPath, result.epubBuffer);
       
-      this.emitOutput(`\nEPUB with Vellum-compatible structure saved to: ${outputPath}\n`);
+      this.emitOutput(`\nEPUB with Vellum-compatible SVG cover saved to: ${outputPath}\n`);
+      
+      // do NOT do this for .epub's = errors:
+      // outputFiles.push(outputPath);
       
       // Get word count from the text file
       const textContent = fs.readFileSync(textFile, 'utf8');
@@ -514,59 +517,58 @@ class ManuscriptToEpub extends ToolBase {
 
     // SVG template
     const svgTemplate = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 2560" width="1600" height="2560">
-  <defs>
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="${gradient.start}" />
-      <stop offset="100%" stop-color="${gradient.end}" />
-    </linearGradient>
-    <linearGradient id="spineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#000000" stop-opacity="0.3" />
-      <stop offset="30%" stop-color="#000000" stop-opacity="0.1" />
-      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
-    </linearGradient>
-    <linearGradient id="edgeHighlight" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4" />
-      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.2" />
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
-    </linearGradient>
-    <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.5" />
-    </filter>
-    <filter id="bookShadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
-      <feOffset dx="10" dy="10" result="offsetblur"/>
-      <feFlood flood-color="#000000" flood-opacity="0.3"/>
-      <feComposite in2="offsetblur" operator="in"/>
-      <feMerge>
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
-  <rect x="0" y="0" width="1600" height="2560" fill="url(#bgGradient)"/>
-  <rect x="50" y="50" width="1500" height="2460" fill="#000000" opacity="0.2" rx="15" ry="15" />
-  <rect x="40" y="40" width="1520" height="2480" fill="url(#bgGradient)" rx="12" ry="12" filter="url(#bookShadow)" />
-  <rect x="40" y="40" width="80" height="2480" fill="url(#spineGradient)" rx="12" ry="12" />
-  <rect x="40" y="40" width="1520" height="3" fill="url(#edgeHighlight)" />
-  <rect x="1540" y="40" width="20" height="2480" fill="#000000" opacity="0.1" rx="12" ry="12" />
-  <rect x="40" y="2510" width="1520" height="10" fill="#000000" opacity="0.15" rx="12" ry="12" />
-  <rect x="120" y="120" width="1360" height="2320" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.1" rx="8" ry="8" />
-  <!-- Abstract Art Shapes -->
-  <g>
-    ${artSVG}
-  </g>
-  <!-- Title -->
-  ${titleSVG}
-  <!-- Author name -->
-  <text x="${innerX + innerWidth/2}" y="${authorY}" font-family="Arial, sans-serif" font-size="90" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${this.escapeHTML(authorText)}</text>
-</svg>`;
+      <defs>
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="${gradient.start}" />
+          <stop offset="100%" stop-color="${gradient.end}" />
+        </linearGradient>
+        <linearGradient id="spineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#000000" stop-opacity="0.3" />
+          <stop offset="30%" stop-color="#000000" stop-opacity="0.1" />
+          <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="edgeHighlight" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4" />
+          <stop offset="50%" stop-color="#ffffff" stop-opacity="0.2" />
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+        </linearGradient>
+        <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.5" />
+        </filter>
+        <filter id="bookShadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
+          <feOffset dx="10" dy="10" result="offsetblur"/>
+          <feFlood flood-color="#000000" flood-opacity="0.3"/>
+          <feComposite in2="offsetblur" operator="in"/>
+          <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      <rect x="50" y="50" width="1500" height="2460" fill="#000000" opacity="0.2" rx="15" ry="15" />
+      <rect x="40" y="40" width="1520" height="2480" fill="url(#bgGradient)" rx="12" ry="12" filter="url(#bookShadow)" />
+      <rect x="40" y="40" width="80" height="2480" fill="url(#spineGradient)" rx="12" ry="12" />
+      <rect x="40" y="40" width="1520" height="3" fill="url(#edgeHighlight)" />
+      <rect x="1540" y="40" width="20" height="2480" fill="#000000" opacity="0.1" rx="12" ry="12" />
+      <rect x="40" y="2510" width="1520" height="10" fill="#000000" opacity="0.15" rx="12" ry="12" />
+      <rect x="120" y="120" width="1360" height="2320" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.1" rx="8" ry="8" />
+      <!-- Abstract Art Shapes -->
+      <g>
+        ${artSVG}
+      </g>
+      <!-- Title -->
+      ${titleSVG}
+      <!-- Author name -->
+      <text x="${innerX + innerWidth/2}" y="${authorY}" font-family="Arial, sans-serif" font-size="90" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${this.escapeHTML(authorText)}</text>
+    </svg>`;
 
     this.emitOutput(`Generated advanced SVG cover with gradient: ${gradient.start} to ${gradient.end}\n`);
     return svgTemplate;
   }
 
   /**
-   * Create EPUB 3.0 structure with Vellum-compatible components
+   * Create EPUB 3.0 structure with Vellum-compatible SVG cover
    * @param {Array} chapters - Parsed chapters
    * @param {Object} metadata - Book metadata
    * @returns {Promise<Buffer>} - EPUB file as buffer
@@ -615,7 +617,7 @@ class ManuscriptToEpub extends ToolBase {
       });
     });
     
-    // 5. Add images to EPUB
+    // 5. Add JPG cover to EPUB
     const jpgCoverPath = path.join(appState.CURRENT_PROJECT_PATH, 'cover.jpg');
     if (fs.existsSync(jpgCoverPath)) {
       const jpgCoverBuffer = fs.readFileSync(jpgCoverPath);
@@ -625,42 +627,26 @@ class ManuscriptToEpub extends ToolBase {
       this.emitOutput(`Warning: JPG cover not found, using SVG fallback\n`);
       zip.file('OEBPS/images/cover.svg', svgCover);
     }
+    
+    // 4. REMOVED: No more cover.xhtml wrapper! Direct SVG reference like Vellum
 
-    // 6. Create title page (NEW)
-    const titlePageHTML = this.createTitlePage(metadata);
-    zip.file('OEBPS/title-page.xhtml', titlePageHTML);
-
-    // 7. Create contents page (NEW)
-    const contentsHTML = this.createContentsPage(chapters, metadata);
-    zip.file('OEBPS/contents.xhtml', contentsHTML);
-
-    // 8. Create chapter HTML files
+    // 5. Create chapter HTML files
     chapters.forEach(chapter => {
       const chapterHTML = this.createChapterHTML(chapter, metadata);
       zip.file(`OEBPS/${chapter.id}.xhtml`, chapterHTML);
     });
 
-    // 9. Create content.opf (EPUB 3.0 format) with all new items
+    // 6. Create content.opf (EPUB 3.0 format) with SVG cover - FIXED
     const contentOPF = this.createEpub3ContentOPF(chapters, metadata, 'cover-image');
     zip.file('OEBPS/content.opf', contentOPF);
 
-    // 10. Create nav.xhtml (EPUB 3.0 navigation)
+    // 7. Create nav.xhtml (EPUB 3.0 navigation)
     const navXHTML = this.createNavXHTML(chapters, metadata);
     zip.file('OEBPS/nav.xhtml', navXHTML);
 
-    // 11. Create toc.ncx for EPUB 2 compatibility (NEW)
-    const tocNCX = this.createTocNCX(chapters, metadata);
-    zip.file('OEBPS/toc.ncx', tocNCX);
-
-    // 12. Create CSS files in css/ subfolder (NEW structure)
+    // 8. Create CSS file - FULL WIDTH like Vellum
     const styleCSS = this.createFullWidthCSS();
-    const mediaCSS = this.createMediaCSS();
-    zip.file('OEBPS/css/style.css', styleCSS);
-    zip.file('OEBPS/css/media.css', mediaCSS);
-
-    // 13. Add font license (fonts would need to be added separately)
-    // const fontLicense = this.createFontLicense();
-    // zip.file('OEBPS/fonts/SIL-Open-Font-License-1.1.txt', fontLicense);
+    zip.file('OEBPS/style.css', styleCSS);
 
     // Generate and return the EPUB
     const epubBuffer = await zip.generateAsync({ 
@@ -670,125 +656,6 @@ class ManuscriptToEpub extends ToolBase {
     });
 
     return epubBuffer;
-  }
-
-  /**
-   * Create title page HTML (NEW)
-   * @param {Object} metadata - Book metadata
-   * @returns {string} - Title page HTML
-   */
-  createTitlePage(metadata) {
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
-<head>
-  <title>Title Page</title>
-  <link rel="stylesheet" type="text/css" href="css/style.css"/>
-</head>
-<body>
-  <section class="title-page" epub:type="titlepage">
-    <h1 class="book-title">${this.escapeHTML(metadata.title)}</h1>
-    <p class="book-author">by ${this.escapeHTML(metadata.author)}</p>
-    <div class="publisher-info">
-      <p>${this.escapeHTML(metadata.publisher)}</p>
-    </div>
-  </section>
-</body>
-</html>`;
-  }
-
-  /**
-   * Create contents page HTML (NEW)
-   * @param {Array} chapters - Chapters array
-   * @param {Object} metadata - Book metadata
-   * @returns {string} - Contents page HTML
-   */
-  createContentsPage(chapters, metadata) {
-    const tocItems = chapters
-      .map(ch => `    <li><a href="${ch.id}.xhtml">${this.escapeHTML(ch.title)}</a></li>`)
-      .join('\n');
-
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
-<head>
-  <title>Contents</title>
-  <link rel="stylesheet" type="text/css" href="css/style.css"/>
-</head>
-<body>
-  <section class="contents-page" epub:type="toc">
-    <h1>Contents</h1>
-    <nav class="book-toc">
-      <ol>
-${tocItems}
-      </ol>
-    </nav>
-  </section>
-</body>
-</html>`;
-  }
-
-  /**
-   * Create NCX file for EPUB 2 compatibility (NEW)
-   * @param {Array} chapters - Chapters array
-   * @param {Object} metadata - Book metadata
-   * @returns {string} - NCX content
-   */
-  createTocNCX(chapters, metadata) {
-    const uuid = this.generateUUID();
-    
-    // Build navMap entries for each chapter
-    const navPoints = [];
-    let playOrder = 1;
-    
-    // Add title page
-    navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
-      <navLabel>
-        <text>Title Page</text>
-      </navLabel>
-      <content src="title-page.xhtml"/>
-    </navPoint>`);
-    playOrder++;
-    
-    // Add contents
-    navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
-      <navLabel>
-        <text>Contents</text>
-      </navLabel>
-      <content src="contents.xhtml"/>
-    </navPoint>`);
-    playOrder++;
-    
-    // Add chapters
-    chapters.forEach(chapter => {
-      navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
-      <navLabel>
-        <text>${this.escapeHTML(chapter.title)}</text>
-      </navLabel>
-      <content src="${chapter.id}.xhtml"/>
-    </navPoint>`);
-      playOrder++;
-    });
-    
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
-<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
-  <head>
-    <meta name="dtb:uid" content="${uuid}"/>
-    <meta name="dtb:depth" content="1"/>
-    <meta name="dtb:totalPageCount" content="0"/>
-    <meta name="dtb:maxPageNumber" content="0"/>
-  </head>
-  <docTitle>
-    <text>${this.escapeHTML(metadata.title)}</text>
-  </docTitle>
-  <docAuthor>
-    <text>${this.escapeHTML(metadata.author)}</text>
-  </docAuthor>
-  <navMap>
-${navPoints.join('\n')}
-  </navMap>
-</ncx>`;
   }
 
   /**
@@ -807,7 +674,7 @@ ${navPoints.join('\n')}
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
 <head>
   <title>${this.escapeHTML(chapter.title)}</title>
-  <link rel="stylesheet" type="text/css" href="css/style.css"/>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
 <body>
   <section class="chapter" epub:type="chapter">
@@ -819,7 +686,7 @@ ${paragraphs}
   }
 
   /**
-   * Create EPUB 3.0 content.opf file with all Vellum-compatible components
+   * Create EPUB 3.0 content.opf file with SVG cover support - FIXED
    * @param {Array} chapters - Chapters array
    * @param {Object} metadata - Book metadata
    * @param {string} coverImageId - Cover image ID
@@ -829,25 +696,24 @@ ${paragraphs}
     const uuid = this.generateUUID();
     const date = new Date().toISOString().split('T')[0];
 
-    // Cover metadata and manifest
+    // FIXED: Cover metadata and manifest - Direct SVG reference like Vellum
     let coverMeta = '';
     let coverManifest = '';
+    // REMOVED: No cover in spine anymore
     
     if (coverImageId) {
       coverMeta = `    <meta name="cover" content="${coverImageId}"/>`;
-      coverManifest = `    <item id="${coverImageId}" href="images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>`;
+      // FIXED: Direct SVG reference with cover-image property
+      coverManifest = `    <item id="${coverImageId}" href="images/cover.svg" media-type="image/svg+xml" properties="cover-image"/>`;
     }
 
     const manifest = chapters
       .map(ch => `    <item id="${ch.id}" href="${ch.id}.xhtml" media-type="application/xhtml+xml"/>`)
       .join('\n');
 
-    // Update spine to include title page and contents
-    const spineItems = [
-      '    <itemref idref="title-page"/>',
-      '    <itemref idref="contents"/>',
-      ...chapters.map(ch => `    <itemref idref="${ch.id}"/>`)
-    ].join('\n');
+    const spine = chapters
+      .map(ch => `    <itemref idref="${ch.id}"/>`)
+      .join('\n');
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" prefix="cc: http://creativecommons.org/ns#">
@@ -864,41 +730,33 @@ ${coverMeta}
   </metadata>
   <manifest>
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
-    <item id="toc" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
-    <item id="title-page" href="title-page.xhtml" media-type="application/xhtml+xml"/>
-    <item id="contents" href="contents.xhtml" media-type="application/xhtml+xml"/>
-    <item id="style" href="css/style.css" media-type="text/css"/>
-    <item id="media-css" href="css/media.css" media-type="text/css"/>
+    <item id="style" href="style.css" media-type="text/css"/>
 ${coverManifest}
 ${manifest}
   </manifest>
-  <spine toc="toc">
-${spineItems}
+  <spine>
+${spine}
   </spine>
 </package>`;
   }
 
   /**
-    <item id="font-license" href="fonts/SIL-Open-Font-License-1.1.txt" media-type="text/plain"/>
-
-   * Create EPUB 3.0 navigation document (updated for new pages)
+   * Create EPUB 3.0 navigation document
    * @param {Array} chapters - Chapters array
    * @param {Object} metadata - Book metadata
    * @returns {string} - Navigation HTML
    */
   createNavXHTML(chapters, metadata) {
-    const navItems = [
-      '      <li><a href="title-page.xhtml">Title Page</a></li>',
-      '      <li><a href="contents.xhtml">Contents</a></li>',
-      ...chapters.map(ch => `      <li><a href="${ch.id}.xhtml">${this.escapeHTML(ch.title)}</a></li>`)
-    ].join('\n');
+    const navItems = chapters
+      .map(ch => `      <li><a href="${ch.id}.xhtml">${this.escapeHTML(ch.title)}</a></li>`)
+      .join('\n');
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
 <head>
   <title>Navigation</title>
-  <link rel="stylesheet" type="text/css" href="css/style.css"/>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
 <body>
   <nav epub:type="toc" id="toc">
@@ -917,22 +775,6 @@ ${navItems}
    */
   createFullWidthCSS() {
     return `/* StoryGrind EPUB 3.0 Styles - Full Width */
-/*
-@font-face {
-  font-family: 'Atkinson Hyperlegible';
-  src: url('../fonts/AtkinsonHyperlegible-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Atkinson Hyperlegible';
-  src: url('../fonts/AtkinsonHyperlegible-Bold.ttf') format('truetype');
-  font-weight: bold;
-  font-style: normal;
-}
-*/
-
 html {
   font-size: 100%;
 }
@@ -948,76 +790,6 @@ body {
   /* NO max-width - use full screen like Vellum */
 }
 
-/* Title page styles */
-.title-page {
-  text-align: center;
-  padding: 20% 0;
-  page-break-after: always;
-}
-
-.book-title {
-  font-size: 3em;
-  font-weight: bold;
-  margin: 0 0 0.5em 0;
-  color: #222;
-  font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
-}
-
-.book-author {
-  font-size: 1.5em;
-  margin: 0 0 2em 0;
-  color: #555;
-  font-style: italic;
-}
-
-.publisher-info {
-  position: absolute;
-  bottom: 3em;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 0.9em;
-  color: #777;
-}
-
-/* Contents page styles */
-.contents-page {
-  page-break-after: always;
-}
-
-.contents-page h1 {
-  text-align: center;
-  font-size: 2em;
-  margin: 2em 0 1.5em 0;
-  font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
-}
-
-.book-toc ol {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.book-toc li {
-  margin: 0.8em 0;
-  text-align: left;
-  font-size: 1.1em;
-}
-
-.book-toc a {
-  text-decoration: none;
-  color: #333;
-  display: block;
-  border-bottom: 1px dotted #ccc;
-  padding-bottom: 0.3em;
-}
-
-.book-toc a:hover {
-  color: #000;
-  border-bottom-color: #666;
-}
-
-/* Chapter styles */
 .chapter {
   margin-bottom: 3em;
   page-break-before: always;
@@ -1031,7 +803,6 @@ h1 {
   color: #444444;
   border-bottom: 1px solid #cccccc;
   padding-bottom: 0.5em;
-  font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
 }
 
 p {
@@ -1053,14 +824,14 @@ p:first-of-type::first-letter {
   float: left;
   margin: 0.1em 0.1em 0 0;
   font-weight: bold;
-  font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
 }
+
+/* Cover styles - REMOVED: No cover wrapper anymore */
 
 /* Navigation styles */
 nav[epub|type~="toc"] h1 {
   text-align: center;
   margin-bottom: 1em;
-  font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
 }
 
 nav[epub|type~="toc"] ol {
@@ -1092,101 +863,7 @@ nav[epub|type~="toc"] a {
   p {
     text-indent: 1.5em;
   }
-  
-  .book-title {
-    font-size: 2em;
-  }
-  
-  .book-author {
-    font-size: 1.2em;
-  }
 }`;
-  }
-
-  /**
-   * Create media-specific CSS (NEW)
-   * @returns {string} - Media CSS content
-   */
-  createMediaCSS() {
-    return `/* Media-specific styles for EPUB readers */
-@media amzn-kf8 {
-  /* Kindle-specific styles */
-  body {
-    font-family: Georgia, serif;
-  }
-  
-  p:first-of-type::first-letter {
-    font-size: 3em; /* Slightly smaller for Kindle */
-  }
-}
-
-@media amzn-mobi {
-  /* Legacy Kindle styles */
-  body {
-    font-family: serif;
-  }
-  
-  p:first-of-type::first-letter {
-    font-size: 1em; /* Disable drop caps for old Kindles */
-    float: none;
-    margin: 0;
-  }
-}
-
-/* Apple Books specific */
-@media (-webkit-min-device-pixel-ratio: 1.0) {
-  body {
-    -webkit-text-size-adjust: 100%;
-  }
-}
-
-/* Print styles */
-@media print {
-  body {
-    font-size: 11pt;
-    line-height: 1.5;
-  }
-  
-  .chapter {
-    page-break-before: always;
-  }
-  
-  h1 {
-    page-break-after: avoid;
-  }
-}`;
-  }
-
-  /**
-   * Create font license text (NEW)
-   * @returns {string} - License text
-   */
-  createFontLicense() {
-    return `Copyright 2020 Braille Institute of America, Inc.
-
-This Font Software is licensed under the SIL Open Font License, Version 1.1.
-This license is copied below, and is also available with a FAQ at:
-http://scripts.sil.org/OFL
-
------------------------------------------------------------
-SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
------------------------------------------------------------
-
-PREAMBLE
-The goals of the Open Font License (OFL) are to stimulate worldwide
-development of collaborative font projects, to support the font creation
-efforts of academic and linguistic communities, and to provide a free and
-open framework in which fonts may be shared and improved in partnership
-with others.
-
-The OFL allows the licensed fonts to be used, studied, modified and
-redistributed freely as long as they are not sold by themselves. The
-fonts, including any derivative works, can be bundled, embedded, 
-redistributed and/or sold with any software provided that any reserved
-names are not used by derivative works. The fonts and derivatives,
-however, cannot be released under any other type of license. The
-requirement for fonts to remain under this license does not apply
-to any document created using the fonts or their derivatives.`;
   }
 
   /**
