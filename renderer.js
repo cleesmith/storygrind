@@ -907,6 +907,84 @@ if (exportTxtBtn) {
   });
 }
 
+// Generate Mandelbrot cover (renderer-side canvas implementation)
+// Define immediately when script loads
+console.log('Defining generateMandelbrotCover function on window');
+window.generateMandelbrotCover = async function(metadata, jpgOutputPath) {
+  console.log('generateMandelbrotCover called with:', metadata);
+  try {
+    // Set up canvas size (typical cover size)
+    const width = 1600, height = 2560;
+    // Create canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    // Mandelbrot params
+    const maxIter = 60;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.createImageData(width, height);
+    // Coloring
+    function colorFunc(iter, maxIter, x, y) {
+      if (iter === maxIter) return [20,20,30]; // background
+      let t = iter / maxIter;
+      return [
+        Math.floor(200 + 55 * Math.sin(8*t)),
+        Math.floor(80 + 120 * Math.cos(5*t + x/40)),
+        Math.floor(200 + 55 * Math.cos(7*t + y/80))
+      ];
+    }
+    // Generate Mandelbrot image
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
+        let cr = (x / width) * 3.5 - 2.5;   // real axis: -2.5 to +1
+        let ci = (y / height) * 2.0 - 1.0;  // imag axis: -1 to +1
+        let zr = 0, zi = 0, iter = 0;
+        while (zr*zr + zi*zi < 4 && iter < maxIter) {
+          let tmp = zr*zr - zi*zi + cr;
+          zi = 2*zr*zi + ci;
+          zr = tmp;
+          iter++;
+        }
+        let idx = (y * width + x) * 4;
+        let [r,g,b] = colorFunc(iter, maxIter, x, y);
+        imageData.data[idx + 0] = r;
+        imageData.data[idx + 1] = g;
+        imageData.data[idx + 2] = b;
+        imageData.data[idx + 3] = 255;
+      }
+    }
+    ctx.putImageData(imageData, 0, 0);
+    // Add text overlay (title/author)
+    ctx.font = 'bold 140px Arial, sans-serif';
+    ctx.fillStyle = '#ffffffcc';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.shadowColor = '#222';
+    ctx.shadowBlur = 16;
+    // Title (multi-line split if long)
+    let lines = (metadata.title || 'Untitled').toUpperCase().match(/.{1,22}( |$)/g) || [];
+    lines.forEach((line, i) => {
+      ctx.fillText(line.trim(), width/2, 260 + i * 170);
+    });
+    // Author near bottom
+    ctx.shadowBlur = 10;
+    ctx.font = 'bold 90px Arial, sans-serif';
+    ctx.fillText((metadata.author || '').toUpperCase(), width/2, height - 260);
+    ctx.shadowBlur = 0;
+    // Save as JPG (quality 94%)
+    const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.94);
+    const jpgData = jpgDataUrl.replace(/^data:image\/jpeg;base64,/, '');
+    
+    // Return the base64 data instead of writing file directly
+    console.log('Successfully generated Mandelbrot cover, returning base64 data');
+    return jpgData;
+  } catch (error) {
+    console.error('Error generating Mandelbrot cover:', error);
+    console.error('Error stack:', error.stack);
+    throw error;
+  }
+};
+
 // Add this to listen for when a tool run finishes and the window gains focus again
 // This updates the timestamp when returning to the main window
 window.addEventListener('focus', updateTimestamp);

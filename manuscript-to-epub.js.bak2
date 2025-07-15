@@ -1,5 +1,4 @@
 // manuscript-to-epub.js
-// ... remove cover.xhtml wrapper, reference SVG directly like Vellum
 const ToolBase = require('./tool-base');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
@@ -68,7 +67,7 @@ class ManuscriptToEpub extends ToolBase {
         errorMsg = `\nFile too large (${fileSizeInMB.toFixed(1)}MB). Please use files smaller than 10MB.`;
       }
       
-      this.emitOutput(`Converting text to EPUB 3.0 with advanced SVG cover (Vellum-compatible)...\n`);
+      this.emitOutput(`Converting text to EPUB 3.0 with advanced SVG cover...\n`);
       
       if (errorMsg) {
         this.emitOutput(errorMsg + '\n');
@@ -109,8 +108,7 @@ class ManuscriptToEpub extends ToolBase {
       // Write the EPUB file
       await fsPromises.writeFile(outputPath, result.epubBuffer);
       
-      this.emitOutput(`\nEPUB with Vellum-compatible SVG cover saved to: ${outputPath}\n`);
-      
+      this.emitOutput(`\nEPUB with advanced SVG cover saved to: ${outputPath}\n`);
       // do NOT do this for .epub's = errors:
       // outputFiles.push(outputPath);
       
@@ -568,7 +566,7 @@ class ManuscriptToEpub extends ToolBase {
   }
 
   /**
-   * Create EPUB 3.0 structure with Vellum-compatible SVG cover
+   * Create EPUB 3.0 structure with advanced SVG cover
    * @param {Array} chapters - Parsed chapters
    * @param {Object} metadata - Book metadata
    * @returns {Promise<Buffer>} - EPUB file as buffer
@@ -588,47 +586,25 @@ class ManuscriptToEpub extends ToolBase {
 </container>`;
     zip.file('META-INF/container.xml', containerXML);
 
-    // 3. Create advanced SVG cover and save to project directory
+    // 3. Create advanced SVG cover
     const svgCover = await this.generateSVGCover(metadata);
-    const svgFilePath = path.join(appState.CURRENT_PROJECT_PATH, 'cover.svg');
-    fs.writeFileSync(svgFilePath, svgCover);
+    zip.file('OEBPS/images/cover.svg', svgCover);
     
-    // 4. Convert SVG to JPG and wait for completion
-    const { spawn } = require('child_process');
-    const svgConverterPath = path.join(__dirname, 'svg-to-jpg-standalone.js');
-    
-    this.emitOutput(`Converting SVG to JPG...\n`);
-    
-    await new Promise((resolve, reject) => {
-      const converterProcess = spawn('npx', ['electron', svgConverterPath, appState.CURRENT_PROJECT_PATH], {
-        stdio: 'pipe'
-      });
-      
-      converterProcess.on('close', (code) => {
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(new Error(`Converter process exited with code ${code}`));
-        }
-      });
-      
-      converterProcess.on('error', (error) => {
-        reject(error);
-      });
-    });
-    
-    // 5. Add JPG cover to EPUB
-    const jpgCoverPath = path.join(appState.CURRENT_PROJECT_PATH, 'cover.jpg');
-    if (fs.existsSync(jpgCoverPath)) {
-      const jpgCoverBuffer = fs.readFileSync(jpgCoverPath);
-      zip.file('OEBPS/images/cover.jpg', jpgCoverBuffer);
-      this.emitOutput(`JPG cover added to EPUB\n`);
-    } else {
-      this.emitOutput(`Warning: JPG cover not found, using SVG fallback\n`);
-      zip.file('OEBPS/images/cover.svg', svgCover);
-    }
-    
-    // 4. REMOVED: No more cover.xhtml wrapper! Direct SVG reference like Vellum
+    // 4. Create cover.xhtml
+    const coverXHTML = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head>
+  <title>Cover</title>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+  <section epub:type="cover">
+    <img src="images/cover.svg" alt="Book Cover" style="max-width:100%;height:auto;display:block;margin:auto;"/>
+  </section>
+</body>
+</html>`;
+    zip.file('OEBPS/cover.xhtml', coverXHTML);
 
     // 5. Create chapter HTML files
     chapters.forEach(chapter => {
@@ -636,8 +612,8 @@ class ManuscriptToEpub extends ToolBase {
       zip.file(`OEBPS/${chapter.id}.xhtml`, chapterHTML);
     });
 
-    // 6. Create content.opf (EPUB 3.0 format) with SVG cover - FIXED
-    const contentOPF = this.createEpub3ContentOPF(chapters, metadata, 'cover-image');
+    // 6. Create content.opf (EPUB 3.0 format) with SVG cover
+    const contentOPF = this.createEpub3ContentOPF(chapters, metadata, 'cover-svg');
     zip.file('OEBPS/content.opf', contentOPF);
 
     // 7. Create nav.xhtml (EPUB 3.0 navigation)
@@ -686,7 +662,7 @@ ${paragraphs}
   }
 
   /**
-   * Create EPUB 3.0 content.opf file with SVG cover support - FIXED
+   * Create EPUB 3.0 content.opf file with SVG cover support
    * @param {Array} chapters - Chapters array
    * @param {Object} metadata - Book metadata
    * @param {string} coverImageId - Cover image ID
@@ -696,15 +672,18 @@ ${paragraphs}
     const uuid = this.generateUUID();
     const date = new Date().toISOString().split('T')[0];
 
-    // FIXED: Cover metadata and manifest - Direct SVG reference like Vellum
+    // Cover metadata and manifest
     let coverMeta = '';
     let coverManifest = '';
-    // REMOVED: No cover in spine anymore
+    let coverSpine = '';
     
     if (coverImageId) {
       coverMeta = `    <meta name="cover" content="${coverImageId}"/>`;
-      // FIXED: Direct SVG reference with cover-image property
-      coverManifest = `    <item id="${coverImageId}" href="images/cover.svg" media-type="image/svg+xml" properties="cover-image"/>`;
+      coverManifest = [
+        `    <item id="${coverImageId}" href="images/cover.svg" media-type="image/svg+xml" properties="cover-image"/>`,
+        `    <item id="cover" href="cover.xhtml" media-type="application/xhtml+xml"/>`
+      ].join('\n');
+      coverSpine = `    <itemref idref="cover" linear="yes"/>`;
     }
 
     const manifest = chapters
@@ -735,6 +714,7 @@ ${coverManifest}
 ${manifest}
   </manifest>
   <spine>
+${coverSpine}
 ${spine}
   </spine>
 </package>`;
@@ -826,7 +806,19 @@ p:first-of-type::first-letter {
   font-weight: bold;
 }
 
-/* Cover styles - REMOVED: No cover wrapper anymore */
+/* Cover styles */
+section[epub|type~="cover"] {
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+
+section[epub|type~="cover"] img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: auto;
+}
 
 /* Navigation styles */
 nav[epub|type~="toc"] h1 {
