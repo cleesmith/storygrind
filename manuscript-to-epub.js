@@ -338,7 +338,7 @@ class ManuscriptToEpub extends ToolBase {
         '#ffffff', '#ededed', '#c9f1fa', '#ffa5b0', '#ffd6a5', '#f3f0ff', '#b9fbc0', '#c0b6f7', '#fff5c8',
         '#a9def9', '#e4c1f9', '#f694c1', '#f6c6ea', '#b8bedd', '#d0f4de', '#fed6bc', '#c7ceea', '#e2f0cb'
       ];
-      const numShapes = 28 + Math.floor(Math.random() * 9); // 28–36 shapes
+      const numShapes = 50 + Math.floor(Math.random() * 9);
       for (let i = 0; i < numShapes; i++) {
         const shapeTypeRand = Math.random();
         const color = colors[Math.floor(Math.random() * colors.length)];

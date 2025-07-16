@@ -259,13 +259,13 @@ const TOOL_DEFS = [
         "name": "manuscript_file",
         "label": "Manuscript File",
         "type": "file",
-        "description": "Manuscript file that has corresponding .html and .epub files",
+        "description": "A manuscript file that has corresponding .html and .epub files",
         "required": true,
         "default": "manuscript.txt",
         "filters": [
           {
-            "name": "Manuscript Files",
-            "extensions": ["html", "epub"]
+            "name": "Text Files",
+            "extensions": ["txt"]
           }
         ]
       },
@@ -274,7 +274,7 @@ const TOOL_DEFS = [
         "label": "Author",
         "type": "text",
         "description": "Author name for the publication",
-        "required": false,
+        "required": true,
         "default": ""
       },
       {

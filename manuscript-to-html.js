@@ -28,7 +28,7 @@ class ManuscriptTextToHtml extends ToolBase {
    */
   async execute(options) {
     let errorMsg = "";
-    
+
     // Extract options
     let manuscriptFile = options.manuscript_file;
     const saveDir = appState.CURRENT_PROJECT_PATH;
@@ -53,14 +53,6 @@ class ManuscriptTextToHtml extends ToolBase {
         throw new Error(`File not found: ${manuscriptFile}`);
       }
       
-      // Check file size first to prevent memory issues
-      const stats = fs.statSync(manuscriptFile);
-      const fileSizeInMB = stats.size / (1024 * 1024);
-      
-      if (fileSizeInMB > 10) {
-        errorMsg = `\nFile too large (${fileSizeInMB.toFixed(1)}MB). Please use files smaller than 10MB.`;
-      }
-      
       this.emitOutput(`Converting manuscript to HTML...\n`);
       
       if (errorMsg) {
@@ -77,7 +69,7 @@ class ManuscriptTextToHtml extends ToolBase {
       }
 
       // If user provided a new author name, persist it for future use
-      if (options.author && options.author.trim() && options.author.trim() !== appState.AUTHOR_NAME) {
+      if (options.author && options.author.trim() !== appState.AUTHOR_NAME) {
         appState.setAuthorName(options.author.trim());
       }
 
@@ -89,31 +81,39 @@ class ManuscriptTextToHtml extends ToolBase {
       this.setMaxChapters(maxChapters);
       
       // Convert to HTML
-      const htmlContent = this.processStory(manuscriptFile, manuscriptContent);
+      const htmlContent = this.processStory(manuscriptFile, manuscriptContent, options.title);
       
       // Create output filename with timestamp
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       const baseFileName = path.basename(manuscriptFile, path.extname(manuscriptFile));
       const outputFilename = `${baseFileName}_${timestamp}.html`;
       const outputPath = path.join(saveDir, outputFilename);
-      
+
+      // Remove all .html files in the output directory before writing the new one
+      const dir = path.dirname(outputPath);
+      const files = await fsPromises.readdir(dir);
+      for (const file of files) {
+        if (file.endsWith('.html')) {
+          await fsPromises.unlink(path.join(dir, file));
+        }
+      }
+
       // Write the HTML file
       await fsPromises.writeFile(outputPath, htmlContent, 'utf8');
       
       this.emitOutput(`\nHTML saved to: ${outputPath}\n`);
       outputFiles.push(outputPath);
       
-      // Get chapter count and word count
+      // Get chapter count
       const chapters = this.parseManuscript(manuscriptContent);
-      const wordCount = this.countWords(manuscriptContent);
+      this.emitOutput(`\nChapters in HTML: ${chapters.length}\n`);
       
       // Return the result
       return {
         success: true,
         outputFiles,
         stats: {
-          chapterCount: chapters.length,
-          wordCount: wordCount
+          chapterCount: chapters.length
         }
       };
     } catch (error) {
@@ -121,6 +121,34 @@ class ManuscriptTextToHtml extends ToolBase {
       this.emitOutput(`\nError: ${error.message}\n`);
       throw error;
     }
+  }
+
+  /**
+   * Convert folder name to proper case
+   * @param {string} name - Raw name
+   * @returns {string} - Formatted case
+   */
+  formatProperCase(name) {
+    let title = name;
+    
+    // Handle camelCase: "ADarkerRoast" → "A Darker Roast"
+    title = title.replace(/([a-z])([A-Z])/g, '$1 $2');
+    
+    // Handle kebab-case and snake_case
+    title = title.replace(/[-_]/g, ' ');
+    
+    // Convert to Title Case
+    title = title.replace(/\b\w+/g, word => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+    
+    // Clean up multiple spaces
+    title = title.replace(/\s+/g, ' ').trim();
+
+    // Handle apostrophies
+    title = title.toLowerCase().replace(/^.|(?<=\s)\w/g, l => l.toUpperCase());
+    
+    return title;
   }
 
   /**
@@ -191,7 +219,7 @@ class ManuscriptTextToHtml extends ToolBase {
    * @returns {string} Title in proper case
    */
   toProperCase(title) {
-    return title.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+    return title.toLowerCase().replace(/^.|(?<=\s)\w/g, l => l.toUpperCase());
   }
 
   /**
@@ -210,11 +238,11 @@ class ManuscriptTextToHtml extends ToolBase {
 
   /**
    * Generate HTML from chapters using the established pattern
-   * @param {string} storyTitle - Title of the story (folder name)
+   * @param {string} storyTitle - Title of the story
    * @param {Array} chapters - Array of chapter objects
    * @returns {string} Complete HTML document
    */
-  generateHTML(storyTitle, chapters) {
+  generateHTML(titleAuthor, titleAuthorDisplay, chapters) {
     const chaptersHTML = chapters.map(chapter => `
 <div class="chapter-container">
   <div class="chapter-title">${chapter.title}</div>
@@ -225,97 +253,141 @@ class ManuscriptTextToHtml extends ToolBase {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>${storyTitle}</title>
+  <title>${titleAuthor}</title>
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      padding: 20px; 
-      background: #ffffff; 
-      color: #000000; 
-      transition: background 0.3s, color 0.3s; 
+    :root {
+      --button-bg-color: #4CAF50;
+      --button-text-color: #ffffff;
+      --border-color: #444;
+      --background-light: #f5f5f5;
+      --text-light: #333333;
+      --background-dark: #2c3035;
+      --text-dark: #ffffff;
+    }
+    
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--background-dark);
+      color: var(--text-dark);
+      transition: background-color 0.3s, color 0.3s;
+      padding: 20px;
+      min-height: 100vh;
+      margin: 0;
       line-height: 1.5;
     }
-    .chapter-container { 
-      border: 2px solid #ff9800; 
-      border-radius: 4px; 
-      padding: 10px; 
-      margin-bottom: 15px; 
-      background: #fff7e6; 
+    
+    body.light-mode {
+      background-color: var(--background-light);
+      color: var(--text-light);
     }
-    .chapter-title { 
-      font-weight: bold; 
-      margin-bottom: 8px; 
-      font-size: 1.2em; 
+    
+    h1 {
+      color: inherit;
     }
+    
+    /* Dark mode: dark container with white text */
+    .chapter-container {
+      border: 2px solid #ff9800;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 15px;
+      background: rgba(0, 0, 0, 0.3); /* Darker than body background */
+      color: var(--text-dark); /* White text */
+    }
+    
+    /* Light mode: light container with dark text */
+    body.light-mode .chapter-container {
+      background: #fff7e6; /* Light cream background */
+      color: var(--text-light); /* Dark text */
+    }
+    
+    .chapter-title {
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 1.2em;
+    }
+    
     .chapter-text p {
       margin-bottom: 1em;
     }
-    /* Dark mode styles */
-    body.dark-mode { 
-      background: #121212; 
-      color: #e0e0e0; 
+    
+    /* Footer styling */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: #000;
+      color: #9e9e9e;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 15px;
+      transition: background-color 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
     }
-    body.dark-mode .chapter-container { 
-      background: #1e1e1e; 
-      border-color: #ff9800; 
+    
+    body.light-mode .footer {
+      background-color: #333;
     }
-    /* Dark mode toggle button (small circular button) */
+    
+    /* Dark mode toggle */
     #darkModeToggle {
-      font-size: 20px;
+      font-size: 16px;
       background-color: transparent;
       color: inherit;
-      border: 1px solid currentColor;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+      border: none;
       cursor: pointer;
       text-align: center;
-      position: fixed;
-      top: 20px;
-      right: 20px;
+      transition: all 0.3s ease;
+      margin-left: 10px;
+      padding: 0;
     }
+    
     #darkModeToggle:hover {
-      filter: brightness(1.2);
+      transform: scale(1.1);
+    }
+    
+    .footer-spacer {
+      height: 60px;
     }
   </style>
 </head>
-<body class="dark-mode">
-  <button id="darkModeToggle" title="Switch dark and light mode">☀️</button>
-<h2>${storyTitle}</h2>
+<body>
+
+<h2>${titleAuthorDisplay}</h2>
 ${chaptersHTML}
-  <script>
-    document.getElementById('darkModeToggle').addEventListener('click', function(){
-      document.body.classList.toggle('dark-mode');
-      this.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-    });
-  </script>
+
+<div class="footer-spacer"></div>
+<div class="footer">
+  <div>© &nbsp;2025 &nbsp;&nbsp;${titleAuthorDisplay} &nbsp;&nbsp;<button id="darkModeToggle" title="Switch dark and light mode">☀️</button></div>
+</div>
+
+<script>
+  // toggle dark/light mode
+  document.getElementById('darkModeToggle').addEventListener('click', function() {
+    document.body.classList.toggle('light-mode');
+    // Change the icon based on the current mode
+    this.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
+    
+    // optionally save the user's preference in localStorage
+    localStorage.setItem('lightMode', document.body.classList.contains('light-mode'));
+  });
+  
+  // check for saved preference on page load
+  window.addEventListener('DOMContentLoaded', function() {
+    // default is dark mode (no class needed)
+    const lightMode = localStorage.getItem('lightMode') === 'true';
+    if (lightMode) {
+      document.body.classList.add('light-mode');
+      document.getElementById('darkModeToggle').textContent = '🌙';
+    }
+  });
+</script>
 </body>
 </html>`;
-  }
-
-  /**
-   * Convert folder name to proper book title
-   * @param {string} folderName - Raw folder name
-   * @returns {string} - Formatted book title
-   */
-  formatFolderNameAsTitle(folderName) {
-    let title = folderName;
-    
-    // Handle camelCase: "ADarkerRoast" → "A Darker Roast"
-    title = title.replace(/([a-z])([A-Z])/g, '$1 $2');
-    
-    // Handle kebab-case and snake_case
-    title = title.replace(/[-_]/g, ' ');
-    
-    // Convert to Title Case
-    title = title.replace(/\b\w+/g, word => {
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    });
-    
-    // Clean up multiple spaces
-    title = title.replace(/\s+/g, ' ').trim();
-    
-    return title;
   }
 
   /**
@@ -327,30 +399,26 @@ ${chaptersHTML}
     const pathParts = manuscriptPath.replace(/\\/g, '/').split('/');
     // Get the folder name that contains the manuscript
     const folderName = pathParts[pathParts.length - 2] || 'Story';
-    return this.formatFolderNameAsTitle(folderName);
+    return this.formatProperCase(folderName);
   }
 
   /**
    * Main function to process a story and generate HTML
+   * @param {string} title - user entered story title
    * @param {string} manuscriptPath - Path to manuscript file (to extract title)
    * @param {string} manuscriptText - The manuscript text content
    * @returns {string} Complete HTML document
    */
-  processStory(manuscriptPath, manuscriptText) {
-    const storyTitle = this.extractStoryTitle(manuscriptPath);
+  processStory(manuscriptPath, manuscriptText, storyTitle=options.title) {
+    if (storyTitle.trim().length <= 0) {
+      storyTitle = this.extractStoryTitle(manuscriptPath);
+    } else {
+      storyTitle = this.formatProperCase(storyTitle);
+    }
     const chapters = this.parseManuscript(manuscriptText);
-    return this.generateHTML(storyTitle, chapters);
-  }
-
-  /**
-   * Alternative function if you already know the story title
-   * @param {string} storyTitle - Title of the story
-   * @param {string} manuscriptText - The manuscript text content
-   * @returns {string} Complete HTML document
-   */
-  processStoryWithTitle(storyTitle, manuscriptText) {
-    const chapters = this.parseManuscript(manuscriptText);
-    return this.generateHTML(storyTitle, chapters);
+    const titleAuthor = `${storyTitle} by ${this.formatProperCase(appState.AUTHOR_NAME)}`;
+    const titleAuthorDisplay = `${storyTitle} &nbsp;<small><em>by ${this.formatProperCase(appState.AUTHOR_NAME)}</em></small>`;
+    return this.generateHTML(titleAuthor, titleAuthorDisplay, chapters);
   }
 
   /**
@@ -367,320 +435,6 @@ ${chaptersHTML}
    */
   setMaxChapters(maxChapters) {
     this.maxChapters = maxChapters;
-  }
-
-  /**
-   * Choose the best title format based on title length
-   * @param {string} title - The book title
-   * @returns {string} Format type: 'single', 'two', or 'three'
-   */
-  chooseTitleFormat(title) {
-    const titleLength = title.length;
-    
-    if (titleLength <= 8) {
-      return 'single';
-    } else if (titleLength <= 16) {
-      return 'two';
-    } else {
-      return 'three';
-    }
-  }
-
-  /**
-   * Generate SVG cover from template
-   * @param {string} bookTitle - Title of the book
-   * @param {string} authorName - Author name
-   * @param {string} outputPath - Path to save the SVG file
-   */
-  generateSVGCover(bookTitle, authorName, outputPath) {
-    const fs = require('fs');
-    
-    // Read the SVG template
-    const templatePath = path.join(this.basePath, '123_black_ebook_cover.svg');
-    
-    if (!fs.existsSync(templatePath)) {
-      throw new Error(`SVG template not found: ${templatePath}`);
-    }
-    
-    let svgContent = fs.readFileSync(templatePath, 'utf8');
-    
-    // Convert to uppercase
-    const titleUpper = bookTitle.toUpperCase();
-    const authorUpper = authorName.toUpperCase();
-    
-    // Choose format and prepare title lines
-    const format = this.chooseTitleFormat(titleUpper);
-    
-    if (format === 'single') {
-      // Activate single-line format
-      svgContent = svgContent.replace(
-        /<g id="single-line-title">[\s\S]*?<\/g>/,
-        `<g id="single-line-title">
-    <text x="800" y="700" font-family="Arial, sans-serif" font-size="150" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${titleUpper}</text>
-  </g>`
-      );
-      
-      // Comment out other formats
-      svgContent = svgContent.replace(
-        /<!-- OPTION 2[\s\S]*?-->/,
-        `<!-- OPTION 2: Two-line title format (best for medium titles like "A DARKER ROAST", "THE MUNDANE SPEAKS") -->
-  <!-- 
-  <g id="two-line-title">
-    <text x="800" y="600" font-family="Arial, sans-serif" font-size="130" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">DIRE</text>
-    <text x="800" y="780" font-family="Arial, sans-serif" font-size="130" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">CONSEQUENCES</text>
-  </g>
-  -->`
-      );
-      
-    } else if (format === 'two') {
-      // Split title into two parts
-      const words = titleUpper.split(' ');
-      const midPoint = Math.ceil(words.length / 2);
-      const line1 = words.slice(0, midPoint).join(' ');
-      const line2 = words.slice(midPoint).join(' ');
-      
-      // Comment out single-line format
-      svgContent = svgContent.replace(
-        /<g id="single-line-title">[\s\S]*?<\/g>/,
-        `<!-- 
-  <g id="single-line-title">
-    <text x="800" y="700" font-family="Arial, sans-serif" font-size="150" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">DELTA</text>
-  </g>
-  -->`
-      );
-      
-      // Activate two-line format
-      svgContent = svgContent.replace(
-        /<!-- OPTION 2[\s\S]*?-->/,
-        `<!-- OPTION 2: Two-line title format (best for medium titles like "A DARKER ROAST", "THE MUNDANE SPEAKS") -->
-  <g id="two-line-title">
-    <text x="800" y="600" font-family="Arial, sans-serif" font-size="130" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line1}</text>
-    <text x="800" y="780" font-family="Arial, sans-serif" font-size="130" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line2}</text>
-  </g>`
-      );
-      
-    } else { // three lines
-      // Split title into three parts
-      const words = titleUpper.split(' ');
-      const perLine = Math.ceil(words.length / 3);
-      const line1 = words.slice(0, perLine).join(' ');
-      const line2 = words.slice(perLine, perLine * 2).join(' ');
-      const line3 = words.slice(perLine * 2).join(' ');
-      
-      // Comment out single-line format
-      svgContent = svgContent.replace(
-        /<g id="single-line-title">[\s\S]*?<\/g>/,
-        `<!-- 
-  <g id="single-line-title">
-    <text x="800" y="700" font-family="Arial, sans-serif" font-size="150" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">DELTA</text>
-  </g>
-  -->`
-      );
-      
-      // Activate three-line format
-      svgContent = svgContent.replace(
-        /<!-- OPTION 3[\s\S]*?-->/,
-        `<!-- OPTION 3: Three-line title format (best for longer titles like "SOMETHING FROM NOTHING") -->
-  <g id="three-line-title">
-    <text x="800" y="500" font-family="Arial, sans-serif" font-size="120" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line1}</text>
-    <text x="800" y="680" font-family="Arial, sans-serif" font-size="110" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line2}</text>
-    <text x="800" y="860" font-family="Arial, sans-serif" font-size="120" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${line3}</text>
-  </g>`
-      );
-    }
-    
-    // Replace author name
-    svgContent = svgContent.replace(
-      /CLEE SMITH/g,
-      authorUpper
-    );
-    
-    // Write the customized SVG
-    fs.writeFileSync(outputPath, svgContent);
-    console.log(`Generated SVG cover: ${outputPath}`);
-  }
-
-  /**
-   * Get the index.html path relative to base path
-   * @returns {string} Path to index.html file
-   */
-  getIndexPath() {
-    if (!this.basePath) {
-      throw new Error('Base path not set. Call setBasePath() first.');
-    }
-    return path.join(this.basePath, 'index.html');
-  }
-
-  /**
-   * Parse existing index.html file to extract book entries
-   * @param {string} indexPath - Path to index.html file
-   * @returns {Array} Array of existing book entries
-   */
-  parseIndexFile(indexPath) {
-    const fs = require('fs');
-    
-    if (!fs.existsSync(indexPath)) {
-      return [];
-    }
-
-    let indexContent = fs.readFileSync(indexPath, 'utf8');
-    
-    // Remove HTML comments to avoid parsing commented-out entries
-    indexContent = indexContent.replace(/<!--[\s\S]*?-->/g, '');
-    
-    const entries = [];
-    
-    // Find all project divs with links
-    const projectRegex = /<div class="project">\s*<a href="([^"]+\/index\.html)"[^>]*title="Read: ([^"]*)"[^>]*>\s*<img src="([^"]*)"[^>]*>\s*<div class="project-title">([^<]*)<\/div>\s*<\/a>\s*<\/div>/g;
-    
-    let match;
-    while ((match = projectRegex.exec(indexContent)) !== null) {
-      entries.push({
-        href: match[1],
-        title: match[2],
-        imageSrc: match[3],
-        displayTitle: match[4],
-        bookName: match[1].split('/')[0] // Extract folder name from href
-      });
-    }
-    
-    return entries;
-  }
-
-  /**
-   * Find all book folders in the base directory
-   * @returns {Array} Array of book folder names
-   */
-  findBookFolders() {
-    if (!this.basePath) {
-      throw new Error('Base path not set. Call setBasePath() first.');
-    }
-
-    const fs = require('fs');
-    const items = fs.readdirSync(this.basePath, { withFileTypes: true });
-    
-    return items
-      .filter(item => item.isDirectory())
-      .map(item => item.name)
-      .filter(name => !name.startsWith('.') && !['images', 'tools', 'assets'].includes(name));
-  }
-
-  /**
-   * Generate HTML entry for a book following the exact pattern
-   * @param {string} bookName - Name of the book folder
-   * @param {string} displayTitle - Title to display (defaults to bookName)
-   * @returns {string} HTML entry for the book
-   */
-  generateBookEntry(bookName, displayTitle = null) {
-    if (!displayTitle) {
-      displayTitle = bookName.replace(/_/g, ' ');
-    }
-    
-    const href = `${bookName}/index.html`;
-    const imageSrc = `images/${bookName}.svg`;
-    const title = `Read: ${displayTitle}`;
-    
-    return `  <div class="project">
-    <a href="${href}" style="text-decoration: none;" title="${title}">
-      <img src="${imageSrc}" alt="book Cover" style="border-radius: 4px;">
-      <div class="project-title">${displayTitle}</div>
-    </a>
-  </div>`;
-  }
-
-  /**
-   * Update the index.html file with new book entries
-   * @param {Array} newEntries - Array of new book entries to add
-   */
-  updateIndex(newEntries = []) {
-    const fs = require('fs');
-    const indexPath = this.getIndexPath();
-    
-    if (!fs.existsSync(indexPath)) {
-      throw new Error(`Index file not found: ${indexPath}`);
-    }
-    
-    let indexContent = fs.readFileSync(indexPath, 'utf8');
-    const existingEntries = this.parseIndexFile(indexPath);
-    const existingBookNames = existingEntries.map(entry => entry.bookName);
-    
-    // Find where to insert new entries (at the top, after book-grid opening)
-    const insertionPoint = indexContent.indexOf('<div class="book-grid">\n');
-    
-    if (insertionPoint === -1) {
-      throw new Error('Could not find book-grid div in index.html');
-    }
-    
-    // Position after the opening div and any existing content
-    const insertAfter = insertionPoint + '<div class="book-grid">\n'.length;
-    
-    // Add new entries that don't already exist
-    let entriesToAdd = [];
-    for (const entry of newEntries) {
-      if (!existingBookNames.includes(entry.bookName)) {
-        entriesToAdd.push(this.generateBookEntry(entry.bookName, entry.displayTitle));
-      }
-    }
-    
-    if (entriesToAdd.length > 0) {
-      const newEntriesHTML = '\n' + entriesToAdd.join('\n\n') + '\n\n';
-      indexContent = indexContent.slice(0, insertAfter) + newEntriesHTML + indexContent.slice(insertAfter);
-      
-      fs.writeFileSync(indexPath, indexContent);
-      console.log(`Added ${entriesToAdd.length} new book entries to top of index.html`);
-    } else {
-      console.log('No new entries to add to index.html');
-    }
-  }
-
-  /**
-   * Main method to process a book and update the index
-   * @param {string} basePath - Path to folder containing book subdirectories
-   * @param {string} bookName - Name of the book folder to process
-   * @param {number} maxChapters - Maximum chapters to include (optional)
-   * @param {string} authorName - Author name for SVG cover generation (required)
-   */
-  processBookAndUpdateIndex(basePath, bookName, maxChapters = null, authorName) {
-    const fs = require('fs');
-    
-    // Validate required parameters
-    if (!authorName) {
-      throw new Error('Author name is required for SVG cover generation');
-    }
-    
-    // Set base path
-    this.setBasePath(basePath);
-    
-    // Set max chapters if provided
-    if (maxChapters !== null) {
-      this.setMaxChapters(maxChapters);
-    }
-    
-    // Build paths
-    const bookFolder = path.join(this.basePath, bookName);
-    const manuscriptPath = path.join(bookFolder, 'manuscript.txt');
-    const outputPath = path.join(bookFolder, 'index.html');
-    const svgPath = path.join(this.basePath, 'images', `${bookName}.svg`);
-    
-    // Check if manuscript exists
-    if (!fs.existsSync(manuscriptPath)) {
-      throw new Error(`Manuscript not found: ${manuscriptPath}`);
-    }
-    
-    // Generate SVG cover (always)
-    const displayTitle = bookName.replace(/_/g, ' ');
-    this.generateSVGCover(displayTitle, authorName, svgPath);
-    
-    // Process manuscript
-    const manuscriptText = fs.readFileSync(manuscriptPath, 'utf8');
-    const html = this.processStoryWithTitle(bookName, manuscriptText);
-    
-    // Write book HTML
-    fs.writeFileSync(outputPath, html);
-    console.log(`Generated HTML for ${bookName}: ${outputPath}`);
-    
-    // Update main index
-    this.updateIndex([{ bookName, displayTitle }]);
   }
 }
 
