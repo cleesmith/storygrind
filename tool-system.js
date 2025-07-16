@@ -314,7 +314,7 @@ const TOOL_DEFS = [
         "default": "no",
         "choices": [
           { "value": "no", "label": "No - Update both HTML & EPUB then Publish" },
-          { "value": "yes", "label": "Yes - Unpublish book" }
+          { "value": "yes", "label": "Yes - Unpublish; this does NOT delete covers, HTML, or EPUB files" }
         ]
       }
   ]},
