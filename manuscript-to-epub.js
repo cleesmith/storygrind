@@ -88,9 +88,6 @@ class ManuscriptToEpub extends ToolBase {
       if (options.author && options.author.trim() && options.author.trim() !== appState.AUTHOR_NAME) {
         appState.setAuthorName(options.author.trim());
       }
-
-      // Convert to EPUB and get chapter info
-      const result = await this.convertToEpub(textFile, metadata);
       
       // Create output filename with timestamp
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
@@ -114,6 +111,9 @@ class ManuscriptToEpub extends ToolBase {
           await fsPromises.unlink(path.join(dir, file));
         }
       }
+
+      // Convert to EPUB and get chapter info
+      const result = await this.convertToEpub(textFile, metadata);
       
       // Write the EPUB file
       await fsPromises.writeFile(outputPath, result.epubBuffer);
@@ -1123,12 +1123,7 @@ to any document created using the fonts or their derivatives.`;
     // const svgFilePath = path.join(appState.CURRENT_PROJECT_PATH, 'cover.svg');
     const svgFilePath = path.resolve(appState.CURRENT_PROJECT_PATH, 'cover.svg');
 
-    console.dir(typeof svgCover);
-
     try {
-      console.dir(svgFilePath);
-      console.dir(typeof svgCover);
-      
       fs.writeFileSync(svgFilePath, svgCover);
       console.dir({
           afterWrite_exists: fs.existsSync(svgFilePath),
@@ -1217,6 +1212,17 @@ to any document created using the fonts or their derivatives.`;
     // 13. Add font license (fonts would need to be added separately)
     // const fontLicense = this.createFontLicense();
     // zip.file('OEBPS/fonts/SIL-Open-Font-License-1.1.txt', fontLicense);
+    
+    // Create backup copies before zip generation
+    // const backupSvgPath = path.join(appState.CURRENT_PROJECT_PATH, 'cover_backup.svg');
+    // const backupJpgPath = path.join(appState.CURRENT_PROJECT_PATH, 'cover_backup.jpg');
+    // fs.copyFileSync(svgFilePath, backupSvgPath);
+    // fs.copyFileSync(jpgCoverPath, backupJpgPath);
+    // this.emitOutput(`Backup copies created\n`);
+
+    // TEMPORARY: Exit here to check files in Finder
+    // this.emitOutput(`\nSTOPPING HERE - Check files in Finder now!\n`);
+    // process.exit(0);
 
     // Generate and return the EPUB
     const epubBuffer = await zip.generateAsync({ 
@@ -1224,6 +1230,11 @@ to any document created using the fonts or their derivatives.`;
       compression: 'DEFLATE',
       compressionOptions: { level: 9 }
     });
+
+    // Restore cover files from backups
+    // fs.renameSync(backupSvgPath, svgFilePath);
+    // fs.renameSync(backupJpgPath, jpgCoverPath);
+    // this.emitOutput(`Cover files restored from backups\n`);
 
     return epubBuffer;
   }
