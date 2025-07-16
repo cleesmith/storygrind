@@ -313,7 +313,7 @@ const TOOL_DEFS = [
         "required": false,
         "default": "no",
         "choices": [
-          { "value": "no", "label": "No - Update both HTML/EPUB and Publish" },
+          { "value": "no", "label": "No - Update both HTML & EPUB then Publish" },
           { "value": "yes", "label": "Yes - Unpublish book" }
         ]
       }
