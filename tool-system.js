@@ -286,6 +286,18 @@ const TOOL_DEFS = [
         "default": ""
       },
       {
+        "name": "max_chapters",
+        "label": "Max Chapters in HTML  (EPUB is all chapters)",
+        "type": "select",
+        "description": "Select Chapter 1 as a sample of your writing, or All Chapters for entire manuscript.",
+        "required": false,
+        "default": "1",
+        "choices": [
+          { "value": "1", "label": "Chapter 1" },
+          { "value": "all", "label": "All Chapters" }
+        ]
+      },
+      {
         "name": "purchase_url",
         "label": "Purchase URL",
         "type": "text",
@@ -301,7 +313,7 @@ const TOOL_DEFS = [
         "required": false,
         "default": "no",
         "choices": [
-          { "value": "no", "label": "No - Publish/Update book" },
+          { "value": "no", "label": "No - Update both HTML/EPUB and Publish" },
           { "value": "yes", "label": "Yes - Unpublish book" }
         ]
       }
