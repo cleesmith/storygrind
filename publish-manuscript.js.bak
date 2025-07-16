@@ -1,7 +1,7 @@
 /**
  * PublishManuscript - publish completed manuscript
  *  to book collection as: 
- *    cover images, HTML, EPUB, BUY
+ *    cover image, HTML, EPUB, BUY
  */
 
 const ToolBase = require('./tool-base');
@@ -9,8 +9,6 @@ const fs = require('fs');
 const fsPromises = require('fs/promises');
 const path = require('path');
 const appState = require('./state.js');
-const ManuscriptTextToHtml = require('./manuscript-to-html');
-const ManuscriptToEpub = require('./manuscript-to-epub');
 
 class PublishManuscript extends ToolBase {
   /**
@@ -43,11 +41,19 @@ class PublishManuscript extends ToolBase {
         return await this.unpublishBook(projectPath, options);
       }
 
-      // Generate fresh manuscript files (HTML and EPUB) from source text
-      await this.generateManuscriptFiles(projectPath, options);
-
-      // Now find the newly created manuscript files
+      // Check if manuscript files exist
       const manuscriptFiles = await this.findManuscriptFiles(projectPath);
+      
+      if (manuscriptFiles.length === 0) {
+        let errorMsg = `\nError: can not find: manuscript_*.html and/or manuscript_*.epub files.\n`;
+        errorMsg += `                          note: * refers to the file's timestamp\n`;
+        this.emitOutput(errorMsg);
+        return {
+          success: false,
+          message: errorMsg,
+          outputFiles: []
+        };
+      }
 
       this.emitOutput(`Project: ${appState.CURRENT_PROJECT}\n`);
 
@@ -574,59 +580,6 @@ class PublishManuscript extends ToolBase {
   }
 
   /**
-   * Generate manuscript files (HTML and EPUB) from source text
-   * @param {string} projectPath - Path to the project directory
-   * @param {Object} options - Tool options
-   * @returns {Promise<void>}
-   */
-  async generateManuscriptFiles(projectPath, options) {
-    // Find the source manuscript text file
-    const files = await fsPromises.readdir(projectPath);
-    const textFiles = files.filter(file => {
-      const fileName = file.toLowerCase();
-      return fileName.endsWith('.txt') && (fileName.includes('manuscript') || fileName === 'manuscript.txt');
-    });
-    
-    if (textFiles.length === 0) {
-      throw new Error('No manuscript text file found. Please ensure you have a manuscript.txt file in your project.');
-    }
-    
-    // Use the first manuscript text file found
-    const manuscriptTextFile = path.join(projectPath, textFiles[0]);
-    
-    this.emitOutput(`Found manuscript text file: ${textFiles[0]}\n`);
-    this.emitOutput(`Generating HTML and EPUB files...\n`);
-    
-    // Create HTML converter and run it
-    const htmlConverter = new ManuscriptTextToHtml('manuscript-to-html');
-    const htmlOptions = {
-      manuscript_file: manuscriptTextFile,
-      title: options.title || '',
-      author: options.author || appState.AUTHOR_NAME,
-      max_chapters: 'all'
-    };
-    
-    this.emitOutput(`Converting to HTML...\n`);
-    await htmlConverter.execute(htmlOptions);
-    
-    // Create EPUB converter and run it
-    const epubConverter = new ManuscriptToEpub('manuscript-to-epub');
-    const epubOptions = {
-      text_file: manuscriptTextFile,
-      title: options.title || '',
-      author: options.author || appState.AUTHOR_NAME,
-      language: 'en',
-      publisher: 'StoryGrind',
-      description: 'Created with StoryGrind'
-    };
-    
-    this.emitOutput(`Converting to EPUB (with cover images: cover.svg and cover.jpg)...\n`);
-    await epubConverter.execute(epubOptions);
-    
-    this.emitOutput(`Manuscript files generated successfully!\n`);
-  }
-
-  /**
    * Unpublish a book from the index.html file
    * @param {string} projectPath - Path to the project directory
    * @param {Object} options - Tool options
@@ -679,7 +632,7 @@ class PublishManuscript extends ToolBase {
       
       // Write updated index (but don't add anything new)
       await fsPromises.writeFile(indexPath, indexContent, 'utf8');
-      this.emitOutput(`Removed book entry from books in: index.html\n`);
+      this.emitOutput(`Removed book entry from index.html\n`);
     }
     
     this.emitOutput(`\nBook "${projectName}" unpublished successfully!\n`);
