@@ -145,7 +145,7 @@ class ManuscriptTextToHtml extends ToolBase {
     // Clean up multiple spaces
     title = title.replace(/\s+/g, ' ').trim();
 
-    // Handle apostrophies
+    // Handle apostrophes
     title = title.toLowerCase().replace(/^.|(?<=\s)\w/g, l => l.toUpperCase());
     
     return title;
