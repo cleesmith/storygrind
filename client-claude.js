@@ -210,7 +210,6 @@ class AiApiService {
       for await (const event of stream) {
         if (event.type === "content_block_delta") {
           if (event.delta.type === "thinking_delta") {
-            // console.dir(event.delta.thinking);
             // Include thinking in output if requested
             if (options.includeThinking) {
               onText(event.delta.thinking);

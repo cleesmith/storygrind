@@ -123,18 +123,6 @@ class PublishManuscript extends ToolBase {
 
       appState.setAuthorName(options.author);
 
-console.dir(`   `);
-console.dir(`publish-manuscript: execute`);
-console.dir(displayTitle);
-console.dir(appState.AUTHOR_NAME);
-console.dir(`   `);
-console.dir(`___________________`);
-console.dir(`options:`);
-console.dir(options);
-console.dir(`^^^^^^^^^^^^^^^^^^^^`);
-console.dir(`   `);
-console.dir(`   `);
-
       // Generate fresh manuscript files (HTML, cover.jpg, EPUB) from source text
       await this.generateManuscriptFiles(projectPath, appState.AUTHOR_NAME, displayTitle, options);
 

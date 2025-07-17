@@ -194,19 +194,6 @@ class ManuscriptToEpub extends ToolBase {
     const bookMeta = { ...this.defaultMetadata, ...metadata };
     
     const chapters = this.parseManuscriptText(textContent);
-
-console.dir(`   `);
-console.dir(`_____________________________________`);
-console.dir(`manuscript-to-epub: convertToEpub:`);
-console.dir(`   `);
-console.dir(`metadata:`);
-console.dir(metadata);
-console.dir(`^^^^^^^^^^^^^^^^^^^^\n`);
-console.dir(`   `);
-console.dir(`bookMeta:`);
-console.dir(bookMeta);
-console.dir(`^^^^^^^^^^^^^^^^^^^^\n`);
-console.dir(`   `);
     
     const epubBuffer = await this.createEpub3Structure(chapters, bookMeta);
     
@@ -858,10 +845,6 @@ to any document created using the fonts or their derivatives.`;
     const displayTitle = metadata.title || metadata.displayTitle;
     const authorName = metadata.author || 'Anonymous';
 
-console.dir(`\ngenerateSVGCover:`);
-console.dir(metadata);
-console.dir(`^^^^^^^^^^^^^^^^^^^^\n`);
-
     // Gradient logic
     const getRandomGradient = () => {
       const gradientPresets = [
@@ -1134,10 +1117,6 @@ console.dir(`^^^^^^^^^^^^^^^^^^^^\n`);
   </rootfiles>
 </container>`;
     zip.file('META-INF/container.xml', containerXML);
-
-console.dir(`\ncreateEpub3Structure:`);
-console.dir(metadata);
-console.dir(`^^^^^^^^^^^^^^^^^^^^\n`);
 
     // 3. Create advanced SVG cover and save to project directory
     const svgCover = await this.generateSVGCover(metadata);
