@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   createProject: (projectName) => ipcRenderer.invoke('create-project', projectName),
   closeDialog: (action, data) => ipcRenderer.send('close-project-dialog', action, data),
   onProjectUpdated: (callback) => ipcRenderer.on('project-updated', (_, data) => callback(data)),
+  openProjectFolder: (folderPath) => ipcRenderer.send('open-project-folder', folderPath),
 
   // Provider setup (legacy - may be unused)
   setApiProvider: (provider) => {

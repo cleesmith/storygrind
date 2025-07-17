@@ -1217,6 +1217,40 @@ ipcMain.on('open-in-default-editor', (event, filePath) => {
   }
 });
 
+// Open project folder in Finder/File Explorer
+ipcMain.on('open-project-folder', (event, folderPath) => {
+  const { spawn } = require('child_process');
+  
+  try {
+    let child;
+    if (process.platform === 'darwin') {
+      // macOS - reveal folder in Finder (shows parent directory with folder selected)
+      child = spawn('open', ['-R', folderPath], {
+        detached: true,
+        stdio: 'ignore'
+      });
+    } else if (process.platform === 'win32') {
+      // Windows - select folder in File Explorer
+      child = spawn('explorer', ['/select,', folderPath], {
+        detached: true,
+        stdio: 'ignore'
+      });
+    } else {
+      // Linux/Unix - open folder with default file manager
+      child = spawn('xdg-open', [folderPath], {
+        detached: true,
+        stdio: 'ignore'
+      });
+    }
+    
+    if (child) {
+      child.unref();
+    }
+  } catch (error) {
+    // Fail silently as requested
+  }
+});
+
 // Set up all IPC handlers
 function setupIPCHandlers() {
   setupProjectHandlers();

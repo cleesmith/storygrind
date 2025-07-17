@@ -89,6 +89,7 @@ switchProviderBtn.addEventListener('click', () => {
 const selectProjectBtn = document.getElementById('select-project-btn');
 const currentProjectName = document.getElementById('current-project-name');
 const currentProjectPath = document.getElementById('current-project-path');
+const projectPathIcon = document.getElementById('project-path-icon');
 
 // Tool selection functionality
 const aiCategorySelect = document.getElementById('ai-category-select');
@@ -123,19 +124,30 @@ function updateProjectDisplay(projectInfo) {
     if (projectInfo.current_project_path) {
       currentProjectPath.textContent = `Project Path: ${projectInfo.current_project_path}`;
       currentProjectPath.style.display = 'block';
+      projectPathIcon.style.display = 'inline-block';
     } else {
       currentProjectPath.style.display = 'none';
+      projectPathIcon.style.display = 'none';
     }
   } else {
     currentProjectName.textContent = 'No project selected';
     currentProjectName.classList.add('no-project');
     currentProjectPath.style.display = 'none';
+    projectPathIcon.style.display = 'none';
   }
 }
 
 // Handle the select project button click
 selectProjectBtn.addEventListener('click', () => {
   window.electronAPI.selectProject();
+});
+
+// Project path icon click handler
+projectPathIcon.addEventListener('click', async () => {
+  const projectInfo = await window.electronAPI.getProjectInfo();
+  if (projectInfo && projectInfo.current_project_path) {
+    window.electronAPI.openProjectFolder(projectInfo.current_project_path);
+  }
 });
 
 // Listen for project updates from the main process
