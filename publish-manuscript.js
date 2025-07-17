@@ -24,6 +24,64 @@ class PublishManuscript extends ToolBase {
   }
 
   /**
+   * Format title lines
+   * @param {string} name - Raw title
+   * @returns {string} - Formatted title
+   */
+  splitTitle(title) {
+    // Semicolon newlines (user control), up to 20 lines
+    const maxLines = 20;
+    let rawLines = title.toUpperCase().split(';').map(l => l.trim()).filter(l => l);
+    if (rawLines.length > maxLines) {
+      rawLines = rawLines.slice(0, maxLines - 1).concat([
+        rawLines.slice(maxLines - 1).join(' ')
+      ]);
+    }
+    return rawLines.map(line => {
+      const maxWordLen = 20;
+      const words = line.split(' ');
+      let safeLine = '';
+      for (let word of words) {
+        if (word.length > maxWordLen) {
+          let chunks = word.match(new RegExp(`.{1,${maxWordLen}}`, 'g'));
+          safeLine += (safeLine ? ' ' : '') + chunks.join(' ');
+        } else {
+          safeLine += (safeLine ? ' ' : '') + word;
+        }
+      }
+      return safeLine;
+    });
+  }
+
+  /**
+   * Convert folder name to proper case
+   * @param {string} name - Raw name
+   * @returns {string} - Formatted case
+   */
+  formatProperCase(name) {
+    let title = name;
+    
+    // Handle camelCase: "ADarkerRoast" → "A Darker Roast"
+    title = title.replace(/([a-z])([A-Z])/g, '$1 $2');
+    
+    // Handle kebab-case and snake_case
+    title = title.replace(/[-_]/g, ' ');
+    
+    // Convert to Title Case
+    title = title.replace(/\b\w+/g, word => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+    
+    // Clean up multiple spaces
+    title = title.replace(/\s+/g, ' ').trim();
+
+    // Handle apostrophes
+    title = title.toLowerCase().replace(/^.|(?<=\s)\w/g, l => l.toUpperCase());
+    
+    return title;
+  }
+
+  /**
    * Execute the tool
    * @param {Object} options - Tool options
    * @returns {Promise<Object>} - Execution result
@@ -43,12 +101,6 @@ class PublishManuscript extends ToolBase {
         return await this.unpublishBook(projectPath, options);
       }
 
-      // Generate fresh manuscript files (HTML and EPUB) from source text
-      await this.generateManuscriptFiles(projectPath, options);
-
-      // Now find the newly created manuscript files
-      const manuscriptFiles = await this.findManuscriptFiles(projectPath);
-
       this.emitOutput(`Project: ${appState.CURRENT_PROJECT}\n`);
 
       // Show only the selected file
@@ -60,8 +112,9 @@ class PublishManuscript extends ToolBase {
       // Extract project name from path
       const projectName = path.basename(projectPath);
       
-      // Use user-provided title or fall back to formatted project name
-      const displayTitle = options.title || this.formatProjectName(projectName);
+      // Use user-provided title or do formatted project name
+      const caseTitle = this.formatProperCase(options.title) || this.formatProperCase(projectName);
+      const displayTitle = this.splitTitle(caseTitle);
       
       // Get manuscript base name from options
       const manuscriptBaseName = selectedFile ? path.basename(selectedFile, path.extname(selectedFile)) : 'manuscript';
@@ -69,13 +122,32 @@ class PublishManuscript extends ToolBase {
       this.emitOutput(`\nTitle: ${displayTitle}\n`);
 
       appState.setAuthorName(options.author);
+
+console.dir(`   `);
+console.dir(`publish-manuscript: execute`);
+console.dir(displayTitle);
+console.dir(appState.AUTHOR_NAME);
+console.dir(`   `);
+console.dir(`___________________`);
+console.dir(`options:`);
+console.dir(options);
+console.dir(`^^^^^^^^^^^^^^^^^^^^`);
+console.dir(`   `);
+console.dir(`   `);
+
+      // Generate fresh manuscript files (HTML, cover.jpg, EPUB) from source text
+      await this.generateManuscriptFiles(projectPath, appState.AUTHOR_NAME, displayTitle, options);
+
+      // Now find the newly created manuscript files
+      const manuscriptFiles = await this.findManuscriptFiles(projectPath);
       
       // Update book index and get the HTML file used
       const htmlFile = await this.updateBookIndex(projectName, displayTitle, manuscriptBaseName, selectedFile, options.purchase_url || '#');
 
       this.emitOutput(`\nPublication complete!\n`);
+      this.emitOutput(`\nView ${appState.PROJECTS_DIR} index.html\n`);
       
-      // Only return HTML files for editing
+      // Only return HTML file for editing
       const editableFiles = [];
       if (htmlFile) {
         const projectDir = path.join(appState.PROJECTS_DIR, projectName);
@@ -117,26 +189,6 @@ class PublishManuscript extends ToolBase {
     });
     
     return manuscriptFiles.map(file => path.join(projectPath, file));
-  }
-
-  /**
-   * Format project name for display
-   * @param {string} projectName - Raw project name
-   * @returns {string} - Formatted display title
-   */
-  formatProjectName(projectName) {
-    let title = projectName;
-    
-    // Handle camelCase and underscores
-    title = title.replace(/([a-z])([A-Z])/g, '$1 $2');
-    title = title.replace(/_/g, ' ');
-    
-    // Convert to Title Case
-    title = title.replace(/\b\w+/g, word => {
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    });
-    
-    return title.trim();
   }
 
   /**
@@ -524,7 +576,7 @@ class PublishManuscript extends ToolBase {
     let newProjectEntry = `
 <!-- BOOK_START:${projectName} -->
   <div class="project">
-    <img src="${projectName}/cover.svg" alt="${displayTitle} Book Cover" style="border-radius: 4px;">
+    <img src="${projectName}/cover.jpg" alt="${displayTitle} Book Cover" style="border-radius: 4px;">
     <div class="button-container">
 `;
     
@@ -574,12 +626,12 @@ class PublishManuscript extends ToolBase {
   }
 
   /**
-   * Generate manuscript files (HTML and EPUB) from source text
+   * Generate manuscript files (HTML, cover.jpg, EPUB) from source text
    * @param {string} projectPath - Path to the project directory
    * @param {Object} options - Tool options
    * @returns {Promise<void>}
    */
-  async generateManuscriptFiles(projectPath, options) {
+  async generateManuscriptFiles(projectPath, displayAuthor, displayTitle, options) {
     // Find the source manuscript text file
     const files = await fsPromises.readdir(projectPath);
     const textFiles = files.filter(file => {
@@ -601,29 +653,30 @@ class PublishManuscript extends ToolBase {
     const htmlConverter = new ManuscriptTextToHtml('manuscript-to-html');
     const htmlOptions = {
       manuscript_file: manuscriptTextFile,
-      title: options.title || '',
-      author: options.author || appState.AUTHOR_NAME,
+      title: displayTitle,
+      author: displayAuthor,
       max_chapters: 'all'
     };
     
     this.emitOutput(`Converting to HTML...\n`);
     await htmlConverter.execute(htmlOptions);
-    
+
     // Create EPUB converter and run it
     const epubConverter = new ManuscriptToEpub('manuscript-to-epub');
     const epubOptions = {
       text_file: manuscriptTextFile,
-      title: options.title || '',
-      author: options.author || appState.AUTHOR_NAME,
+      displayTitle: displayTitle.join(' '),
+      title: options.title,
+      author: displayAuthor,
       language: 'en',
       publisher: 'StoryGrind',
       description: 'Created with StoryGrind'
     };
     
-    this.emitOutput(`Converting to EPUB (with cover images: cover.svg and cover.jpg)...\n`);
+    this.emitOutput(`Converting to EPUB with cover image cover.jpg...\n`);
     await epubConverter.execute(epubOptions);
     
-    this.emitOutput(`Manuscript files generated successfully!\n`);
+    this.emitOutput(`Manuscript files generated successfully!\n\n`);
   }
 
   /**

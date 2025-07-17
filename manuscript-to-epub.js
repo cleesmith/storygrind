@@ -1,5 +1,6 @@
 // manuscript-to-epub.js
-// Updated with toc.ncx, title page, contents page, and font support for Vellum compatibility
+// Updated with toc.ncx, title page, contents page, 
+// and font support for Vellum simularity
 const ToolBase = require('./tool-base');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
@@ -77,18 +78,17 @@ class ManuscriptToEpub extends ToolBase {
 
       // Extract metadata from options or use appState
       const metadata = {
-        title: (options.title && options.title.trim()) ? options.title.trim() : undefined,
-        author: options.author || appState.AUTHOR_NAME,
+        title: options.title,
+        displayTitle: options.displayTitle,
+        author: options.author,
         language: options.language || this.defaultMetadata.language,
         publisher: options.publisher || this.defaultMetadata.publisher,
         description: options.description || this.defaultMetadata.description
       };
 
-      // If user provided a new author name, persist it for future use
-      if (options.author && options.author.trim() && options.author.trim() !== appState.AUTHOR_NAME) {
-        appState.setAuthorName(options.author.trim());
-      }
-      
+      // persist author name it for future use
+      appState.setAuthorName(options.author);
+
       // Create output filename with timestamp
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       const baseFileName = path.basename(textFile, path.extname(textFile));
@@ -185,15 +185,28 @@ class ManuscriptToEpub extends ToolBase {
     const textContent = fs.readFileSync(textFilePath, 'utf8');
     
     // Extract title from parent folder name
-    if (!metadata.title) {
-      const parentDir = path.dirname(textFilePath);
-      const folderName = path.basename(parentDir);
-      metadata.title = this.formatFolderNameAsTitle(folderName);
-    }
+    // if (!metadata.title) {
+    //   const parentDir = path.dirname(textFilePath);
+    //   const folderName = path.basename(parentDir);
+    //   metadata.title = this.formatFolderNameAsTitle(folderName);
+    // }
 
     const bookMeta = { ...this.defaultMetadata, ...metadata };
     
     const chapters = this.parseManuscriptText(textContent);
+
+console.dir(`   `);
+console.dir(`_____________________________________`);
+console.dir(`manuscript-to-epub: convertToEpub:`);
+console.dir(`   `);
+console.dir(`metadata:`);
+console.dir(metadata);
+console.dir(`^^^^^^^^^^^^^^^^^^^^\n`);
+console.dir(`   `);
+console.dir(`bookMeta:`);
+console.dir(bookMeta);
+console.dir(`^^^^^^^^^^^^^^^^^^^^\n`);
+console.dir(`   `);
     
     const epubBuffer = await this.createEpub3Structure(chapters, bookMeta);
     
@@ -373,10 +386,10 @@ class ManuscriptToEpub extends ToolBase {
     <meta name="dtb:maxPageNumber" content="0"/>
   </head>
   <docTitle>
-    <text>${this.escapeHTML(metadata.title)}</text>
+    <text>${metadata.displayTitle}</text>
   </docTitle>
   <docAuthor>
-    <text>${this.escapeHTML(metadata.author)}</text>
+    <text>${metadata.author}</text>
   </docAuthor>
   <navMap>
 ${navPoints.join('\n')}
@@ -446,10 +459,10 @@ ${paragraphs}
 <package version="3.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" prefix="cc: http://creativecommons.org/ns#">
   <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
     <dc:identifier id="BookId">${uuid}</dc:identifier>
-    <dc:title>${this.escapeHTML(metadata.title)}</dc:title>
-    <dc:creator>${this.escapeHTML(metadata.author)}</dc:creator>
+    <dc:title>${metadata.displayTitle}</dc:title>
+    <dc:creator>${metadata.author}</dc:creator>
     <dc:language>${metadata.language}</dc:language>
-    <dc:publisher>${this.escapeHTML(metadata.publisher)}</dc:publisher>
+    <dc:publisher>${metadata.publisher}</dc:publisher>
     <dc:description>${this.escapeHTML(metadata.description)}</dc:description>
     <dc:date>${date}</dc:date>
     <meta property="dcterms:modified">${new Date().toISOString()}</meta>
@@ -841,9 +854,13 @@ to any document created using the fonts or their derivatives.`;
    * @returns {string} - SVG content as string
    */
   async generateSVGCover(metadata) {
-    const projectName = metadata.title || 'Unknown';
-    const displayTitle = metadata.title || 'Unknown';
+    const projectName = metadata.title || metadata.displayTitle;
+    const displayTitle = metadata.title || metadata.displayTitle;
     const authorName = metadata.author || 'Anonymous';
+
+console.dir(`\ngenerateSVGCover:`);
+console.dir(metadata);
+console.dir(`^^^^^^^^^^^^^^^^^^^^\n`);
 
     // Gradient logic
     const getRandomGradient = () => {
@@ -1118,6 +1135,10 @@ to any document created using the fonts or their derivatives.`;
 </container>`;
     zip.file('META-INF/container.xml', containerXML);
 
+console.dir(`\ncreateEpub3Structure:`);
+console.dir(metadata);
+console.dir(`^^^^^^^^^^^^^^^^^^^^\n`);
+
     // 3. Create advanced SVG cover and save to project directory
     const svgCover = await this.generateSVGCover(metadata);
     // const svgFilePath = path.join(appState.CURRENT_PROJECT_PATH, 'cover.svg');
@@ -1254,10 +1275,10 @@ to any document created using the fonts or their derivatives.`;
 </head>
 <body>
   <section class="title-page" epub:type="titlepage">
-    <h1 class="book-title">${this.escapeHTML(metadata.title)}</h1>
-    <p class="book-author">by ${this.escapeHTML(metadata.author)}</p>
+    <h1 class="book-title">${metadata.displayTitle}</h1>
+    <p class="book-author">by ${metadata.author}</p>
     <div class="publisher-info">
-      <p>${this.escapeHTML(metadata.publisher)}</p>
+      <p>${metadata.publisher}</p>
     </div>
   </section>
 </body>

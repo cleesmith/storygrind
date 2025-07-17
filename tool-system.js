@@ -110,74 +110,7 @@ const PublishManuscript = loadToolClass('publish-manuscript');
 const WritingAITool = require('./writing-ai-tools');
 const ChapterWriter = loadToolClass('chapter-writer');
 
-const TOOL_DEFS = [
-  { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `This tool can test that your AI API key is working properly!  Also, use it to count the approximate tokens and words in text files.`, Class: TokensWordsCounter, options: [
-    {
-      "name": "input_file",
-      "label": "Input File",
-      "type": "file",
-      "description": "Count tokens & words in text file.",
-      "required": true,
-      "default": "manuscript.txt",
-      "filters": [
-        {
-          "name": "Text Files",
-          "extensions": [
-            "txt"
-          ]
-        }
-      ]
-    }
-  ]},
-  { id: 'proofreader_spelling', title: `Proofreader Spelling`, description: `This tool does NOT use your AI api keys!  Since AI's are not useful for spell checking words in entire manuscripts ... too much to ask I suppose.  However this tool is blazingly fast; Moby Dick in under 2 seconds.  Honestly though, most editor software like: Word, Pages, google Docs, Reedsy, Vellum (best!) and so on offer good spell checking already.`, Class: ProofreaderSpelling, options: [
-    {
-      "name": "manuscript_file",
-      "label": "Manuscript File",
-      "type": "file",
-      "description": "Manuscript to spell check.",
-      "required": true,
-      "default": "manuscript.txt",
-      "filters": [
-        {
-          "name": "Text Files",
-          "extensions": ["txt"]
-        }
-      ],
-      "group": "Input Files"
-    }
-  ]},
-  { id: 'docx_comments', title: 'DOCX: Extract Comments as Text', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [
-      {
-        "name": "docx_file",
-        "label": "DOCX File",
-        "type": "file",
-        "description": "Word document file containing comments to extract and match to text",
-        "required": true,
-        "default": "",
-        "filters": [
-          {
-            "name": "DOCX Files",
-            "extensions": ["docx"]
-          }
-        ],
-        "group": "Input Files"
-      }
-  ]},
-  { id: 'epub_converter', title: 'EPUB to TXT Converter', description: 'Converts EPUB files to plain text format while preserving structure', Class: EpubConverter, options: [
-      {
-        "name": "epub_file",
-        "label": "EPUB File",
-        "type": "file",
-        "description": "EPUB file to convert to plain text",
-        "required": true,
-        "filters": [
-          {
-            "name": "EPUB Files",
-            "extensions": ["epub"]
-          }
-        ]
-      }
-  ]},
+/*
   { id: 'manuscript_to_epub', title: 'Manuscript to EPUB Converter', description: 'Converts manuscript text files to EPUB format with full-width layout', Class: ManuscriptToEpub, options: [
       {
         "name": "text_file",
@@ -254,69 +187,43 @@ const TOOL_DEFS = [
         ]
       }
   ]},
-  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html and .epub) to ~/storygrind_projects project folder, generates a generic SVG cover with title/author, then updates the book index.', Class: PublishManuscript, options: [
-      {
-        "name": "manuscript_file",
-        "label": "Manuscript File",
-        "type": "file",
-        "description": "A manuscript file that has corresponding .html and .epub files",
-        "required": true,
-        "default": "manuscript.txt",
-        "filters": [
-          {
-            "name": "Text Files",
-            "extensions": ["txt"]
-          }
-        ]
-      },
-      {
-        "name": "author",
-        "label": "Author",
-        "type": "text",
-        "description": "Author name for the publication",
-        "required": true,
-        "default": ""
-      },
-      {
-        "name": "title",
-        "label": "Title",
-        "type": "text",
-        "description": "Book title (optional - will use formatted project folder name if not provided, also use a ; (semicolon) to create a title with separate lines - ; is removed)",
-        "required": false,
-        "default": ""
-      },
-      {
-        "name": "max_chapters",
-        "label": "Max Chapters in HTML  (EPUB is all chapters)",
-        "type": "select",
-        "description": "Select Chapter 1 as a sample of your writing, or All Chapters for entire manuscript.",
-        "required": false,
-        "default": "1",
-        "choices": [
-          { "value": "1", "label": "Chapter 1" },
-          { "value": "all", "label": "All Chapters" }
-        ]
-      },
-      {
-        "name": "purchase_url",
-        "label": "Purchase URL",
-        "type": "text",
-        "description": "URL for purchasing the book (e.g., Amazon, bookstore link)",
-        "required": false,
-        "default": ""
-      },
-      {
-        "name": "unpublish",
-        "label": "Unpublish this book",
-        "type": "select",
-        "description": "Remove this book from the published index instead of publishing it",
-        "required": false,
-        "default": "no",
-        "choices": [
-          { "value": "no", "label": "No - Update both HTML & EPUB then Publish" },
-          { "value": "yes", "label": "Yes - Unpublish; this does NOT delete covers, HTML, or EPUB files" }
-        ]
-      }
+*/
+
+const TOOL_DEFS = [
+  { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `This tool can test that your AI API key is working properly!  Also, use it to count the approximate tokens and words in text files.`, Class: TokensWordsCounter, options: [
+    {
+      "name": "input_file",
+      "label": "Input File",
+      "type": "file",
+      "description": "Count tokens & words in text file.",
+      "required": true,
+      "default": "manuscript.txt",
+      "filters": [
+        {
+          "name": "Text Files",
+          "extensions": [
+            "txt"
+          ]
+        }
+      ]
+    }
+  ]},
+  { id: 'proofreader_spelling', title: `Proofreader Spelling`, description: `This tool does NOT use your AI api keys!  Since AI's are not useful for spell checking words in entire manuscripts ... too much to ask I suppose.  However this tool is blazingly fast; Moby Dick in under 2 seconds.  Honestly though, most editor software like: Word, Pages, google Docs, Reedsy, Vellum (best!) and so on offer good spell checking already.`, Class: ProofreaderSpelling, options: [
+    {
+      "name": "manuscript_file",
+      "label": "Manuscript File",
+      "type": "file",
+      "description": "Manuscript to spell check.",
+      "required": true,
+      "default": "manuscript.txt",
+      "filters": [
+        {
+          "name": "Text Files",
+          "extensions": ["txt"]
+        }
+      ],
+      "group": "Input Files"
+    }
   ]},
   { id: 'brainstorm', title: `Brainstorm`, description: `Helps generate initial story ideas. Appends more ideas to the existing 'ideas.txt' file.`, Class: WritingAITool, options: [
     {
@@ -424,6 +331,102 @@ const TOOL_DEFS = [
       "default": "world.txt",
       "group": "Input Files"
     },
+  ]},
+  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html and .epub) to ~/storygrind_projects project folder, generates a generic SVG cover with title/author, then updates the book index.', Class: PublishManuscript, options: [
+      {
+        "name": "manuscript_file",
+        "label": "Manuscript File",
+        "type": "file",
+        "description": "A manuscript file that has corresponding .html and .epub files",
+        "required": true,
+        "default": "manuscript.txt",
+        "filters": [
+          {
+            "name": "Text Files",
+            "extensions": ["txt"]
+          }
+        ]
+      },
+      {
+        "name": "author",
+        "label": "Author",
+        "type": "text",
+        "description": "Author name for the publication",
+        "required": true,
+        "default": ""
+      },
+      {
+        "name": "title",
+        "label": "Title",
+        "type": "text",
+        "description": "Book title (optional - will use formatted project folder name if not provided, also use a ; (semicolon) to create a title with separate lines - ; is removed)",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "max_chapters",
+        "label": "Max Chapters in HTML  (EPUB has all chapters)",
+        "type": "select",
+        "description": "Select Chapter 1 as a sample of your writing, or All Chapters for entire manuscript.",
+        "required": false,
+        "default": "1",
+        "choices": [
+          { "value": "1", "label": "Chapter 1" },
+          { "value": "all", "label": "All Chapters" }
+        ]
+      },
+      {
+        "name": "purchase_url",
+        "label": "Purchase URL",
+        "type": "text",
+        "description": "URL for purchasing the book (e.g., Amazon, bookstore link)",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "unpublish",
+        "label": "Unpublish this book",
+        "type": "select",
+        "description": "Remove this book from the published index instead of publishing it",
+        "required": false,
+        "default": "no",
+        "choices": [
+          { "value": "no", "label": "No - Update both HTML & EPUB then Publish" },
+          { "value": "yes", "label": "Yes - Unpublish; this does NOT delete covers, HTML, or EPUB files" }
+        ]
+      }
+  ]},
+  { id: 'docx_comments', title: 'DOCX: Extract Comments as Text', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [
+      {
+        "name": "docx_file",
+        "label": "DOCX File",
+        "type": "file",
+        "description": "Word document file containing comments to extract and match to text",
+        "required": true,
+        "default": "",
+        "filters": [
+          {
+            "name": "DOCX Files",
+            "extensions": ["docx"]
+          }
+        ],
+        "group": "Input Files"
+      }
+  ]},
+  { id: 'epub_converter', title: 'EPUB to TXT Converter', description: 'Converts EPUB files to plain text format while preserving structure', Class: EpubConverter, options: [
+      {
+        "name": "epub_file",
+        "label": "EPUB File",
+        "type": "file",
+        "description": "EPUB file to convert to plain text",
+        "required": true,
+        "filters": [
+          {
+            "name": "EPUB Files",
+            "extensions": ["epub"]
+          }
+        ]
+      }
   ]}];
 
 module.exports = TOOL_DEFS;

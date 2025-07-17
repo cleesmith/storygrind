@@ -410,14 +410,14 @@ ${chaptersHTML}
    * @returns {string} Complete HTML document
    */
   processStory(manuscriptPath, manuscriptText, storyTitle=options.title) {
-    if (storyTitle.trim().length <= 0) {
-      storyTitle = this.extractStoryTitle(manuscriptPath);
-    } else {
-      storyTitle = this.formatProperCase(storyTitle);
-    }
+    // if (storyTitle.trim().length <= 0) {
+    //   storyTitle = this.extractStoryTitle(manuscriptPath);
+    // } else {
+    //   storyTitle = this.formatProperCase(storyTitle);
+    // }
     const chapters = this.parseManuscript(manuscriptText);
-    const titleAuthor = `${storyTitle} by ${this.formatProperCase(appState.AUTHOR_NAME)}`;
-    const titleAuthorDisplay = `${storyTitle} &nbsp;<small><em>by ${this.formatProperCase(appState.AUTHOR_NAME)}</em></small>`;
+    const titleAuthor = `${storyTitle.join(' ')} by ${this.formatProperCase(appState.AUTHOR_NAME)}`;
+    const titleAuthorDisplay = `${storyTitle.join(' ')} &nbsp;<small><em>by ${this.formatProperCase(appState.AUTHOR_NAME)}</em></small>`;
     return this.generateHTML(titleAuthor, titleAuthorDisplay, chapters);
   }
 
