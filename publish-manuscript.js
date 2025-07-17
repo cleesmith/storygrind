@@ -8,6 +8,7 @@ const ToolBase = require('./tool-base');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
 const path = require('path');
+const { spawn } = require('child_process');
 const appState = require('./state.js');
 const ManuscriptTextToHtml = require('./manuscript-to-html');
 const ManuscriptToEpub = require('./manuscript-to-epub');
@@ -143,6 +144,37 @@ class PublishManuscript extends ToolBase {
         if (fs.existsSync(htmlPath)) {
           editableFiles.push(htmlPath);
         }
+      }
+
+      const filePath = path.join(appState.PROJECTS_DIR, 'index.html');
+      try {
+        let child;
+        if (process.platform === 'darwin') {
+          // macOS - open command uses default browser
+          child = spawn('open', [filePath], {
+            detached: true,
+            stdio: 'ignore'
+          });
+        } else if (process.platform === 'win32') {
+          // Windows - start command opens with default program
+          child = spawn('start', [filePath], {
+            detached: true,
+            stdio: 'ignore',
+            shell: true
+          });
+        } else {
+          // Linux/Unix - xdg-open uses default application
+          child = spawn('xdg-open', [filePath], {
+            detached: true,
+            stdio: 'ignore'
+          });
+        }
+        
+        if (child) {
+          child.unref();
+        }
+      } catch (error) {
+        // Fail silently as requested
       }
 
       return {
