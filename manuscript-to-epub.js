@@ -1125,13 +1125,12 @@ to any document created using the fonts or their derivatives.`;
 
     try {
       fs.writeFileSync(svgFilePath, svgCover);
-      console.dir({
-          afterWrite_exists: fs.existsSync(svgFilePath),
-          fileSize: fs.existsSync(svgFilePath) ? fs.statSync(svgFilePath).size : 'NOT FOUND'
-      });
+      // console.dir({
+      //     afterWrite_exists: fs.existsSync(svgFilePath),
+      //     fileSize: fs.existsSync(svgFilePath) ? fs.statSync(svgFilePath).size : 'NOT FOUND'
+      // });
     } catch (err) {
         console.error('Write failed:', err.message);
-        console.dir('Write failed:', err.message);
     }
     
     // 4. Convert SVG to JPG and wait for completion

@@ -268,7 +268,6 @@ runBtn.addEventListener('click', async () => {
     window.electronAPI.onToolFinished((result) => {
       // Only process completion for the current run
       if (result.runId === currentRunId) {
-        console.log('Tool finished:', result);
         isRunning = false;
         canClose = true; // Allow closing the window again
         stopTimer();
@@ -299,7 +298,7 @@ runBtn.addEventListener('click', async () => {
         setupCompleted = false;        
 
         // Add completion message to output area
-        outputElement.textContent += `\n\nTool finished with exit code: ${result.code}`;
+        // outputElement.textContent += `\n\nTool finished with exit code: ${result.code}`;
         
         // Handle file selector
         if (editBtn.style.display !== 'none') {

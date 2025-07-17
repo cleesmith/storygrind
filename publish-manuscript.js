@@ -132,9 +132,6 @@ class PublishManuscript extends ToolBase {
       
       // Update book index and get the HTML file used
       const htmlFile = await this.updateBookIndex(projectName, displayTitle, manuscriptBaseName, selectedFile, options.purchase_url || '#');
-
-      this.emitOutput(`\nPublication complete!\n`);
-      this.emitOutput(`\nView ${appState.PROJECTS_DIR} index.html\n`);
       
       // Only return HTML file for editing
       const editableFiles = [];
@@ -147,35 +144,50 @@ class PublishManuscript extends ToolBase {
       }
 
       const filePath = path.join(appState.PROJECTS_DIR, 'index.html');
-      try {
-        let child;
-        if (process.platform === 'darwin') {
-          // macOS - open command uses default browser
-          child = spawn('open', [filePath], {
-            detached: true,
-            stdio: 'ignore'
-          });
-        } else if (process.platform === 'win32') {
-          // Windows - start command opens with default program
-          child = spawn('start', [filePath], {
-            detached: true,
-            stdio: 'ignore',
-            shell: true
-          });
-        } else {
-          // Linux/Unix - xdg-open uses default application
-          child = spawn('xdg-open', [filePath], {
-            detached: true,
-            stdio: 'ignore'
-          });
+      this.emitOutput(`\n\t***************************************************************\n`);
+      this.emitOutput(`\t*                 PUBLISHING COMPLETED\n`);
+      this.emitOutput(`\t*\n`);
+      this.emitOutput(`\t* \tSTANDBY, your web browser will open in:\n`);
+      this.emitOutput(`\t*\n`);
+      this.emitOutput(`\t* \t\t-->>>  6 seconds  <<<--\n`);
+      this.emitOutput(`\t*\n`);
+      this.emitOutput(`\t* \tto show your book entry with cover, HTML, EPUB at:\n`);
+      this.emitOutput(`\t*\n`);
+      this.emitOutput(`\t* \t\t${filePath}\n`);
+      this.emitOutput(`\t*\n`);
+      this.emitOutput(`\t***************************************************************\n`);
+
+      setTimeout(() => {
+        try {
+          let child;
+          if (process.platform === 'darwin') {
+            // macOS - open command uses default browser
+            child = spawn('open', [filePath], {
+              detached: true,
+              stdio: 'ignore'
+            });
+          } else if (process.platform === 'win32') {
+            // Windows - start command opens with default program
+            child = spawn('start', [filePath], {
+              detached: true,
+              stdio: 'ignore',
+              shell: true
+            });
+          } else {
+            // Linux/Unix - xdg-open uses default application
+            child = spawn('xdg-open', [filePath], {
+              detached: true,
+              stdio: 'ignore'
+            });
+          }
+          
+          if (child) {
+            child.unref();
+          }
+        } catch (error) {
+          // Fail silently as requested
         }
-        
-        if (child) {
-          child.unref();
-        }
-      } catch (error) {
-        // Fail silently as requested
-      }
+      }, 6000);
 
       return {
         success: true,
@@ -638,8 +650,6 @@ class PublishManuscript extends ToolBase {
 
     // Write updated index
     await fsPromises.writeFile(bookIndexPath, indexContent, 'utf8');
-    
-    this.emitOutput(`Added ${displayTitle} to book index\n`);
     
     // Return the HTML file for editing
     return htmlFile;
