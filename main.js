@@ -2042,8 +2042,9 @@ function setupIPCHandlers() {
           manuscriptText += "\n\n\n";
         }
         
-        // Add chapter title
-        manuscriptText += ch.title;
+        // Add chapter title with numbering if not already present
+        const formattedTitle = ch.title.match(/^Chapter\s+\d+/i) ? ch.title : `Chapter ${idx + 1}: ${ch.title}`;
+        manuscriptText += formattedTitle;
         
         // One newline after chapter title
         manuscriptText += "\n\n";
