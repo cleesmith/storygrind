@@ -1139,8 +1139,11 @@ to any document created using the fonts or their derivatives.`;
     
     this.emitOutput(`Converting SVG to JPG...\n`);
     
+    // Get the electron executable path - works cross-platform
+    const electronPath = process.execPath;
+    
     await new Promise((resolve, reject) => {
-      const converterProcess = spawn('npx', ['electron', svgConverterPath, appState.CURRENT_PROJECT_PATH], {
+      const converterProcess = spawn(electronPath, [svgConverterPath, appState.CURRENT_PROJECT_PATH], {
         stdio: 'pipe'
       });
       
