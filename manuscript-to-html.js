@@ -199,6 +199,14 @@ class ManuscriptTextToHtml extends ToolBase {
       chapters.push(currentChapter);
     }
     
+    // Handle non-chaptered content like short stories
+    if (chapters.length === 0) {
+      const lines = manuscriptText.split('\n').filter(line => line.trim());
+      const title = lines[0] && lines[0].trim().toUpperCase() === lines[0].trim() ? lines[0] : "Story";
+      const content = this.formatContent(lines.slice(title === lines[0] ? 1 : 0));
+      chapters.push({ number: 1, title, content });
+    }
+    
     return chapters;
   }
 
