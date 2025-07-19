@@ -6,7 +6,7 @@ INTRODUCTION
 
 Hey everyone! 
 Today I'm excited to show you one of the most powerful features in 
-StoryGrind version 6 - the Publish Manuscript feature. 
+StoryGrind version 6 - the "Publish Manuscript" feature. 
 
 Now, even though StoryGrind is really focused heavily on the editing of 
 full manuscripts - that's its bread and butter - with the addition of 

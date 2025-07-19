@@ -5,7 +5,7 @@
 // npm install
 // npm run make 
 
-// Windows_StoryGrind_v6.0.0_July_18_2025.zip
+// Windows_win32_x64_StoryGrind_v6.0.0_July_18_2025.zip
 
 
 // previously:
