@@ -337,7 +337,7 @@ const TOOL_DEFS = [
         "name": "manuscript_file",
         "label": "Manuscript File",
         "type": "file",
-        "description": "A manuscript file that has corresponding .html and .epub files",
+        "description": "Select a manuscript file to be used for creating both .html and .epub files for publishing",
         "required": true,
         "default": "manuscript.txt",
         "filters": [
@@ -359,13 +359,13 @@ const TOOL_DEFS = [
         "name": "title",
         "label": "Title",
         "type": "text",
-        "description": "Book title (optional - will use formatted project folder name if not provided, also use a ; (semicolon) to create a title with separate lines - ; is removed)",
+        "description": "Book title &nbsp;&nbsp; is optional - and will use the formatted project folder name if not provided.<br>Also, you may use a <b>;</b> (<i>semicolon</i>) between words to separate a title into multiple lines.",
         "required": false,
         "default": ""
       },
       {
         "name": "max_chapters",
-        "label": "Max Chapters in HTML  (EPUB has all chapters)",
+        "label": "Max Chapters revealed in HTML  (EPUB always has entire manuscript)",
         "type": "select",
         "description": "Select Chapter 1 as a sample of your writing, or All Chapters for entire manuscript.",
         "required": false,
@@ -376,10 +376,23 @@ const TOOL_DEFS = [
         ]
       },
       {
+        "name": "show_what",
+        "label": "Show HTML and/or EPUB",
+        "type": "select",
+        "description": "What to make visible on the list of books index.html page. <br> Note that both <b>HTML</b> and <b>EPUB</b> are always created for publishing somewhere.",
+        "required": false,
+        "default": "both",
+        "choices": [
+          { "value": "both", "label": "Show both HTML and EPUB files - make both visible" },
+          { "value": "html", "label": "Show HTML only and make visible" },
+          { "value": "epub", "label": "Show EPUB only and make visible" }
+        ]
+      },
+      {
         "name": "purchase_url",
         "label": "Purchase URL",
         "type": "text",
-        "description": "URL for purchasing the book (e.g., Amazon, bookstore link)",
+        "description": "URL for purchasing options (e.g., Amazon, bookstore link)",
         "required": false,
         "default": ""
       },
@@ -392,7 +405,7 @@ const TOOL_DEFS = [
         "default": "no",
         "choices": [
           { "value": "no", "label": "No - Update both HTML & EPUB then Publish" },
-          { "value": "yes", "label": "Yes - Unpublish; this does NOT delete covers, HTML, or EPUB files" }
+          { "value": "yes", "label": "Yes - Unpublish; this does NOT delete: covers, HTML, or EPUB files" }
         ]
       }
   ]},

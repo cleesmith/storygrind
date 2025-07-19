@@ -1,0 +1,197 @@
+
+StoryGrind version 6 - Your Own Private Publishing House
+
+
+INTRODUCTION
+
+Hey everyone! 
+Today I'm excited to show you one of the most powerful features in 
+StoryGrind version 6 - the Publish Manuscript feature. 
+
+Now, even though StoryGrind is really focused heavily on the editing of 
+full manuscripts - that's its bread and butter - with the addition of 
+this new publishing feature, it's become a complete publishing pipeline. 
+It's a bit like having your own Random House - your own publishing house - 
+with you totally in control from start to finish. 
+Of course, promo and marketing is still on you, like always, but the 
+entire production pipeline is now at your fingertips.
+
+If you're an author who's tired of the complicated process of converting 
+your manuscript into different formats, this is going to blow your mind. 
+StoryGrind takes your plain text manuscript and transforms it into a 
+complete published package - HTML for web reading, EPUB for e-readers, 
+and even generates professional cover images. 
+Let me show you exactly how it works.
+
+
+SETTING THE SCENE
+
+So here I have StoryGrind open on the main screen, and I've been 
+working on my latest novel called "Spud" - it's about under estimating people. 
+I've finished writing, done my editing, and now I'm ready to publish. 
+
+[click on Finder icon]
+You can see I have my manuscript.txt file here in the project. 
+This is just a plain text file with my chapters, nothing fancy. 
+No special formatting needed, no complex markup languages to learn. 
+Just your story, written the way you want it.
+
+STEP 1: SELECT PUBLISH MANUSCRIPT
+
+First, on the main screen here, I'm going to select "Publish Manuscript" 
+from the list of tools. There it is - I'll click on that to select it.
+
+STEP 2: SETUP & RUN
+
+Now I see the Setup & Run button appear. 
+This is StoryGrind's two-step process that lets you configure 
+everything before running the tool. 
+I'll click on "Setup & Run".
+
+STEP 3: CONFIGURATION WITH SETUP
+
+Great! Now I'll click the "Setup" button. 
+This opens the configuration window where I can set all my publishing options.
+
+First, it's asking for the manuscript file - you can see it 
+already has manuscript.txt as the default. 
+That's perfect, so I'll leave that selected.
+
+Next, it asks for the title. I can format this with semicolons if 
+I want multiple lines on the cover. 
+So I'll type "Spud; Endeavors to Persevere" - this will create a 
+two-line title on my book cover. Semicolons are line dividers in titles.
+
+Author name - I'll put my name here. 
+This gets embedded in the metadata of both the HTML and EPUB files, 
+which is great for proper attribution.
+
+And here's something really cool - I can add a purchase URL. 
+This creates a BUY button that links directly to wherever I'm 
+selling my book - Amazon, my website, Gumroad, wherever. 
+I'll add my book's Amazon link here.
+
+Perfect! I'll click OK to use these settings for the next Run.
+
+STEP 4: RUN THE PUBLISHER
+
+Now comes the exciting part. 
+I'll click the "Run" button and watch what happens...
+
+Look at the output window! 
+StoryGrind is working its magic and it's fast too. 
+It's:
+- Finding my manuscript.txt file
+- Converting it to HTML with proper chapter navigation
+- Generating a professional book cover image called cover.jpg (and .svg)
+- Creating an EPUB file with embedded cover art and all the proper metadata
+- Updating the books index page with my new publication
+
+See those status messages flying by? 
+It's creating the HTML version first, then the EPUB with the 
+cover image embedded. 
+Everything is being generated fresh from my source text.
+
+STEP 5: THE 6-SECOND COUNTDOWN
+
+And here's my favorite part - look at this message! 
+See all those asterisks? 
+StoryGrind is telling me:
+
+"PUBLISHING COMPLETED"
+"STANDBY, your web browser will open in:"
+"-->>> 6 seconds <<<--"
+
+The countdown lets you know exactly when you'll see your published work. 
+No wondering if something went wrong, no manually searching for files. 
+StoryGrind handles everything.
+
+5... 4... 3... 2... 1...
+
+THE PUBLISHED RESULT
+
+Boom! 
+My browser just opened automatically to the books index page, and 
+there's my book - "Spud" - sitting right there with its 
+semi-pro random geometric shapes cover images (both .svg and .jpg)!
+And the correct size/shape for Amazon KDP and e-readers.
+
+See those three buttons under the cover image? 
+- HTML button - readers can click this to read my book directly in their browser
+- EBOOK button - this downloads the EPUB file for e-readers
+- BUY button - this takes anyone to your Amazon, or Book Funnel, or 
+			   where ever page to purchase
+
+Let me click on the HTML version... and there it is! 
+My complete novel, formatted beautifully with chapter navigation, proper 
+typography, and a reading experience that works on any device. 
+Readers can enjoy this on their phone, tablet, or desktop.
+
+ADDITIONAL FEATURES
+
+Notice the dark mode toggle in the footer? 
+Readers can switch between light and dark themes for 
+comfortable reading any time of day. 
+The page is also fully responsive - it adapts perfectly whether 
+someone's reading on a massive desktop monitor or a small phone screen.
+
+And if I go back to the index page, you'll see how it 
+organizes multiple books. As I publish more manuscripts, they all 
+appear here in this beautiful grid layout. 
+It's like having your own personal bookstore!
+
+THE COMPLETE WORKFLOW RECAP
+
+So let's recap the workflow:
+1. First, select a wrting Project
+2. Select "Publish Manuscript" under "Run a non-AI tool:"
+3. Click "Setup & Run"
+4. Click "Setup" and enter: title, author, and purchase link
+5. Click "Run" to start the publishing process
+6. Wait 6 seconds for your browser to automatically open and 
+   show your published book
+
+That's it! 
+Six simple steps from manuscript to published book.
+Well, published locally on your computer, in a future video 
+we will see how to publish your books for free using 
+Github Pages. Of course, if you already have a website you 
+copy these published files to there as well.
+
+UNPUBLISHING OPTION
+
+Oh, and if you ever need to remove a book - maybe for a revision or 
+if you've sold exclusive rights somewhere - StoryGrind has you covered. 
+Just select "Publish Manuscript" again, but in the Setup, there's an 
+unpublish option that cleanly removes your book from the index 
+while keeping all your files safe in your project folder.
+It only removes the book from the index.html page.
+
+THE AUTHOR'S ADVANTAGE
+
+Think about what just happened here. 
+In just six simple steps, I went from a plain text manuscript 
+to a professionally published book available in multiple formats. 
+No expensive software, no complex conversion tools, no hiring formatters. 
+Just Setup & Run and you're done.
+
+This is perfect for:
+- Self-published authors who want professional results
+- Writers who can not afford Vellum just to publish an ebook
+- Writers testing different versions of their work
+- Anyone creating anthologies or short story collections
+- Authors who want to share preview chapters with beta readers
+- Writers building their own digital bookshelf
+
+WRAPPING UP
+
+And that's the Publish Manuscript feature in StoryGrind version 6! 
+From manuscript to published book in seconds with a simple 
+Setup & Run workflow. 
+Your readers get a beautiful reading experience, you get 
+professional formats without the hassle, and everyone wins.
+
+Have you tried StoryGrind yet? 
+Let me know in the comments what kind of books you're working on.
+
+Thanks for watching, and happy writing!

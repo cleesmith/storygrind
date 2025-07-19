@@ -454,7 +454,9 @@ async function generateOptionsForm(options) {
           if (option.description) {
             const description = document.createElement('p');
             description.className = 'option-description';
-            description.textContent = option.description;
+            // does not honor <br>:
+            // description.textContent = option.description;
+            description.innerHTML = option.description;
             formGroup.appendChild(description);
           }
         }

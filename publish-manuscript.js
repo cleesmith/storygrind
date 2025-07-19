@@ -102,13 +102,9 @@ class PublishManuscript extends ToolBase {
         return await this.unpublishBook(projectPath, options);
       }
 
-      this.emitOutput(`Project: ${appState.CURRENT_PROJECT}\n`);
-
       // Show only the selected file
       const selectedFile = options.manuscript_file;
       const selectedFileName = path.basename(selectedFile);
-      
-      this.emitOutput(`\nUsing manuscript file: ${selectedFileName}\n`);
 
       // Extract project name from path
       const projectName = path.basename(projectPath);
@@ -116,11 +112,10 @@ class PublishManuscript extends ToolBase {
       // Use user-provided title or do formatted project name
       const caseTitle = this.formatProperCase(options.title) || this.formatProperCase(projectName);
       const displayTitle = this.splitTitle(caseTitle);
+      const showTitle = this.splitTitle(caseTitle).join(' ');
       
       // Get manuscript base name from options
       const manuscriptBaseName = selectedFile ? path.basename(selectedFile, path.extname(selectedFile)) : 'manuscript';
-
-      this.emitOutput(`\nTitle: ${displayTitle}\n`);
 
       appState.setAuthorName(options.author);
 
@@ -131,7 +126,7 @@ class PublishManuscript extends ToolBase {
       const manuscriptFiles = await this.findManuscriptFiles(projectPath);
       
       // Update book index and get the HTML file used
-      const htmlFile = await this.updateBookIndex(projectName, displayTitle, manuscriptBaseName, selectedFile, options.purchase_url || '#');
+      const htmlFile = await this.updateBookIndex(projectName, showTitle, manuscriptBaseName, selectedFile, options.purchase_url || '#', options.show_what);
       
       // Only return HTML file for editing
       const editableFiles = [];
@@ -142,6 +137,10 @@ class PublishManuscript extends ToolBase {
           editableFiles.push(htmlPath);
         }
       }
+
+      this.emitOutput(`Project: ${appState.CURRENT_PROJECT}\n`);
+      this.emitOutput(`\nUsing manuscript file: ${selectedFileName}\n`);
+      this.emitOutput(`\nTitle: ${showTitle}\n`);
 
       const filePath = path.join(appState.PROJECTS_DIR, 'index.html');
       this.emitOutput(`\n\t***************************************************************\n`);
@@ -230,9 +229,10 @@ class PublishManuscript extends ToolBase {
    * @param {string} manuscriptBaseName - Base name of manuscript file
    * @param {string} selectedFile - Selected manuscript file
    * @param {string} purchaseUrl - Purchase URL for the BUY button
+   * @param {string} showWhat - Controls which files to show: 'both', 'html_only', 'epub_only'
    * @returns {Promise<void>}
    */
-  async updateBookIndex(projectName, displayTitle, manuscriptBaseName, selectedFile, purchaseUrl) {
+  async updateBookIndex(projectName, displayTitle, manuscriptBaseName, selectedFile, purchaseUrl, showWhat) {
     const bookIndexPath = path.join(appState.PROJECTS_DIR, 'index.html');
     const projectDir = path.join(appState.PROJECTS_DIR, projectName);
 
@@ -612,14 +612,14 @@ class PublishManuscript extends ToolBase {
     <div class="button-container">
 `;
     
-    // Only add HTML button if HTML file exists
-    if (htmlFile) {
+    // Only add HTML button if HTML file exists and visibility allows it
+    if (htmlFile && (showWhat === 'both' || showWhat === 'html')) {
       newProjectEntry += `      <a href="${projectName}/${htmlFile}" class="book-button html-button" title="Read '${displayTitle}' online">HTML</a>
 `;
     }
     
-    // Only add EPUB button if EPUB file exists
-    if (epubFile) {
+    // Only add EPUB button if EPUB file exists and visibility allows it
+    if (epubFile && (showWhat === 'both' || showWhat === 'epub')) {
       newProjectEntry += `      <a href="${projectName}/${epubFile}" class="book-button ebook-button" title="Download '${displayTitle}' EPUB" download>EBOOK</a>
 `;
     }
