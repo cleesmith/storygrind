@@ -148,7 +148,7 @@ class PublishManuscript extends ToolBase {
       this.emitOutput(`\t*\n`);
       this.emitOutput(`\t* \tSTANDBY, your web browser will open in:\n`);
       this.emitOutput(`\t*\n`);
-      this.emitOutput(`\t* \t\t-->>>  6 seconds  <<<--\n`);
+      this.emitOutput(`\t* \t\t-->>>  3 seconds  <<<--\n`);
       this.emitOutput(`\t*\n`);
       this.emitOutput(`\t* \tto show your book entry with cover, HTML, EPUB at:\n`);
       this.emitOutput(`\t*\n`);
@@ -186,7 +186,7 @@ class PublishManuscript extends ToolBase {
         } catch (error) {
           // Fail silently as requested
         }
-      }, 6000);
+      }, 3000);
 
       return {
         success: true,

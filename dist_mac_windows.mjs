@@ -87,8 +87,10 @@ import { sign } from '@electron/osx-sign'
 const opts = {
   // silicon:
   app: 'out/StoryGrind-darwin-arm64/StoryGrind.app',
+
   // intel:
   // app: 'out/storygrind-darwin-x64/storygrind.app',
+
   // Required for notarization
   optionsForFile: (filePath) => {
     return {
