@@ -91,6 +91,14 @@ const opts = {
   // intel:
   // app: 'out/storygrind-darwin-x64/storygrind.app',
 
+  // rm -rf out/
+  // npm run package
+  // node dist_mac_windows.mjs
+  // ditto -c -k --keepParent "out/StoryGrind-darwin-x64/StoryGrind.app" "StoryGrind.zip"
+  // xcrun notarytool submit "StoryGrind.zip" --keychain-profile "notarytool-profile" --wait
+  // xcrun stapler staple "out/StoryGrind-darwin-x64/StoryGrind.app"
+  // create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Intel_x64_StoryGrind_v6.0.0_July_18_2025.dmg" "out/StoryGrind-darwin-x64/StoryGrind.app"
+
   // Required for notarization
   optionsForFile: (filePath) => {
     return {
