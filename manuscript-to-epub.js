@@ -1133,32 +1133,16 @@ to any document created using the fonts or their derivatives.`;
         console.error('Write failed:', err.message);
     }
     
-    // 4. Convert SVG to JPG and wait for completion
-    const { spawn } = require('child_process');
-    const svgConverterPath = path.join(__dirname, 'svg-to-jpg-standalone.js');
-    
+    // 4. Convert SVG to JPG using integrated conversion
     this.emitOutput(`Converting SVG to JPG...\n`);
     
-    // Get the electron executable path - works cross-platform
-    const electronPath = process.execPath;
-    
-    await new Promise((resolve, reject) => {
-      const converterProcess = spawn(electronPath, [svgConverterPath, appState.CURRENT_PROJECT_PATH], {
-        stdio: 'pipe'
-      });
-      
-      converterProcess.on('close', (code) => {
-        if (code === 0) {
-          resolve();
-        } else {
-          reject(new Error(`Converter process exited with code ${code}`));
-        }
-      });
-      
-      converterProcess.on('error', (error) => {
-        reject(error);
-      });
-    });
+    try {
+      await this.convertSVGToJPG(svgFilePath, path.join(appState.CURRENT_PROJECT_PATH, 'cover.jpg'));
+      this.emitOutput(`SVG to JPG conversion completed successfully\n`);
+    } catch (error) {
+      this.emitOutput(`Warning: SVG to JPG conversion failed: ${error.message}\n`);
+      this.emitOutput(`Will use SVG cover as fallback\n`);
+    }
     
     // Verify both files exist after conversion
     let jpgCoverPath = path.join(appState.CURRENT_PROJECT_PATH, 'cover.jpg');
@@ -1295,6 +1279,103 @@ ${tocItems}
   </section>
 </body>
 </html>`;
+  }
+
+  /**
+   * Convert SVG to JPG using BrowserWindow renderer process
+   * @param {string} svgFilePath - Path to the SVG file
+   * @param {string} jpgFilePath - Path where JPG should be saved
+   * @returns {Promise<boolean>} - Success status
+   */
+  async convertSVGToJPG(svgFilePath, jpgFilePath) {
+    const { BrowserWindow } = require('electron');
+    
+    try {
+      this.emitOutput(`Creating conversion window...\n`);
+      
+      // Create a hidden browser window for SVG rendering
+      const converterWindow = new BrowserWindow({
+        width: 1600,
+        height: 2560,
+        show: false, // Hidden window
+        webPreferences: {
+          nodeIntegration: true,
+          contextIsolation: false
+        }
+      });
+
+      // Load about:blank
+      await converterWindow.loadURL('about:blank');
+      
+      this.emitOutput(`Reading SVG file: ${svgFilePath}\n`);
+      
+      // Read SVG content
+      const svgContent = fs.readFileSync(svgFilePath, 'utf8');
+      
+      this.emitOutput(`Converting SVG to JPG...\n`);
+      
+      // Execute JavaScript in the renderer process to convert SVG to JPG
+      const jpgBase64 = await converterWindow.webContents.executeJavaScript(`
+        new Promise((resolve, reject) => {
+          try {
+            const svgBlob = new Blob([${JSON.stringify(svgContent)}], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(svgBlob);
+            const img = new Image();
+            
+            img.onload = function() {
+              try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1600;
+                canvas.height = 2560;
+                const ctx = canvas.getContext('2d');
+                
+                // Fill with white background
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 1600, 2560);
+                
+                // Draw the SVG image
+                ctx.drawImage(img, 0, 0, 1600, 2560);
+                
+                URL.revokeObjectURL(url);
+                
+                const dataURL = canvas.toDataURL('image/jpeg', 0.94);
+                const base64Data = dataURL.replace(/^data:image\\/jpeg;base64,/, '');
+                resolve(base64Data);
+              } catch (error) {
+                reject(error);
+              }
+            };
+            
+            img.onerror = () => reject(new Error('Failed to load SVG'));
+            img.src = url;
+          } catch (error) {
+            reject(error);
+          }
+        })
+      `);
+      
+      // Close the conversion window
+      converterWindow.close();
+      
+      this.emitOutput(`Writing JPG file: ${jpgFilePath}\n`);
+      
+      // Save JPG file
+      fs.writeFileSync(jpgFilePath, Buffer.from(jpgBase64, 'base64'));
+      
+      // Verify the file was created
+      if (!fs.existsSync(jpgFilePath)) {
+        throw new Error('JPEG file was not created successfully');
+      }
+      
+      const fileSize = fs.statSync(jpgFilePath).size;
+      this.emitOutput(`JPG file created successfully (${fileSize} bytes)\n`);
+      
+      return true;
+      
+    } catch (error) {
+      this.emitOutput(`Error in SVG to JPG conversion: ${error.message}\n`);
+      throw error;
+    }
   }
 }
 
