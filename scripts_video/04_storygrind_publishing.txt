@@ -93,7 +93,7 @@ It's creating the HTML version first, then the EPUB with the
 cover image embedded. 
 Everything is being generated fresh from my source text.
 
-STEP 5: THE 6-SECOND COUNTDOWN
+STEP 5: THE 3-SECOND COUNTDOWN
 
 And here's my favorite part - look at this message! 
 See all those asterisks? 
@@ -101,7 +101,7 @@ StoryGrind is telling me:
 
 "PUBLISHING COMPLETED"
 "STANDBY, your web browser will open in:"
-"-->>> 6 seconds <<<--"
+"-->>> 3 seconds <<<--"
 
 The countdown lets you know exactly when you'll see your published work. 
 No wondering if something went wrong, no manually searching for files. 
@@ -149,7 +149,7 @@ So let's recap the workflow:
 3. Click "Setup & Run"
 4. Click "Setup" and enter: title, author, and purchase link
 5. Click "Run" to start the publishing process
-6. Wait 6 seconds for your browser to automatically open and 
+3. Wait 3 seconds for your browser to automatically open and 
    show your published book
 
 That's it! 
