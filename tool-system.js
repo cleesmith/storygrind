@@ -332,12 +332,12 @@ const TOOL_DEFS = [
       "group": "Input Files"
     },
   ]},
-  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html and .epub) to ~/storygrind_projects project folder, generates a generic SVG cover with title/author, then updates the book index.', Class: PublishManuscript, options: [
+  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html, .epub, .pdf) to ~/storygrind_projects Selected Project folder, generates 2 cover files with title/author, then updates the book index.', Class: PublishManuscript, options: [
       {
         "name": "manuscript_file",
         "label": "Manuscript File",
         "type": "file",
-        "description": "Select a manuscript file to be used for creating both .html and .epub files for publishing",
+        "description": "Select a manuscript file to be used for creating .html, .epub, and .pdf files for publishing",
         "required": true,
         "default": "manuscript.txt",
         "filters": [
@@ -365,7 +365,7 @@ const TOOL_DEFS = [
       },
       {
         "name": "max_chapters",
-        "label": "Max Chapters revealed in HTML  (EPUB always has entire manuscript)",
+        "label": "Max Chapters revealed in HTML",
         "type": "select",
         "description": "Select Chapter 1 as a sample of your writing, or All Chapters for entire manuscript.",
         "required": false,
@@ -379,20 +379,20 @@ const TOOL_DEFS = [
         "name": "show_what",
         "label": "Show HTML and/or EPUB",
         "type": "select",
-        "description": "What to make visible on the list of books index.html page. <br> Note that both <b>HTML</b> and <b>EPUB</b> are always created for publishing somewhere.",
+        "description": "What to make visible on the list of books index.html page. <br> Note that <b>HTML</b>, <b>EPUB</b>, and <b>PDF</b> (<i>never visible</i>) are always created for publishing somewhere.",
         "required": false,
         "default": "both",
         "choices": [
-          { "value": "both", "label": "Show both HTML and EPUB files - make both visible" },
-          { "value": "html", "label": "Show HTML only and make visible" },
-          { "value": "epub", "label": "Show EPUB only and make visible" }
+          { "value": "both", "label": "Show both HTML and EPUB files - make both clickable/visible" },
+          { "value": "html", "label": "Show HTML only" },
+          { "value": "epub", "label": "Show EPUB only" }
         ]
       },
       {
         "name": "purchase_url",
         "label": "Purchase URL",
         "type": "text",
-        "description": "URL for purchasing options (e.g., Amazon, bookstore link)",
+        "description": "URL for purchasing (e.g., Amazon, bookstore link)",
         "required": false,
         "default": ""
       },
@@ -400,12 +400,12 @@ const TOOL_DEFS = [
         "name": "unpublish",
         "label": "Unpublish this book",
         "type": "select",
-        "description": "Remove this book from the published index instead of publishing it",
+        "description": "Remove this book from the published index; not clickable/visible",
         "required": false,
         "default": "no",
         "choices": [
-          { "value": "no", "label": "No - Update both HTML & EPUB then Publish" },
-          { "value": "yes", "label": "Yes - Unpublish; this does NOT delete: covers, HTML, or EPUB files" }
+          { "value": "no", "label": "No - Update HTML, EPUB, and PDF then Publish" },
+          { "value": "yes", "label": "Yes - Unpublish (this does NOT delete: covers, HTML, EPUB, or PDF files)" }
         ]
       }
   ]},
