@@ -98,7 +98,8 @@ class ManuscriptToEpub extends ToolBase {
       let dir = path.dirname(outputPath);
       let files = await fsPromises.readdir(dir);
 
-      // Remove all .epub files in the output directory before writing the new one
+      // Remove all .epub files in the output directory 
+      // before writing the new one
       for (const file of files) {
         if (file.endsWith('.epub')) {
           await fsPromises.unlink(path.join(dir, file));

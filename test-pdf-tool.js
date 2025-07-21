@@ -5,7 +5,6 @@ const path = require('path');
 const appState = require('./state.js');
 appState.CURRENT_PROJECT_PATH = process.cwd();
 
-// Now load the tool
 const ManuscriptToPDF = require('./manuscript-to-pdf');
 
 const tool = new ManuscriptToPDF('test');

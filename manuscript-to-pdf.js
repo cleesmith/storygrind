@@ -1,6 +1,7 @@
 // manuscript-to-pdf.js
 const ToolBase = require('./tool-base');
 const fs = require('fs');
+const fsPromises = require('fs/promises');
 const path = require('path');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const appState = require('./state.js');
@@ -81,7 +82,7 @@ class ManuscriptToPDF extends ToolBase {
   }
 
   createTableOfContents(pdfDoc, chapters, format, fonts) {
-    const page = pdfDoc.addPage([format.pageWidth, format.pageHeight]);
+    let page = pdfDoc.addPage([format.pageWidth, format.pageHeight]);
     const { boldFont, bodyFont } = fonts;
     
     // Title
@@ -164,7 +165,6 @@ class ManuscriptToPDF extends ToolBase {
 
 
   async execute(options) {
-console.dir(options);
     let textFile = options.text_file;
     const saveDir = appState.CURRENT_PROJECT_PATH;
     
@@ -199,6 +199,16 @@ console.dir(options);
       const baseFileName = path.basename(textFile, path.extname(textFile));
       const outputFilename = `${baseFileName}_${timestamp}.pdf`;
       const outputPath = path.join(saveDir, outputFilename);
+
+      let dir = path.dirname(outputPath);
+      let files = await fsPromises.readdir(dir);
+      // Remove all .pdf files in the output directory 
+      // before writing the new one
+      for (const file of files) {
+        if (file.endsWith('.pdf')) {
+          await fsPromises.unlink(path.join(dir, file));
+        }
+      }
       
       fs.writeFileSync(outputPath, pdfBuffer);
       

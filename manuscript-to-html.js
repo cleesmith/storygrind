@@ -89,7 +89,8 @@ class ManuscriptTextToHtml extends ToolBase {
       const outputFilename = `${baseFileName}_${timestamp}.html`;
       const outputPath = path.join(saveDir, outputFilename);
 
-      // Remove all .html files in the output directory before writing the new one
+      // Remove all .html files in the output directory 
+      // before writing the new one
       const dir = path.dirname(outputPath);
       const files = await fsPromises.readdir(dir);
       for (const file of files) {

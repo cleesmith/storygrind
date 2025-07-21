@@ -12,6 +12,7 @@ const { spawn } = require('child_process');
 const appState = require('./state.js');
 const ManuscriptTextToHtml = require('./manuscript-to-html');
 const ManuscriptToEpub = require('./manuscript-to-epub');
+const ManuscriptToPDF = require('./manuscript-to-pdf');
 
 class PublishManuscript extends ToolBase {
   /**
@@ -656,7 +657,7 @@ class PublishManuscript extends ToolBase {
   }
 
   /**
-   * Generate manuscript files (HTML, cover.jpg, EPUB) from source text
+   * Generate manuscript files (HTML, cover.jpg, EPUB, PDF) from source text
    * @param {string} projectPath - Path to the project directory
    * @param {Object} options - Tool options
    * @returns {Promise<void>}
@@ -677,7 +678,7 @@ class PublishManuscript extends ToolBase {
     const manuscriptTextFile = path.join(projectPath, textFiles[0]);
     
     this.emitOutput(`Found manuscript text file: ${textFiles[0]}\n`);
-    this.emitOutput(`Generating HTML and EPUB files...\n`);
+    this.emitOutput(`Generating HTML, EPUB, and PDF (KDP print) files...\n`);
     
     // Create HTML converter and run it
     const htmlConverter = new ManuscriptTextToHtml('manuscript-to-html');
@@ -685,7 +686,7 @@ class PublishManuscript extends ToolBase {
       manuscript_file: manuscriptTextFile,
       title: displayTitle,
       author: displayAuthor,
-      max_chapters: 'all'
+      max_chapters: options.max_chapters
     };
     
     this.emitOutput(`Converting to HTML...\n`);
@@ -705,8 +706,23 @@ class PublishManuscript extends ToolBase {
     
     this.emitOutput(`Converting to EPUB with cover image cover.jpg...\n`);
     await epubConverter.execute(epubOptions);
+
+    // Create PDF converter and run it
+    const pdfConverter = new ManuscriptToPDF('manuscript-to-pdf');
+    const pdfOptions = {
+      text_file: manuscriptTextFile,
+      title: displayTitle.join(' '),
+      author: displayAuthor,
+      language: 'en',
+      publisher: 'StoryGrind',
+      description: 'Created with StoryGrind'
+    };
     
-    this.emitOutput(`Manuscript files generated successfully!\n\n`);
+    this.emitOutput(`Converting to PDF for use with KDP print paper books...\n`);
+    await pdfConverter.execute(pdfOptions);
+
+
+    this.emitOutput(`All files generated successfully!\n\n`);
   }
 
   /**
