@@ -111,7 +111,7 @@ class ManuscriptToPDF extends ToolBase {
       font: boldFont,
     });
     
-    let y = format.pageHeight - format.topMargin - 120;
+    let y = format.pageHeight - format.topMargin - 160;
     
     chapters.forEach((chapter, index) => {
       // Just chapter title, no page numbers
@@ -122,7 +122,7 @@ class ManuscriptToPDF extends ToolBase {
         font: bodyFont,
       });
       
-      y -= 18;
+      y -= 11;
       
       // Check if we need a new page for long TOCs
       if (y < format.bottomMargin + 40) {
@@ -147,7 +147,9 @@ class ManuscriptToPDF extends ToolBase {
     });
     
     // Bio text (you can customize this)
-    const bioText = `${metadata.author} is an author who creates compelling stories using StoryGrind for editing and publishing as 'Slip the Trap'. When not writing, they enjoy exploring new narrative possibilities and connecting with readers.`;
+    const bioText = `${metadata.author} is an author who creates compelling stories using StoryGrind for editing and publishing as 'Slip the Trap'.
+
+When not writing, they enjoy exploring new narrative possibilities and reading well edited books.`;
     
     // Word wrap the bio
     const words = bioText.split(/\s+/);
@@ -393,12 +395,12 @@ class ManuscriptToPDF extends ToolBase {
       rightMargin: 63,    // 0.875 inches
       topMargin: 72,      // 1 inch
       bottomMargin: 72,   // 1 inch
-      lineHeight: 15,     // Tight spacing for ~30 lines per page
-      bodyFontSize: 11,
+      lineHeight: 14,     // Tight spacing for ~30 lines per page
+      bodyFontSize: 10,
       chapterTitleSize: 14,
       chapterNumSize: 13,
       paragraphIndent: 28,
-      textWidth: 432 - 63 - 63,
+      textWidth: 432 - 63 - 60,
       paragraphSpacing: 2  // Minimal paragraph spacing
     };
     
