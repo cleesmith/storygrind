@@ -6,6 +6,24 @@ const path = require('path');
 const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 const appState = require('./state.js');
 
+// console.log('StandardFonts:', StandardFonts);
+// StandardFonts: {
+//   Courier: 'Courier',
+//   CourierBold: 'Courier-Bold',
+//   CourierOblique: 'Courier-Oblique',
+//   CourierBoldOblique: 'Courier-BoldOblique',
+//   Helvetica: 'Helvetica',
+//   HelveticaBold: 'Helvetica-Bold',
+//   HelveticaOblique: 'Helvetica-Oblique',
+//   HelveticaBoldOblique: 'Helvetica-BoldOblique',
+//   TimesRoman: 'Times-Roman',
+//   TimesRomanBold: 'Times-Bold',
+//   TimesRomanItalic: 'Times-Italic',
+//   TimesRomanBoldItalic: 'Times-BoldItalic',
+//   Symbol: 'Symbol',
+//   ZapfDingbats: 'ZapfDingbats'
+// }
+
 class ManuscriptToPDF extends ToolBase {
   constructor(name, config = {}) {
     super(name, config);
@@ -18,26 +36,26 @@ class ManuscriptToPDF extends ToolBase {
     // Title
     const titleY = format.pageHeight / 2 + 100;
     page.drawText(metadata.title, {
-      x: format.pageWidth / 2 - boldFont.widthOfTextAtSize(metadata.title, 24) / 2,
+      x: format.pageWidth / 2 - boldFont.widthOfTextAtSize(metadata.title, 22) / 2,
       y: titleY,
-      size: 24,
+      size: 22,
       font: boldFont,
     });
     
     // Author
     page.drawText(metadata.author, {
-      x: format.pageWidth / 2 - bodyFont.widthOfTextAtSize(metadata.author, 18) / 2,
+      x: format.pageWidth / 2 - bodyFont.widthOfTextAtSize(metadata.author, 16) / 2,
       y: titleY - 60,
-      size: 18,
+      size: 16,
       font: bodyFont,
     });
     
     // Publisher at bottom
     const publisher = metadata.publisher || 'StoryGrind';
     page.drawText(publisher, {
-      x: format.pageWidth / 2 - bodyFont.widthOfTextAtSize(publisher, 12) / 2,
+      x: format.pageWidth / 2 - bodyFont.widthOfTextAtSize(publisher, 11) / 2,
       y: format.bottomMargin,
-      size: 12,
+      size: 11,
       font: bodyFont,
     });
     
@@ -75,7 +93,7 @@ class ManuscriptToPDF extends ToolBase {
           font: bodyFont,
         });
       }
-      y -= 16;
+      y -= 14;
     });
     
     return 1;
@@ -100,11 +118,11 @@ class ManuscriptToPDF extends ToolBase {
       page.drawText(chapter.title, {
         x: format.leftMargin,
         y: y,
-        size: 12,
+        size: 11,
         font: bodyFont,
       });
       
-      y -= 20;
+      y -= 18;
       
       // Check if we need a new page for long TOCs
       if (y < format.bottomMargin + 40) {
@@ -138,9 +156,9 @@ class ManuscriptToPDF extends ToolBase {
     
     words.forEach(word => {
       const testLine = currentLine ? `${currentLine} ${word}` : word;
-      const width = bodyFont.widthOfTextAtSize(testLine, 12);
+      const width = bodyFont.widthOfTextAtSize(testLine, 11);
       
-      if (width > format.textWidth * 0.92) {
+      if (width > format.textWidth * 0.90) {
         if (currentLine) lines.push(currentLine);
         currentLine = word;
       } else {
@@ -149,12 +167,12 @@ class ManuscriptToPDF extends ToolBase {
     });
     if (currentLine) lines.push(currentLine);
     
-    let y = format.pageHeight - format.topMargin - 120;
+    let y = format.pageHeight - format.topMargin - 100;
     lines.forEach(line => {
       page.drawText(line, {
         x: format.leftMargin,
         y: y,
-        size: 12,
+        size: 11,
         font: bodyFont,
       });
       y -= format.lineHeight;
@@ -358,9 +376,8 @@ class ManuscriptToPDF extends ToolBase {
     pdfDoc.setProducer('StoryGrind using pdf-lib');
     pdfDoc.setCreationDate(new Date());
     
-    // Use Helvetica fonts - better KDP compatibility than Times
-    const bodyFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const bodyFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+    const boldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
     
     // Create fonts object
     const fonts = {
@@ -368,20 +385,21 @@ class ManuscriptToPDF extends ToolBase {
       boldFont
     };
     
-    // Format settings (based on Vellum analysis)
+    // Format settings - optimized to match Vellum
     const format = {
       pageWidth: 432,     // 6 inches
       pageHeight: 648,    // 9 inches
-      leftMargin: 63,
-      rightMargin: 63,
-      topMargin: 72,
-      bottomMargin: 72,
-      lineHeight: 22,
-      bodyFontSize: 12,
-      chapterTitleSize: 18,
-      chapterNumSize: 16,
-      paragraphIndent: 36,
-      textWidth: 432 - 63 - 63
+      leftMargin: 63,     // 0.875 inches
+      rightMargin: 63,    // 0.875 inches
+      topMargin: 72,      // 1 inch
+      bottomMargin: 72,   // 1 inch
+      lineHeight: 15,     // Tight spacing for ~30 lines per page
+      bodyFontSize: 11,
+      chapterTitleSize: 14,
+      chapterNumSize: 13,
+      paragraphIndent: 28,
+      textWidth: 432 - 63 - 63,
+      paragraphSpacing: 2  // Minimal paragraph spacing
     };
     
     let pageNum = 1;
@@ -395,49 +413,55 @@ class ManuscriptToPDF extends ToolBase {
     // 3. Table of Contents
     pageNum += this.createTableOfContents(pdfDoc, chapters, format, fonts);
     
-    // Process each chapter (using YOUR structure)
+    // Process each chapter
     chapters.forEach((chapter, chapterIndex) => {
-      // Add chapter title page
+      // Add chapter page (title and body on same page)
       let page = pdfDoc.addPage([format.pageWidth, format.pageHeight]);
-      let y = format.pageHeight - 200;
+      
+      // Start position for chapter heading
+      let y = format.pageHeight - format.topMargin - 80;
       
       // Extract chapter number if present in title
       const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)/i);
       if (chapterMatch) {
-        // Draw chapter number
-        page.drawText(chapterMatch[0], {
-          x: format.leftMargin,
+        // Draw chapter number centered
+        const chapterNum = chapterMatch[1];
+        const numWidth = bodyFont.widthOfTextAtSize(chapterNum, format.chapterNumSize);
+        page.drawText(chapterNum, {
+          x: format.pageWidth / 2 - numWidth / 2,
           y: y,
           size: format.chapterNumSize,
           font: bodyFont,
         });
-        y -= 30;
+        y -= 30;  // Space between number and title
         
-        // Draw title (without chapter number)
+        // Draw title (without chapter number) centered
         const titleOnly = chapter.title.replace(chapterMatch[0], '').replace(/^:\s*/, '').trim();
         if (titleOnly) {
-          page.drawText(titleOnly, {
-            x: format.leftMargin,
+          const titleWidth = boldFont.widthOfTextAtSize(titleOnly.toUpperCase(), format.chapterTitleSize);
+          page.drawText(titleOnly.toUpperCase(), {
+            x: format.pageWidth / 2 - titleWidth / 2,
             y: y,
             size: format.chapterTitleSize,
             font: boldFont,
           });
         }
+        y -= 60;  // Space before body text starts
       } else {
-        // Just draw the title
+        // Just draw the title centered
+        const titleWidth = boldFont.widthOfTextAtSize(chapter.title, format.chapterTitleSize);
         page.drawText(chapter.title, {
-          x: format.leftMargin,
+          x: format.pageWidth / 2 - titleWidth / 2,
           y: y,
           size: format.chapterTitleSize,
           font: boldFont,
         });
+        y -= 60;  // Space before body text starts
       }
       
-      y -= 60;
-      
-      // Process paragraphs (YOUR content array)
+      // Process paragraphs on the same page
       chapter.content.forEach((paragraph, paraIndex) => {
-        // Word wrap
+        // Word wrap with smart quote handling
         const words = paragraph.split(/\s+/);
         const lines = [];
         let currentLine = '';
@@ -446,7 +470,7 @@ class ManuscriptToPDF extends ToolBase {
           const testLine = currentLine ? `${currentLine} ${word}` : word;
           const width = bodyFont.widthOfTextAtSize(testLine, format.bodyFontSize);
           
-          if (width > format.textWidth * 0.92) {
+          if (width > format.textWidth * 0.90) {
             if (currentLine) lines.push(currentLine);
             currentLine = word;
           } else {
@@ -458,8 +482,8 @@ class ManuscriptToPDF extends ToolBase {
         // Draw each line
         lines.forEach((line, lineIndex) => {
           // Check if we need a new page
-          if (y < format.bottomMargin + 40) {
-            // Add page number
+          if (y < format.bottomMargin + 10) {
+            // Add page number centered at bottom
             page.drawText(String(pageNum), {
               x: format.pageWidth / 2 - 10,
               y: format.bottomMargin - 20,
@@ -473,7 +497,7 @@ class ManuscriptToPDF extends ToolBase {
             pageNum++;
           }
           
-          // First line of paragraph gets indent
+          // First line of paragraph gets indent (except first paragraph of chapter)
           const x = (lineIndex === 0 && paraIndex > 0) ? 
             format.leftMargin + format.paragraphIndent : 
             format.leftMargin;
@@ -488,8 +512,10 @@ class ManuscriptToPDF extends ToolBase {
           y -= format.lineHeight;
         });
         
-        // Extra space between paragraphs
-        y -= format.lineHeight * 0.5;
+        // Minimal space between paragraphs
+        if (paraIndex < chapter.content.length - 1) {
+          y -= format.paragraphSpacing;
+        }
       });
       
       // Add page number to last page of chapter
