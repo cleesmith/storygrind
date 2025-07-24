@@ -221,7 +221,9 @@ class AppState {
       projectsPath: this.PROJECTS_DIR,
       aiProvider: this.store ? this.store.get('selectedApiProvider') : null,
       aiModel: this.store ? this.store.get('selectedAiModel') : null,
-      language: this.LANGUAGE
+      language: this.LANGUAGE,
+      currentProject: this.CURRENT_PROJECT,
+      currentProjectPath: this.CURRENT_PROJECT_PATH
     };
   }
 

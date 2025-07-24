@@ -95,6 +95,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     console.log('electronAPI.showSettingsDialog called');
     ipcRenderer.send('show-settings-dialog');
   },
+  openProjectSettings: () => {
+    console.log('electronAPI.openProjectSettings called');
+    ipcRenderer.send('open-project-settings');
+  },
+  readProjectMetadata: (projectName, filename) => ipcRenderer.invoke('read-project-metadata', projectName, filename),
+  writeProjectMetadata: (projectName, filename, content) => ipcRenderer.invoke('write-project-metadata', projectName, filename, content),
+  closeProjectSettings: () => ipcRenderer.send('close-project-settings'),
+  cancelProjectSettings: () => ipcRenderer.send('cancel-project-settings'),
   getCurrentSettings: () => ipcRenderer.invoke('get-current-settings'),
   saveSettings: (settings) => ipcRenderer.invoke('save-settings', settings),
   saveOpenRouterKey: (apiKey) => ipcRenderer.invoke('save-openrouter-key', apiKey),

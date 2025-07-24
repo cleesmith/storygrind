@@ -22,6 +22,78 @@ class ManuscriptTextToHtml extends ToolBase {
   }
 
   /**
+   * Read and validate project metadata
+   * @param {string} projectPath - Path to the project directory
+   * @returns {Promise<Object>} - Metadata object with validation
+   */
+  async readProjectMetadata(projectPath) {
+    const projectName = path.basename(projectPath);
+    const metadataDir = path.join(projectPath, 'metadata');
+    
+    const metadata = {
+      title: '',
+      author: '',
+      pov: '',
+      publisher: '',
+      buyUrl: '',
+      copyright: '',
+      dedication: '',
+      aboutAuthor: ''
+    };
+    
+    const requiredFiles = {
+      '_title.txt': 'title',
+      '_author.txt': 'author'
+    };
+    
+    const optionalFiles = {
+      '_pov.txt': 'pov',
+      '_publisher.txt': 'publisher', 
+      '_buy_url.txt': 'buyUrl',
+      '_copyright.txt': 'copyright',
+      '_dedication.txt': 'dedication',
+      '_about_author.txt': 'aboutAuthor'
+    };
+    
+    // Check if metadata directory exists
+    if (!fs.existsSync(metadataDir)) {
+      throw new Error(`Project metadata not found. Please click "Project Settings" to set up your project metadata (title, author, etc.) before converting.`);
+    }
+    
+    // Read required files
+    for (const [filename, key] of Object.entries(requiredFiles)) {
+      const filePath = path.join(metadataDir, filename);
+      try {
+        const content = await fsPromises.readFile(filePath, 'utf8');
+        metadata[key] = content.trim();
+        
+        if (!metadata[key]) {
+          throw new Error(`${key.charAt(0).toUpperCase() + key.slice(1)} is required but empty. Please click "Project Settings" and fill in the ${key} field.`);
+        }
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          throw new Error(`${key.charAt(0).toUpperCase() + key.slice(1)} not found. Please click "Project Settings" to set up your project metadata.`);
+        }
+        throw error;
+      }
+    }
+    
+    // Read optional files
+    for (const [filename, key] of Object.entries(optionalFiles)) {
+      const filePath = path.join(metadataDir, filename);
+      try {
+        const content = await fsPromises.readFile(filePath, 'utf8');
+        metadata[key] = content.trim();
+      } catch (error) {
+        // Optional files can be missing or empty
+        metadata[key] = '';
+      }
+    }
+    
+    return metadata;
+  }
+
+  /**
    * Execute the tool
    * @param {Object} options - Tool options
    * @returns {Promise<Object>} - Execution result
@@ -38,6 +110,9 @@ class ManuscriptTextToHtml extends ToolBase {
       this.emitOutput(errorMsg);
       throw new Error('No project selected');
     }
+
+    // Read and validate project metadata
+    const metadata = await this.readProjectMetadata(saveDir);
 
     // Ensure file paths are absolute
     manuscriptFile = this.ensureAbsolutePath(manuscriptFile, saveDir);
@@ -68,9 +143,9 @@ class ManuscriptTextToHtml extends ToolBase {
         };
       }
 
-      // If user provided a new author name, persist it for future use
-      if (options.author && options.author.trim() !== appState.AUTHOR_NAME) {
-        appState.setAuthorName(options.author.trim());
+      // Set author name from metadata
+      if (metadata.author && metadata.author.trim() !== appState.AUTHOR_NAME) {
+        appState.setAuthorName(metadata.author.trim());
       }
 
       // Read manuscript content
@@ -80,8 +155,9 @@ class ManuscriptTextToHtml extends ToolBase {
       const maxChapters = options.max_chapters === 'all' ? 999 : parseInt(options.max_chapters || '1');
       this.setMaxChapters(maxChapters);
       
-      // Convert to HTML
-      const htmlContent = this.processStory(manuscriptFile, manuscriptContent, options.title);
+      // Convert to HTML - processStory expects title as array of strings
+      const titleArray = metadata.title ? [metadata.title] : ['Untitled'];
+      const htmlContent = this.processStory(manuscriptFile, manuscriptContent, titleArray);
       
       // Create output filename with timestamp
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
@@ -418,7 +494,7 @@ ${chaptersHTML}
    * @param {string} manuscriptText - The manuscript text content
    * @returns {string} Complete HTML document
    */
-  processStory(manuscriptPath, manuscriptText, storyTitle=options.title) {
+  processStory(manuscriptPath, manuscriptText, storyTitle) {
     // if (storyTitle.trim().length <= 0) {
     //   storyTitle = this.extractStoryTitle(manuscriptPath);
     // } else {

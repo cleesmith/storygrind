@@ -285,25 +285,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     }
   ]},
-  { id: 'chapter_writer', title: `Chapter Writer`, description: `Uses the outline and world files, along with any existing manuscript to write rough draft chapters that are missing from the manuscript.`, Class: ChapterWriter, options: [
-    {
-      "name": "title",
-      "label": "TITLE",
-      "type": "text",
-      "description": "Title of story",
-      "required": true,
-      "default": "",
-      "group": "Content Configuration"
-    },
-    {
-      "name": "pov",
-      "label": "POV",
-      "type": "text",
-      "description": "Point of view",
-      "required": true,
-      "default": "third person perspective",
-      "group": "Content Configuration"
-    },
+  { id: 'chapter_writer', title: `Chapter Writer`, description: `Uses the outline and world files, along with any existing manuscript to write rough draft chapters that are missing from the manuscript. *** WARNING: be sure to set the Title and POV in Project Settings.`, Class: ChapterWriter, options: [
     {
       "name": "manuscript",
       "label": "manuscript",
@@ -332,7 +314,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     },
   ]},
-  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html, .epub, .pdf) to ~/storygrind_projects Selected Project folder, generates 2 cover files with title/author, then updates the book index.', Class: PublishManuscript, options: [
+  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html, .epub, .pdf) to ~/storygrind_projects Selected Project folder, generates cover.jpg with title/author, then updates the book index. *** WARNING: be sure to set everything in Project Settings.', Class: PublishManuscript, options: [
       {
         "name": "manuscript_file",
         "label": "Manuscript File",
@@ -346,22 +328,6 @@ const TOOL_DEFS = [
             "extensions": ["txt"]
           }
         ]
-      },
-      {
-        "name": "author",
-        "label": "Author",
-        "type": "text",
-        "description": "Author name for the publication",
-        "required": true,
-        "default": ""
-      },
-      {
-        "name": "title",
-        "label": "Title",
-        "type": "text",
-        "description": "Book title &nbsp;&nbsp; is optional - and will use the formatted project folder name if not provided.<br>Also, you may use a <b>;</b> (<i>semicolon</i>) between words to separate a title into multiple lines.",
-        "required": false,
-        "default": ""
       },
       {
         "name": "max_chapters",
@@ -387,14 +353,6 @@ const TOOL_DEFS = [
           { "value": "html", "label": "Show HTML only" },
           { "value": "epub", "label": "Show EPUB only" }
         ]
-      },
-      {
-        "name": "purchase_url",
-        "label": "Purchase URL",
-        "type": "text",
-        "description": "URL for purchasing (e.g., Amazon, bookstore link)",
-        "required": false,
-        "default": ""
       },
       {
         "name": "unpublish",
@@ -440,7 +398,9 @@ const TOOL_DEFS = [
           }
         ]
       }
-  ]}];
+  ]}
+
+];
 
 module.exports = TOOL_DEFS;
 
@@ -492,7 +452,7 @@ async function initializeToolSystem(settings) {
     const allToolDefs = [...TOOL_DEFS, ...filteredUserTools];
     
     // Define which tools are non-AI and don't need AI API service
-    const nonAiToolIds = ['docx_comments', 'epub_converter', 'proofreader_spelling', 'manuscript_to_epub', 'manuscript_to_html', 'publish_manuscript'];
+    const nonAiToolIds = ['docx_comments', 'epub_converter', 'proofreader_spelling', 'manuscript_to_epub', 'manuscript_to_html', 'publish_manuscript', 'project_settings'];
     
     // Register each tool with proper configuration
     let toolCount = 0;

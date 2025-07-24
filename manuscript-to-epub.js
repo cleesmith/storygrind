@@ -30,6 +30,78 @@ class ManuscriptToEpub extends ToolBase {
   }
 
   /**
+   * Read and validate project metadata
+   * @param {string} projectPath - Path to the project directory
+   * @returns {Promise<Object>} - Metadata object with validation
+   */
+  async readProjectMetadata(projectPath) {
+    const projectName = path.basename(projectPath);
+    const metadataDir = path.join(projectPath, 'metadata');
+    
+    const metadata = {
+      title: '',
+      author: '',
+      pov: '',
+      publisher: '',
+      buyUrl: '',
+      copyright: '',
+      dedication: '',
+      aboutAuthor: ''
+    };
+    
+    const requiredFiles = {
+      '_title.txt': 'title',
+      '_author.txt': 'author'
+    };
+    
+    const optionalFiles = {
+      '_pov.txt': 'pov',
+      '_publisher.txt': 'publisher', 
+      '_buy_url.txt': 'buyUrl',
+      '_copyright.txt': 'copyright',
+      '_dedication.txt': 'dedication',
+      '_about_author.txt': 'aboutAuthor'
+    };
+    
+    // Check if metadata directory exists
+    if (!fs.existsSync(metadataDir)) {
+      throw new Error(`Project metadata not found. Please click "Project Settings" to set up your project metadata (title, author, etc.) before converting.`);
+    }
+    
+    // Read required files
+    for (const [filename, key] of Object.entries(requiredFiles)) {
+      const filePath = path.join(metadataDir, filename);
+      try {
+        const content = await fsPromises.readFile(filePath, 'utf8');
+        metadata[key] = content.trim();
+        
+        if (!metadata[key]) {
+          throw new Error(`${key.charAt(0).toUpperCase() + key.slice(1)} is required but empty. Please click "Project Settings" and fill in the ${key} field.`);
+        }
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          throw new Error(`${key.charAt(0).toUpperCase() + key.slice(1)} not found. Please click "Project Settings" to set up your project metadata.`);
+        }
+        throw error;
+      }
+    }
+    
+    // Read optional files
+    for (const [filename, key] of Object.entries(optionalFiles)) {
+      const filePath = path.join(metadataDir, filename);
+      try {
+        const content = await fsPromises.readFile(filePath, 'utf8');
+        metadata[key] = content.trim();
+      } catch (error) {
+        // Optional files can be missing or empty
+        metadata[key] = '';
+      }
+    }
+    
+    return metadata;
+  }
+
+  /**
    * Execute the tool
    * @param {Object} options - Tool options
    * @returns {Promise<Object>} - Execution result
@@ -46,6 +118,9 @@ class ManuscriptToEpub extends ToolBase {
       this.emitOutput(errorMsg);
       throw new Error('No project selected');
     }
+
+    // Read and validate project metadata
+    const projectMetadata = await this.readProjectMetadata(saveDir);
 
     // Ensure file paths are absolute
     textFile = this.ensureAbsolutePath(textFile, saveDir);
@@ -76,18 +151,20 @@ class ManuscriptToEpub extends ToolBase {
         };
       }
 
-      // Extract metadata from options or use appState
+      // Extract metadata from project metadata files
       const metadata = {
-        title: options.title,
-        displayTitle: options.displayTitle,
-        author: options.author,
+        title: projectMetadata.title,
+        displayTitle: options.displayTitle || projectMetadata.title,
+        author: projectMetadata.author,
         language: options.language || this.defaultMetadata.language,
-        publisher: options.publisher || this.defaultMetadata.publisher,
-        description: options.description || this.defaultMetadata.description
+        publisher: projectMetadata.publisher || this.defaultMetadata.publisher,
+        description: options.description || this.defaultMetadata.description,
+        copyright: projectMetadata.copyright,
+        aboutAuthor: projectMetadata.aboutAuthor
       };
 
       // persist author name it for future use
-      appState.setAuthorName(options.author);
+      appState.setAuthorName(projectMetadata.author);
 
       // Create output filename with timestamp
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
@@ -184,13 +261,6 @@ class ManuscriptToEpub extends ToolBase {
    */
   async convertToEpub(textFilePath, metadata = {}) {
     const textContent = fs.readFileSync(textFilePath, 'utf8');
-    
-    // Extract title from parent folder name
-    // if (!metadata.title) {
-    //   const parentDir = path.dirname(textFilePath);
-    //   const folderName = path.basename(parentDir);
-    //   metadata.title = this.formatFolderNameAsTitle(folderName);
-    // }
 
     const bookMeta = { ...this.defaultMetadata, ...metadata };
     
@@ -344,6 +414,15 @@ class ManuscriptToEpub extends ToolBase {
     </navPoint>`);
     playOrder++;
     
+    // Add copyright page
+    navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
+      <navLabel>
+        <text>Copyright</text>
+      </navLabel>
+      <content src="copyright.xhtml"/>
+    </navPoint>`);
+    playOrder++;
+    
     // Add contents
     navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
       <navLabel>
@@ -363,6 +442,16 @@ class ManuscriptToEpub extends ToolBase {
     </navPoint>`);
       playOrder++;
     });
+    
+    // Add about author page (only if metadata exists)
+    if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
+      navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
+        <navLabel>
+          <text>About the Author</text>
+        </navLabel>
+        <content src="about-author.xhtml"/>
+      </navPoint>`);
+    }
     
     return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
@@ -436,11 +525,13 @@ ${paragraphs}
       .map(ch => `    <item id="${ch.id}" href="${ch.id}.xhtml" media-type="application/xhtml+xml"/>`)
       .join('\n');
 
-    // Update spine to include title page and contents
+    // Update spine to include all pages
     const spineItems = [
       '    <itemref idref="title-page"/>',
+      '    <itemref idref="copyright"/>',
       '    <itemref idref="contents"/>',
-      ...chapters.map(ch => `    <itemref idref="${ch.id}"/>`)
+      ...chapters.map(ch => `    <itemref idref="${ch.id}"/>`),
+      ...(metadata.aboutAuthor && metadata.aboutAuthor.trim() ? ['    <itemref idref="about-author"/>'] : [])
     ].join('\n');
 
     return `<?xml version="1.0" encoding="UTF-8"?>
@@ -460,9 +551,10 @@ ${coverMeta}
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
     <item id="toc" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
     <item id="title-page" href="title-page.xhtml" media-type="application/xhtml+xml"/>
+    <item id="copyright" href="copyright.xhtml" media-type="application/xhtml+xml"/>
     <item id="contents" href="contents.xhtml" media-type="application/xhtml+xml"/>
+    ${metadata.aboutAuthor && metadata.aboutAuthor.trim() ? '<item id="about-author" href="about-author.xhtml" media-type="application/xhtml+xml"/>' : ''}
     <item id="style" href="css/style.css" media-type="text/css"/>
-    <item id="media-css" href="css/media.css" media-type="text/css"/>
 ${coverManifest}
 ${manifest}
   </manifest>
@@ -473,8 +565,6 @@ ${spineItems}
   }
 
   /**
-    <item id="font-license" href="fonts/SIL-Open-Font-License-1.1.txt" media-type="text/plain"/>
-
    * Create EPUB 3.0 navigation document (updated for new pages)
    * @param {Array} chapters - Chapters array
    * @param {Object} metadata - Book metadata
@@ -483,8 +573,10 @@ ${spineItems}
   createNavXHTML(chapters, metadata) {
     const navItems = [
       '      <li><a href="title-page.xhtml">Title Page</a></li>',
+      '      <li><a href="copyright.xhtml">Copyright</a></li>',
       '      <li><a href="contents.xhtml">Contents</a></li>',
-      ...chapters.map(ch => `      <li><a href="${ch.id}.xhtml">${this.escapeHTML(ch.title)}</a></li>`)
+      ...chapters.map(ch => `      <li><a href="${ch.id}.xhtml">${this.escapeHTML(ch.title)}</a></li>`),
+      ...(metadata.aboutAuthor && metadata.aboutAuthor.trim() ? ['      <li><a href="about-author.xhtml">About the Author</a></li>'] : [])
     ].join('\n');
 
     return `<?xml version="1.0" encoding="UTF-8"?>
@@ -506,84 +598,81 @@ ${navItems}
   }
 
   /**
-   * Create FULL WIDTH CSS like Vellum
+   * Create minimal CSS like Vellum
    * @returns {string} - CSS content
    */
   createFullWidthCSS() {
-    return `/* StoryGrind EPUB 3.0 Styles - Full Width */
-/*
-@font-face {
-  font-family: 'Atkinson Hyperlegible';
-  src: url('../fonts/AtkinsonHyperlegible-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+    return `/* StoryGrind EPUB - Minimal Vellum-style CSS */
 
-@font-face {
-  font-family: 'Atkinson Hyperlegible';
-  src: url('../fonts/AtkinsonHyperlegible-Bold.ttf') format('truetype');
-  font-weight: bold;
-  font-style: normal;
-}
-*/
-
+/* Reset and base styles */
 html {
   font-size: 100%;
 }
 
 body {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: serif;
   line-height: 1.6;
   margin: 0;
-  padding: 2em 1.5em;
-  color: #333333;
-  background: #ffffff;
-  text-align: justify;
-  /* NO max-width - use full screen like Vellum */
+  padding: 0;
+  text-align: left;
 }
 
-/* Title page styles */
+/* Title page - Simple and clean like Vellum */
 .title-page {
   text-align: center;
-  padding: 20% 0;
   page-break-after: always;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .book-title {
-  font-size: 3em;
-  font-weight: bold;
-  margin: 0 0 0.5em 0;
-  color: #222;
-  font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
+  font-size: 1.5em;
+  font-weight: normal;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .book-author {
-  font-size: 1.5em;
-  margin: 0 0 2em 0;
-  color: #555;
-  font-style: italic;
+  font-size: 1.1em;
+  margin: 0;
+  font-weight: normal;
 }
 
-.publisher-info {
-  position: absolute;
-  bottom: 3em;
-  left: 0;
-  right: 0;
-  text-align: center;
+.book-publisher {
   font-size: 0.9em;
-  color: #777;
+  margin: 0;
+  font-weight: normal;
 }
 
-/* Contents page styles */
+/* Copyright page */
+.copyright-page {
+  page-break-after: always;
+  padding: 2em 2em;
+}
+
+.copyright-page p {
+  text-align: left;
+  margin: 0.5em 0;
+  text-indent: 0;
+}
+
+/* Contents page */
 .contents-page {
   page-break-after: always;
+  padding: 2em 2em;
 }
 
 .contents-page h1 {
   text-align: center;
-  font-size: 2em;
-  margin: 2em 0 1.5em 0;
-  font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
+  font-size: 1.3em;
+  margin: 2em 0 2em 0;
+  font-weight: normal;
 }
 
 .book-toc ol {
@@ -593,68 +682,70 @@ body {
 }
 
 .book-toc li {
-  margin: 0.8em 0;
+  margin: 0.6em 0;
   text-align: left;
-  font-size: 1.1em;
 }
 
 .book-toc a {
   text-decoration: none;
-  color: #333;
-  display: block;
-  border-bottom: 1px dotted #ccc;
-  padding-bottom: 0.3em;
-}
-
-.book-toc a:hover {
-  color: #000;
-  border-bottom-color: #666;
+  color: inherit;
 }
 
 /* Chapter styles */
 .chapter {
-  margin-bottom: 3em;
   page-break-before: always;
 }
 
 h1 {
-  font-size: 1.8em;
+  font-size: 1.3em;
   font-weight: normal;
-  margin: 0 0 2em 0;
+  margin: 2em 0 2em 0;
   text-align: center;
-  color: #444444;
-  border-bottom: 1px solid #cccccc;
-  padding-bottom: 0.5em;
-  font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
 }
 
 p {
-  margin: 0 0 1.2em 0;
-  text-indent: 2em;
+  margin: 0 0 1em 0;
+  text-indent: 1.5em;
   text-align: justify;
   hyphens: auto;
   -webkit-hyphens: auto;
   -moz-hyphens: auto;
 }
 
-p:first-of-type {
+/* First paragraph after chapter heading */
+.chapter p:first-of-type {
   text-indent: 0;
 }
 
-p:first-of-type::first-letter {
-  font-size: 3.5em;
-  line-height: 0.8;
-  float: left;
-  margin: 0.1em 0.1em 0 0;
-  font-weight: bold;
-  font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
+/* About author page */
+.about-author-page {
+  page-break-before: always;
+  padding: 2em 2em;
+}
+
+.about-author-page h1 {
+  text-align: center;
+  font-size: 1.3em;
+  margin: 2em 0 2em 0;
+  font-weight: normal;
+}
+
+.about-author-page p {
+  text-align: left;
+  text-indent: 1.5em;
+  margin: 0 0 1em 0;
+}
+
+.about-author-page p:first-of-type {
+  text-indent: 0;
 }
 
 /* Navigation styles */
 nav[epub|type~="toc"] h1 {
   text-align: center;
-  margin-bottom: 1em;
-  font-family: 'Atkinson Hyperlegible', Arial, sans-serif;
+  font-size: 1.3em;
+  margin: 2em 0 2em 0;
+  font-weight: normal;
 }
 
 nav[epub|type~="toc"] ol {
@@ -664,123 +755,14 @@ nav[epub|type~="toc"] ol {
 }
 
 nav[epub|type~="toc"] li {
-  margin: 0.5em 0;
-  text-align: center;
+  margin: 0.6em 0;
+  text-align: left;
 }
 
 nav[epub|type~="toc"] a {
   text-decoration: none;
-  color: #333;
-}
-
-/* Responsive - maintain full width but adjust padding */
-@media screen and (max-width: 600px) {
-  body {
-    padding: 1.5em 1em;
-  }
-  
-  h1 {
-    font-size: 1.5em;
-  }
-  
-  p {
-    text-indent: 1.5em;
-  }
-  
-  .book-title {
-    font-size: 2em;
-  }
-  
-  .book-author {
-    font-size: 1.2em;
-  }
+  color: inherit;
 }`;
-  }
-
-  /**
-   * Create media-specific CSS (NEW)
-   * @returns {string} - Media CSS content
-   */
-  createMediaCSS() {
-    return `/* Media-specific styles for EPUB readers */
-@media amzn-kf8 {
-  /* Kindle-specific styles */
-  body {
-    font-family: Georgia, serif;
-  }
-  
-  p:first-of-type::first-letter {
-    font-size: 3em; /* Slightly smaller for Kindle */
-  }
-}
-
-@media amzn-mobi {
-  /* Legacy Kindle styles */
-  body {
-    font-family: serif;
-  }
-  
-  p:first-of-type::first-letter {
-    font-size: 1em; /* Disable drop caps for old Kindles */
-    float: none;
-    margin: 0;
-  }
-}
-
-/* Apple Books specific */
-@media (-webkit-min-device-pixel-ratio: 1.0) {
-  body {
-    -webkit-text-size-adjust: 100%;
-  }
-}
-
-/* Print styles */
-@media print {
-  body {
-    font-size: 11pt;
-    line-height: 1.5;
-  }
-  
-  .chapter {
-    page-break-before: always;
-  }
-  
-  h1 {
-    page-break-after: avoid;
-  }
-}`;
-  }
-
-  /**
-   * Create font license text (NEW)
-   * @returns {string} - License text
-   */
-  createFontLicense() {
-    return `Copyright 2020 Braille Institute of America, Inc.
-
-This Font Software is licensed under the SIL Open Font License, Version 1.1.
-This license is copied below, and is also available with a FAQ at:
-http://scripts.sil.org/OFL
-
------------------------------------------------------------
-SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
------------------------------------------------------------
-
-PREAMBLE
-The goals of the Open Font License (OFL) are to stimulate worldwide
-development of collaborative font projects, to support the font creation
-efforts of academic and linguistic communities, and to provide a free and
-open framework in which fonts may be shared and improved in partnership
-with others.
-
-The OFL allows the licensed fonts to be used, studied, modified and
-redistributed freely as long as they are not sold by themselves. The
-fonts, including any derivative works, can be bundled, embedded, 
-redistributed and/or sold with any software provided that any reserved
-names are not used by derivative works. The fonts and derivatives,
-however, cannot be released under any other type of license. The
-requirement for fonts to remain under this license does not apply
-to any document created using the fonts or their derivatives.`;
   }
 
   /**
@@ -1164,19 +1146,29 @@ to any document created using the fonts or their derivatives.`;
       zip.file('OEBPS/images/cover.svg', svgCover);
     }
 
-    // 6. Create title page (NEW)
+    // 6. Create title page
     const titlePageHTML = this.createTitlePage(metadata);
     zip.file('OEBPS/title-page.xhtml', titlePageHTML);
 
-    // 7. Create contents page (NEW)
+    // 7. Create copyright page
+    const copyrightHTML = this.createCopyrightPage(metadata);
+    zip.file('OEBPS/copyright.xhtml', copyrightHTML);
+
+    // 8. Create contents page
     const contentsHTML = this.createContentsPage(chapters, metadata);
     zip.file('OEBPS/contents.xhtml', contentsHTML);
 
-    // 8. Create chapter HTML files
+    // 9. Create chapter HTML files
     chapters.forEach(chapter => {
       const chapterHTML = this.createChapterHTML(chapter, metadata);
       zip.file(`OEBPS/${chapter.id}.xhtml`, chapterHTML);
     });
+
+    // 10. Create about author page (only if metadata exists)
+    if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
+      const aboutAuthorHTML = this.createAboutAuthorPage(metadata);
+      zip.file('OEBPS/about-author.xhtml', aboutAuthorHTML);
+    }
 
     // 9. Create content.opf (EPUB 3.0 format) with all new items
     const contentOPF = this.createEpub3ContentOPF(chapters, metadata, 'cover-image');
@@ -1192,24 +1184,7 @@ to any document created using the fonts or their derivatives.`;
 
     // 12. Create CSS files in css/ subfolder (NEW structure)
     const styleCSS = this.createFullWidthCSS();
-    const mediaCSS = this.createMediaCSS();
     zip.file('OEBPS/css/style.css', styleCSS);
-    zip.file('OEBPS/css/media.css', mediaCSS);
-
-    // 13. Add font license (fonts would need to be added separately)
-    // const fontLicense = this.createFontLicense();
-    // zip.file('OEBPS/fonts/SIL-Open-Font-License-1.1.txt', fontLicense);
-    
-    // Create backup copies before zip generation
-    // const backupSvgPath = path.join(appState.CURRENT_PROJECT_PATH, 'cover_backup.svg');
-    // const backupJpgPath = path.join(appState.CURRENT_PROJECT_PATH, 'cover_backup.jpg');
-    // fs.copyFileSync(svgFilePath, backupSvgPath);
-    // fs.copyFileSync(jpgCoverPath, backupJpgPath);
-    // this.emitOutput(`Backup copies created\n`);
-
-    // TEMPORARY: Exit here to check files in Finder
-    // this.emitOutput(`\nSTOPPING HERE - Check files in Finder now!\n`);
-    // process.exit(0);
 
     // Generate and return the EPUB
     const epubBuffer = await zip.generateAsync({ 
@@ -1218,20 +1193,18 @@ to any document created using the fonts or their derivatives.`;
       compressionOptions: { level: 9 }
     });
 
-    // Restore cover files from backups
-    // fs.renameSync(backupSvgPath, svgFilePath);
-    // fs.renameSync(backupJpgPath, jpgCoverPath);
-    // this.emitOutput(`Cover files restored from backups\n`);
-
     return epubBuffer;
   }
 
   /**
-   * Create title page HTML (NEW)
+   * Create title page HTML - Simple Vellum style
    * @param {Object} metadata - Book metadata
    * @returns {string} - Title page HTML
    */
   createTitlePage(metadata) {
+    // Convert title to uppercase to match Vellum style
+    const upperTitle = metadata.displayTitle.toUpperCase();
+    
     return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
@@ -1241,11 +1214,52 @@ to any document created using the fonts or their derivatives.`;
 </head>
 <body>
   <section class="title-page" epub:type="titlepage">
-    <h1 class="book-title">${metadata.displayTitle}</h1>
-    <p class="book-author">by ${metadata.author}</p>
-    <div class="publisher-info">
-      <p>${metadata.publisher}</p>
-    </div>
+    <h1 class="book-title">${this.escapeHTML(upperTitle)}</h1>
+    <p class="book-author">${this.escapeHTML(metadata.author)}</p>
+    <p class="book-publisher">${this.escapeHTML(metadata.publisher)}</p>
+  </section>
+</body>
+</html>`;
+  }
+
+  /**
+   * Create copyright page HTML
+   * @param {Object} metadata - Book metadata
+   * @returns {string} - Copyright page HTML
+   */
+  createCopyrightPage(metadata) {
+    const year = new Date().getFullYear();
+    
+    let copyrightContent;
+    
+    if (metadata.copyright && metadata.copyright.trim()) {
+      // Use custom copyright text from metadata
+      copyrightContent = metadata.copyright.split('\n').map(line => 
+        line.trim() ? `    <p>${this.escapeHTML(line.trim())}</p>` : '    <p></p>'
+      ).join('\n');
+    } else {
+      // Use default copyright text
+      copyrightContent = `    <p>Copyright © ${year} ${this.escapeHTML(metadata.author)}</p>
+    <p></p>
+    <p>All rights reserved.</p>
+    <p></p>
+    <p>Published by ${this.escapeHTML(metadata.publisher)}</p>
+    <p></p>
+    <p>This is a work of fiction. Names, characters, places, and incidents either are the product of the author's imagination or are used fictitiously. Any resemblance to actual persons, living or dead, events, or locales is entirely coincidental.</p>
+    <p></p>
+    <p>First Edition: ${year}</p>`;
+    }
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head>
+  <title>Copyright</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css"/>
+</head>
+<body>
+  <section class="copyright-page" epub:type="copyright-page">
+${copyrightContent}
   </section>
 </body>
 </html>`;
@@ -1258,9 +1272,14 @@ to any document created using the fonts or their derivatives.`;
    * @returns {string} - Contents page HTML
    */
   createContentsPage(chapters, metadata) {
-    const tocItems = chapters
+    const chapterItems = chapters
       .map(ch => `    <li><a href="${ch.id}.xhtml">${this.escapeHTML(ch.title)}</a></li>`)
       .join('\n');
+    
+    const tocItems = [
+      chapterItems,
+      ...(metadata.aboutAuthor && metadata.aboutAuthor.trim() ? ['    <li><a href="about-author.xhtml">About the Author</a></li>'] : [])
+    ].join('\n');
 
     return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
@@ -1277,6 +1296,42 @@ to any document created using the fonts or their derivatives.`;
 ${tocItems}
       </ol>
     </nav>
+  </section>
+</body>
+</html>`;
+  }
+
+  /**
+   * Create about the author page HTML
+   * @param {Object} metadata - Book metadata
+   * @returns {string} - About the author page HTML
+   */
+  createAboutAuthorPage(metadata) {
+    let aboutContent;
+    
+    if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
+      // Use custom about text from metadata
+      aboutContent = metadata.aboutAuthor.split('\n').map(line => 
+        line.trim() ? `    <p>${this.escapeHTML(line.trim())}</p>` : '    <p></p>'
+      ).join('\n');
+    } else {
+      // Use default about text
+      aboutContent = `    <p>${this.escapeHTML(metadata.author)} is an author who creates compelling stories using StoryGrind for editing and publishing.</p>
+    <p></p>
+    <p>When not writing, they enjoy exploring new narrative possibilities and reading well edited books.</p>`;
+    }
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+<head>
+  <title>About the Author</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css"/>
+</head>
+<body>
+  <section class="about-author-page" epub:type="appendix">
+    <h1>About the Author</h1>
+${aboutContent}
   </section>
 </body>
 </html>`;

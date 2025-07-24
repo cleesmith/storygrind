@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>StoryGrind - Project Settings</title>
+  <link rel="stylesheet" href="styles.css">
+
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.settings-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #1e1e1e;
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 15px;
+  border-bottom: 1px solid #333;
+  min-height: 30px;
+  flex-shrink: 0;
+}
+
+.settings-body {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Light mode styles */
+body.light-mode .settings-container {
+  background-color: #ffffff;
+}
+
+body.light-mode .settings-header {
+  border-bottom: 1px solid #ddd;
+}
+
+.settings-title {
+  font-size: 12px;
+  font-weight: normal;
+  margin: 0;
+  color: #fff;
+}
+
+body.light-mode .settings-title {
+  color: #333;
+}
+
+/* Content area fills available space */
+.settings-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.setting-group {
+  margin-bottom: 6px;
+  padding: 8px;
+  background-color: #2a2a2a;
+  border: none;
+  border-radius: 6px;
+}
+
+
+.setting-group:last-child {
+  margin-bottom: 6px;
+}
+
+body.light-mode .setting-group {
+  background-color: #ffffff;
+  border: none;
+  border-radius: 6px;
+}
+
+
+.setting-label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+body.light-mode .setting-label {
+  color: #333;
+}
+
+.setting-description {
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+
+body.light-mode .setting-description {
+  color: #666;
+}
+
+.setting-value {
+  font-size: 13px;
+  color: #ccc;
+  background-color: transparent;
+  padding: 4px 0;
+  border: none;
+  font-family: monospace;
+  font-weight: bold;
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+body.light-mode .setting-value {
+  color: #555;
+  background-color: transparent;
+  border: none;
+}
+
+.settings-input, .settings-textarea {
+  width: 100%;
+  padding: 8px;
+  background-color: #333;
+  color: #fff;
+  font-size: 14px;
+  border: 1px solid #555;
+  border-radius: 4px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.settings-textarea {
+  resize: vertical;
+  min-height: 40px;
+}
+
+body.light-mode .settings-input,
+body.light-mode .settings-textarea {
+  background-color: #ffffff;
+  color: #333;
+  border: 1px solid #ccc;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.cancel-button {
+  background-color: transparent;
+  color: #888;
+  border: 1px solid #444;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s ease;
+}
+
+body.light-mode .cancel-button {
+  color: #666;
+  border: 1px solid #ccc;
+}
+
+.cancel-button:hover {
+  background-color: rgba(136, 136, 136, 0.1);
+  border-color: #666;
+}
+
+body.light-mode .cancel-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: #999;
+}
+
+.save-button {
+  background-color: #4a89dc;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.2s ease;
+}
+
+.save-button:hover:not(:disabled) {
+  background-color: #5c9ce6;
+}
+
+.save-button:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+</style>
+
+</head>
+<body class="dark-mode">
+  <div class="settings-container">
+    <div class="settings-header">
+      <h1 class="settings-title" id="dialog-title">Project Settings</h1>
+      <div class="settings-actions">
+        <button id="cancel-btn" class="cancel-button">Cancel</button>
+        <button id="save-btn" class="save-button">Save</button>
+      </div>
+    </div>
+    
+    <div class="settings-body">
+      <div class="settings-content">
+        
+        <div class="setting-group">
+          <div class="setting-label">Title</div>
+          <textarea id="title-input" class="settings-textarea" placeholder="Enter title..."></textarea>
+        </div>
+        
+        <div class="setting-group">
+          <div class="setting-label">Author</div>
+          <input type="text" id="author-input" class="settings-input" placeholder="Enter author name...">
+        </div>
+        
+        <div class="setting-group">
+          <div class="setting-label">Point of View</div>
+          <input type="text" id="pov-input" class="settings-input" placeholder="Enter POV...">
+        </div>
+        
+        <div class="setting-group">
+          <div class="setting-label">Publisher</div>
+          <input type="text" id="publisher-input" class="settings-input" placeholder="Enter publisher...">
+        </div>
+        
+        <div class="setting-group">
+          <div class="setting-label">Buy URL</div>
+          <input type="text" id="buy-url-input" class="settings-input" placeholder="Enter purchase URL...">
+        </div>
+        
+        <div class="setting-group">
+          <div class="setting-label">Copyright</div>
+          <textarea id="copyright-input" class="settings-textarea" placeholder="Enter copyright information..."></textarea>
+        </div>
+        
+        <div class="setting-group">
+          <div class="setting-label">Dedication</div>
+          <textarea id="dedication-input" class="settings-textarea" placeholder="Enter dedication..."></textarea>
+        </div>
+        
+        <div class="setting-group">
+          <div class="setting-label">About Author</div>
+          <textarea id="about-author-input" class="settings-textarea" placeholder="Enter author bio..."></textarea>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <script src="project-settings.js"></script>
+</body>
+</html>

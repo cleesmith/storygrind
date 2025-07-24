@@ -424,6 +424,20 @@ label {
   background-color: #6a43b5;
 }
 
+/* Make Project Settings button match IMPORT button style but keep blue */
+#project-settings-btn {
+  background-color: #4a89dc !important;
+  font-size: 11px !important;
+  padding: 6px 10px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  display: inline-block !important;
+}
+
+#project-settings-btn:hover {
+  background-color: #5c9ce6 !important;
+}
+
 /* Style the header buttons container */
 .header-buttons {
   display: flex;

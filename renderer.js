@@ -87,6 +87,7 @@ switchProviderBtn.addEventListener('click', () => {
 
 // Project selection functionality
 const selectProjectBtn = document.getElementById('select-project-btn');
+const projectSettingsBtn = document.getElementById('project-settings-btn');
 const currentProjectName = document.getElementById('current-project-name');
 const currentProjectPath = document.getElementById('current-project-path');
 const projectPathIcon = document.getElementById('project-path-icon');
@@ -140,6 +141,10 @@ function updateProjectDisplay(projectInfo) {
 // Handle the select project button click
 selectProjectBtn.addEventListener('click', () => {
   window.electronAPI.selectProject();
+});
+
+projectSettingsBtn.addEventListener('click', () => {
+  window.electronAPI.openProjectSettings();
 });
 
 // Project path icon click handler

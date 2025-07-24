@@ -67,7 +67,13 @@ class ManuscriptToPDF extends ToolBase {
     const { bodyFont } = fonts;
     const year = new Date().getFullYear();
     
-    const copyrightText = [
+    let copyrightText;
+    let userCopyrightText = "";
+    
+    if (metadata.copyright && metadata.copyright.trim()) {
+      userCopyrightText = metadata.copyright.split('\n').map(line => line.trim());
+    }
+    copyrightText = [
       `Copyright © ${year} ${metadata.author}`,
       '',
       'All rights reserved.',
@@ -79,7 +85,8 @@ class ManuscriptToPDF extends ToolBase {
       'fictitiously. Any resemblance to actual persons, living or dead,',
       'events, or locales is entirely coincidental.',
       '',
-      `First Edition: ${year}`
+      '',
+      `${userCopyrightText}`
     ];
     
     let y = format.pageHeight - format.topMargin - 100;
@@ -146,10 +153,15 @@ class ManuscriptToPDF extends ToolBase {
       font: boldFont,
     });
     
-    // Bio text (you can customize this)
-    const bioText = `${metadata.author} is an author who creates compelling stories using StoryGrind for editing and publishing as 'Slip the Trap'.
+    // Bio text from metadata or default
+    let bioText;
+    if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
+      bioText = metadata.aboutAuthor;
+    } else {
+      bioText = `${metadata.author} is an author who creates compelling stories using StoryGrind for editing and publishing.
 
 When not writing, they enjoy exploring new narrative possibilities and reading well edited books.`;
+    }
     
     // Word wrap the bio
     const words = bioText.split(/\s+/);
@@ -184,6 +196,78 @@ When not writing, they enjoy exploring new narrative possibilities and reading w
   }
 
 
+  /**
+   * Read and validate project metadata
+   * @param {string} projectPath - Path to the project directory
+   * @returns {Promise<Object>} - Metadata object with validation
+   */
+  async readProjectMetadata(projectPath) {
+    const projectName = path.basename(projectPath);
+    const metadataDir = path.join(projectPath, 'metadata');
+    
+    const metadata = {
+      title: '',
+      author: '',
+      pov: '',
+      publisher: '',
+      buyUrl: '',
+      copyright: '',
+      dedication: '',
+      aboutAuthor: ''
+    };
+    
+    const requiredFiles = {
+      '_title.txt': 'title',
+      '_author.txt': 'author'
+    };
+    
+    const optionalFiles = {
+      '_pov.txt': 'pov',
+      '_publisher.txt': 'publisher', 
+      '_buy_url.txt': 'buyUrl',
+      '_copyright.txt': 'copyright',
+      '_dedication.txt': 'dedication',
+      '_about_author.txt': 'aboutAuthor'
+    };
+    
+    // Check if metadata directory exists
+    if (!fs.existsSync(metadataDir)) {
+      throw new Error(`Project metadata not found. Please click "Project Settings" to set up your project metadata (title, author, etc.) before converting.`);
+    }
+    
+    // Read required files
+    for (const [filename, key] of Object.entries(requiredFiles)) {
+      const filePath = path.join(metadataDir, filename);
+      try {
+        const content = await fsPromises.readFile(filePath, 'utf8');
+        metadata[key] = content.trim();
+        
+        if (!metadata[key]) {
+          throw new Error(`${key.charAt(0).toUpperCase() + key.slice(1)} is required but empty. Please click "Project Settings" and fill in the ${key} field.`);
+        }
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          throw new Error(`${key.charAt(0).toUpperCase() + key.slice(1)} not found. Please click "Project Settings" to set up your project metadata.`);
+        }
+        throw error;
+      }
+    }
+    
+    // Read optional files
+    for (const [filename, key] of Object.entries(optionalFiles)) {
+      const filePath = path.join(metadataDir, filename);
+      try {
+        const content = await fsPromises.readFile(filePath, 'utf8');
+        metadata[key] = content.trim();
+      } catch (error) {
+        // Optional files can be missing or empty
+        metadata[key] = '';
+      }
+    }
+    
+    return metadata;
+  }
+
   async execute(options) {
     let textFile = options.text_file;
     const saveDir = appState.CURRENT_PROJECT_PATH;
@@ -203,12 +287,17 @@ When not writing, they enjoy exploring new narrative possibilities and reading w
       
       const chapters = this.parseManuscriptText(textContent);
       
-      // Extract metadata
+      // Read project metadata
+      const projectMetadata = await this.readProjectMetadata(saveDir);
+      
+      // Use project metadata
       const metadata = {
-        title: options.title || options.displayTitle,
-        author: options.author || appState.getAuthorName(),
+        title: projectMetadata.title,
+        author: projectMetadata.author,
         language: options.language || 'en',
-        publisher: options.publisher || 'StoryGrind'
+        publisher: projectMetadata.publisher || 'StoryGrind',
+        copyright: projectMetadata.copyright,
+        aboutAuthor: projectMetadata.aboutAuthor
       };
       
       // Create PDF

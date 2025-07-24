@@ -84,6 +84,82 @@ class PublishManuscript extends ToolBase {
   }
 
   /**
+   * Read and validate project metadata
+   * @param {string} projectPath - Path to the project directory
+   * @returns {Promise<Object>} - Metadata object with validation
+   */
+  async readProjectMetadata(projectPath) {
+    const projectName = path.basename(projectPath);
+    const metadataDir = path.join(projectPath, 'metadata');
+    
+    const metadata = {
+      title: '',
+      author: '',
+      pov: '',
+      publisher: '',
+      buyUrl: '',
+      copyright: '',
+      dedication: '',
+      aboutAuthor: ''
+    };
+    
+    const requiredFiles = {
+      '_title.txt': 'title',
+      '_author.txt': 'author'
+    };
+    
+    const optionalFiles = {
+      '_pov.txt': 'pov',
+      '_publisher.txt': 'publisher', 
+      '_buy_url.txt': 'buyUrl',
+      '_copyright.txt': 'copyright',
+      '_dedication.txt': 'dedication',
+      '_about_author.txt': 'aboutAuthor'
+    };
+    
+    // Check if metadata directory exists
+    if (!fs.existsSync(metadataDir)) {
+      this.emitOutput(`Project metadata not found!\n\nPlease click Close, then click "Project Settings" to set up your selected\nproject's metadata (title, author, etc.) before trying to run Publish Manuscript.\n`);
+      return null;
+    }
+    
+    // Read required files
+    for (const [filename, key] of Object.entries(requiredFiles)) {
+      const filePath = path.join(metadataDir, filename);
+      try {
+        const content = await fsPromises.readFile(filePath, 'utf8');
+        metadata[key] = content.trim();
+        
+        if (!metadata[key]) {
+          this.emitOutput(`${key.charAt(0).toUpperCase() + key.slice(1)} is required but empty. Please click "Project Settings" and fill in the ${key} field.\n`);
+          return null;
+        }
+      } catch (error) {
+        if (error.code === 'ENOENT') {
+          this.emitOutput(`${key.charAt(0).toUpperCase() + key.slice(1)} not found. Please click "Project Settings" to set up your project metadata.\n`);
+          return null;
+        }
+        this.emitOutput(`Error reading metadata: ${error.message}\n`);
+        return null;
+      }
+    }
+    
+    // Read optional files
+    for (const [filename, key] of Object.entries(optionalFiles)) {
+      const filePath = path.join(metadataDir, filename);
+      try {
+        const content = await fsPromises.readFile(filePath, 'utf8');
+        metadata[key] = content.trim();
+      } catch (error) {
+        // Optional files can be missing or empty
+        metadata[key] = '';
+      }
+    }
+    
+    return metadata;
+  }
+
+  /**
    * Execute the tool
    * @param {Object} options - Tool options
    * @returns {Promise<Object>} - Execution result
@@ -92,9 +168,12 @@ class PublishManuscript extends ToolBase {
     const projectPath = appState.CURRENT_PROJECT_PATH;
     
     if (!projectPath) {
-      const errorMsg = 'Error: No project selected. Please select a project first.';
-      this.emitOutput(errorMsg);
-      throw new Error('No project selected');
+      this.emitOutput('Error: No project selected. Please select a project first.\n');
+      return {
+        success: false,
+        message: 'No project selected',
+        outputFiles: []
+      };
     }
 
     try {
@@ -110,24 +189,34 @@ class PublishManuscript extends ToolBase {
       // Extract project name from path
       const projectName = path.basename(projectPath);
       
-      // Use user-provided title or do formatted project name
-      const caseTitle = this.formatProperCase(options.title) || this.formatProperCase(projectName);
+      // Read and validate project metadata
+      const metadata = await this.readProjectMetadata(projectPath);
+      if (!metadata) {
+        return {
+          success: false,
+          message: 'No Project Settings found',
+          outputFiles: []
+        };
+      }
+      
+      // Use metadata title or fallback to formatted project name
+      const caseTitle = metadata.title || this.formatProperCase(projectName);
       const displayTitle = this.splitTitle(caseTitle);
       const showTitle = this.splitTitle(caseTitle).join(' ');
       
       // Get manuscript base name from options
       const manuscriptBaseName = selectedFile ? path.basename(selectedFile, path.extname(selectedFile)) : 'manuscript';
 
-      appState.setAuthorName(options.author);
+      appState.setAuthorName(metadata.author);
 
       // Generate fresh manuscript files (HTML, cover.jpg, EPUB) from source text
-      await this.generateManuscriptFiles(projectPath, appState.AUTHOR_NAME, displayTitle, options);
+      await this.generateManuscriptFiles(projectPath, appState.AUTHOR_NAME, displayTitle, options, metadata);
 
       // Now find the newly created manuscript files
       const manuscriptFiles = await this.findManuscriptFiles(projectPath);
       
       // Update book index and get the HTML file used
-      const htmlFile = await this.updateBookIndex(projectName, showTitle, manuscriptBaseName, selectedFile, options.purchase_url || '#', options.show_what);
+      const htmlFile = await this.updateBookIndex(projectName, showTitle, manuscriptBaseName, selectedFile, metadata.buyUrl || '#', options.show_what);
       
       // Only return HTML file for editing
       const editableFiles = [];
@@ -642,7 +731,12 @@ class PublishManuscript extends ToolBase {
     const insertionIndex = indexContent.indexOf(booksStartTag);
     
     if (insertionIndex === -1) {
-      throw new Error('Could not find BOOKS_START comment marker in index.html');
+      this.emitOutput('Error: Could not find BOOKS_START comment marker in index.html\n');
+      return {
+        success: false,
+        message: 'Could not find BOOKS_START comment marker in index.html',
+        outputFiles: []
+      };
     }
 
     // Insert after the BOOKS_START comment
@@ -662,7 +756,7 @@ class PublishManuscript extends ToolBase {
    * @param {Object} options - Tool options
    * @returns {Promise<void>}
    */
-  async generateManuscriptFiles(projectPath, displayAuthor, displayTitle, options) {
+  async generateManuscriptFiles(projectPath, displayAuthor, displayTitle, options, metadata) {
     // Find the source manuscript text file
     const files = await fsPromises.readdir(projectPath);
     const textFiles = files.filter(file => {
@@ -671,7 +765,12 @@ class PublishManuscript extends ToolBase {
     });
     
     if (textFiles.length === 0) {
-      throw new Error('No manuscript text file found. Please ensure you have a manuscript.txt file in your project.');
+      this.emitOutput('Error: No manuscript text file found. Please ensure you have a manuscript.txt file in your project.\n');
+      return {
+        success: false,
+        message: 'No manuscript text file found',
+        outputFiles: []
+      };
     }
     
     // Use the first manuscript text file found
@@ -697,10 +796,10 @@ class PublishManuscript extends ToolBase {
     const epubOptions = {
       text_file: manuscriptTextFile,
       displayTitle: displayTitle.join(' '),
-      title: options.title,
+      title: metadata.title,
       author: displayAuthor,
       language: 'en',
-      publisher: 'StoryGrind',
+      publisher: metadata.publisher || 'StoryGrind',
       description: 'Created with StoryGrind'
     };
     

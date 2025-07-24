@@ -1,3 +1,83 @@
+... i do not want to see these errors in the terminal:
+
+Error in Publish Manuscript: Error: Project metadata not found. Please click "Project Settings" to set up your project metadata (title, author, etc.) before publishing.
+    at PublishManuscript.readProjectMetadata (/Users/cleesmith/storygrind/publish-manuscript.js:122:13)
+    at PublishManuscript.execute (/Users/cleesmith/storygrind/publish-manuscript.js:186:35)
+    at Object.executeToolById (/Users/cleesmith/storygrind/tool-system.js:563:31)
+    at /Users/cleesmith/storygrind/main.js:1117:43
+    at /Users/cleesmith/storygrind/main.js:1139:9
+    at WebContents.<anonymous> (node:electron/js2c/browser_init:2:89595)
+    at WebContents.emit (node:events:513:28)
+... from publish-manuscript.js:
+    
+    // Check if metadata directory exists
+    if (!fs.existsSync(metadataDir)) {
+      throw new Error(`Project metadata not found. Please click "Project Settings" to set up your project metadata (title, author, etc.) before publishing.`);
+    }
+
+... the code should be similar to:
+      try {
+        this.emitOutput(`Reading manuscript file: ${manuscriptFile}\n`);
+        manuscriptContent = await this.readInputFile(this.ensureAbsolutePath(manuscriptFile, saveDir));
+      } catch (error) {
+        this.emitOutput(`Error: Required manuscript file not found: ${manuscriptFile}\n`);
+        this.emitOutput("Creating a new manuscript file.\n");
+
+
+
+
+chapter-writer.js
+... used to have:
+    {
+      "name": "title",
+      "label": "TITLE",
+      "type": "text",
+      "description": "Title of story",
+      "required": true,
+      "default": "",
+      "group": "Content Configuration"
+    },
+    {
+      "name": "pov",
+      "label": "POV",
+      "type": "text",
+      "description": "Point of view",
+      "required": true,
+      "default": "third person perspective",
+      "group": "Content Configuration"
+    },
+... now these should be retrieved from metadata for the Project
+
+
+
+
+for each Project folder:
+... instead of having to repeatedly type: title, author, pov, buy URL
+... let's have a Project Settings dialog, similar to Settings but not 
+	store in state.js, but stored as .txt files, which
+	a user can edit outside of StoryGrind and any Tool needing these 
+	can read them as well
+
+                      for example:
+~/storygrind_projects/The Accounting/metadata
+	_copyright.txt = textarea for multiple lines
+	_dedication.txt = textarea for multiple lines
+	_about_author.txt = textarea for multiple lines
+	_publisher.txt = text one line
+	_title.txt = textarea for multiple lines
+	_author.txt = text one line
+	_pov.txt = text one line
+	_buy_url.txt = text one long line
+
+... so even though this is not really a Tool, we can 
+put it under: "Run a non-AI tool:" but clicking:
+"Setup & Run" should bring up a full window like in:
+settings-dialog.html and settings-dialog.js
+
+let's call it: project-settings.js and .html
+and i will code:
+tool-system.js
+
 
 StoryGrind from Premise to Published on KDP
 

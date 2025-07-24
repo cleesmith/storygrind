@@ -20,6 +20,8 @@ let editorDialogWindow = null;
 
 let settingsWindow = null;
 
+let projectSettingsWindow = null;
+
 // Declare AiApiServiceInstance at a scope accessible by 
 // initializeApp and IPC handlers
 let AiApiServiceInstance = null;
@@ -477,6 +479,79 @@ function createSettingsDialog() {
   });
   
   return settingsWindow;
+}
+
+function createProjectSettingsDialog() {
+  console.log('Creating project settings dialog...');
+  
+  // Prevent multiple windows
+  if (projectSettingsWindow && !projectSettingsWindow.isDestroyed()) {
+    projectSettingsWindow.focus();
+    return;
+  }
+  
+  // Get the primary display's work area dimensions  
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+  
+  // Use similar size as settings dialog
+  const windowWidth = Math.floor(width * 0.95);
+  const windowHeight = Math.floor(height * 0.95);
+  
+  const display = screen.getPrimaryDisplay();
+  const { x: workX, y: workY, width: workWidth, height: workHeight } = display.workArea;
+  
+  projectSettingsWindow = new BrowserWindow({
+    width: windowWidth,
+    height: windowHeight,
+    x: workX + Math.floor((workWidth - windowWidth) / 2),
+    y: workY + Math.floor((workHeight - windowHeight) / 2),
+    parent: mainWindow,
+    modal: true,
+    frame: false,
+    show: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
+      webSecurity: true
+    },
+    backgroundColor: '#121212',
+    autoHideMenuBar: true,
+    resizable: true,
+    minWidth: 530,
+    minHeight: 750
+  });
+
+  projectSettingsWindow.loadFile(path.join(__dirname, 'project-settings.html'));
+  
+  projectSettingsWindow.once('ready-to-show', () => {
+    console.log('Project settings dialog ready to show');
+    projectSettingsWindow.show();
+    
+    // Apply current theme
+    if (mainWindow) {
+      mainWindow.webContents.executeJavaScript('document.body.classList.contains("light-mode")')
+        .then(isLightMode => {
+          if (projectSettingsWindow && !projectSettingsWindow.isDestroyed()) {
+            console.log('Sending theme to project settings dialog:', isLightMode ? 'light' : 'dark');
+            projectSettingsWindow.webContents.send('set-theme', isLightMode ? 'light' : 'dark');
+          }
+        })
+        .catch(err => console.error('Error getting theme for project settings dialog:', err));
+    }
+  });
+
+  projectSettingsWindow.webContents.on('dom-ready', () => {
+    console.log('Project settings dialog DOM ready');
+  });
+  
+  projectSettingsWindow.on('closed', () => {
+    console.log('Project settings window closed');
+    projectSettingsWindow = null;
+  });
+  
+  return projectSettingsWindow;
 }
 
 function checkApiProviderConfiguration() {
@@ -1633,6 +1708,54 @@ function setupIPCHandlers() {
     
     if (settingsWindow && !settingsWindow.isDestroyed()) {
       settingsWindow.close();
+    }
+  });
+
+  // Project Settings Dialog handlers
+  ipcMain.on('open-project-settings', () => {
+    console.log('Project settings dialog requested');
+    createProjectSettingsDialog();
+  });
+
+  ipcMain.handle('read-project-metadata', async (event, projectName, filename) => {
+    try {
+      const metadataPath = path.join(appState.PROJECTS_DIR, projectName, 'metadata', filename);
+      const content = await fs.promises.readFile(metadataPath, 'utf8');
+      return content;
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        return ''; // File doesn't exist, return empty string
+      }
+      throw error;
+    }
+  });
+
+  ipcMain.handle('write-project-metadata', async (event, projectName, filename, content) => {
+    try {
+      const metadataDir = path.join(appState.PROJECTS_DIR, projectName, 'metadata');
+      const metadataPath = path.join(metadataDir, filename);
+      
+      // Ensure metadata directory exists
+      await fs.promises.mkdir(metadataDir, { recursive: true });
+      
+      // Write the content to the file
+      await fs.promises.writeFile(metadataPath, content, 'utf8');
+      return true;
+    } catch (error) {
+      console.error('Error writing project metadata:', error);
+      throw error;
+    }
+  });
+
+  ipcMain.on('close-project-settings', () => {
+    if (projectSettingsWindow && !projectSettingsWindow.isDestroyed()) {
+      projectSettingsWindow.close();
+    }
+  });
+
+  ipcMain.on('cancel-project-settings', () => {
+    if (projectSettingsWindow && !projectSettingsWindow.isDestroyed()) {
+      projectSettingsWindow.close();
     }
   });
 
