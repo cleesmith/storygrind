@@ -29,6 +29,41 @@ class ManuscriptToPDF extends ToolBase {
     super(name, config);
   }
 
+  /**
+   * Draw header on page (Author on even pages, Title on odd pages)
+   * @param {Object} page - PDF page object
+   * @param {number} pageNum - Current page number
+   * @param {Object} metadata - Book metadata (title, author)
+   * @param {Object} format - Page format settings
+   * @param {Object} fonts - Font objects
+   */
+  drawHeader(page, pageNum, metadata, format, fonts) {
+    const { bodyFont } = fonts;
+    const headerFontSize = 9;
+    const headerY = format.pageHeight - format.topMargin / 2;
+    
+    let headerText;
+    
+    // Even pages (left side): Author name
+    // Odd pages (right side): Book title
+    if (pageNum % 2 === 0) {
+      headerText = metadata.author.toUpperCase();
+    } else {
+      headerText = metadata.title;
+    }
+    
+    // Center the header text
+    const headerWidth = bodyFont.widthOfTextAtSize(headerText, headerFontSize);
+    const centerX = format.pageWidth / 2 - headerWidth / 2;
+    
+    page.drawText(headerText, {
+      x: centerX,
+      y: headerY,
+      size: headerFontSize,
+      font: bodyFont,
+    });
+  }
+
   createTitlePage(pdfDoc, metadata, format, fonts) {
     const page = pdfDoc.addPage([format.pageWidth, format.pageHeight]);
     const { boldFont, bodyFont } = fonts;
@@ -141,9 +176,12 @@ class ManuscriptToPDF extends ToolBase {
     return 1;
   }
 
-  createAboutAuthorPage(pdfDoc, metadata, format, fonts) {
+  createAboutAuthorPage(pdfDoc, metadata, format, fonts, pageNum) {
     const page = pdfDoc.addPage([format.pageWidth, format.pageHeight]);
     const { boldFont, bodyFont } = fonts;
+    
+    // Add header
+    this.drawHeader(page, pageNum, metadata, format, fonts);
     
     // Title
     page.drawText('About the Author', {
@@ -495,19 +533,22 @@ When not writing, they enjoy exploring new narrative possibilities and reading w
     
     let pageNum = 1;
 
-    // 1. Title Page
+    // 1. Title Page (no header)
     pageNum += this.createTitlePage(pdfDoc, metadata, format, fonts);
 
-    // 2. Copyright Page
+    // 2. Copyright Page (no header)
     pageNum += this.createCopyrightPage(pdfDoc, metadata, format, fonts);
 
-    // 3. Table of Contents
+    // 3. Table of Contents (no header)
     pageNum += this.createTableOfContents(pdfDoc, chapters, format, fonts);
     
     // Process each chapter
     chapters.forEach((chapter, chapterIndex) => {
       // Add chapter page (title and body on same page)
       let page = pdfDoc.addPage([format.pageWidth, format.pageHeight]);
+      
+      // Add header starting from main content pages
+      this.drawHeader(page, pageNum, metadata, format, fonts);
       
       // Start position for chapter heading
       let y = format.pageHeight - format.topMargin - 80;
@@ -584,8 +625,12 @@ When not writing, they enjoy exploring new narrative possibilities and reading w
             
             // Create new page
             page = pdfDoc.addPage([format.pageWidth, format.pageHeight]);
-            y = format.pageHeight - format.topMargin;
             pageNum++;
+            
+            // Add header to new page
+            this.drawHeader(page, pageNum, metadata, format, fonts);
+            
+            y = format.pageHeight - format.topMargin;
           }
           
           // First line of paragraph gets indent (except first paragraph of chapter)
@@ -619,8 +664,8 @@ When not writing, they enjoy exploring new narrative possibilities and reading w
       pageNum++;
     });
 
-    // 5. About the Author (at the end)
-    this.createAboutAuthorPage(pdfDoc, metadata, format, fonts);
+    // 5. About the Author (at the end) with header
+    this.createAboutAuthorPage(pdfDoc, metadata, format, fonts, pageNum);
     
     return await pdfDoc.save();
   }
