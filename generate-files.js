@@ -37,21 +37,17 @@ function getFiles(dir, basePath = '') {
         if (stats.isFile()) {
             result.push({
                 path: relativePath.replace(/\\/g, '/'),
-                birthtime: stats.birthtime
+                birthtime: stats.birthtime.toISOString()
             });
-        } else if (stats.isDirectory()) {
-            const subFiles = getFiles(fullPath, relativePath);
-            result.push(...subFiles);
         }
+        // Removed the recursive directory processing - only process files in root directory
     }
     
     return result;
 }
 
 const filesWithDates = getFiles(targetDir);
-const files = filesWithDates
-    .sort((a, b) => a.birthtime - b.birthtime)
-    .map(f => f.path);
+const files = filesWithDates.sort((a, b) => new Date(a.birthtime) - new Date(b.birthtime));
 
 const outputPath = path.join(targetDir, 'files.json');
 fs.writeFileSync(outputPath, JSON.stringify(files, null, 2));
