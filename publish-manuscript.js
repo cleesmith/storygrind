@@ -26,6 +26,56 @@ class PublishManuscript extends ToolBase {
   }
 
   /**
+   * Generate p5.js cover using BrowserWindow
+   * @param {Object} metadata - Book metadata
+   * @returns {Promise<boolean>} - Success status
+   */
+  async generateP5Cover(metadata) {
+      const { BrowserWindow } = require('electron');
+      const path = require('path');
+      
+      try {
+          const converterWindow = new BrowserWindow({
+              width: 1600,
+              height: 2560,
+              show: false,
+              webPreferences: {
+                  nodeIntegration: true,
+                  contextIsolation: false
+              }
+          });
+
+          // Load the cover generator HTML
+          const htmlPath = path.join(__dirname, 'publish-cover-generator.html');
+          await converterWindow.loadFile(htmlPath);
+          
+          // Generate the cover image
+          // const jpgBase64 = await converterWindow.webContents.executeJavaScript(`
+          //     generateCoverImage("${metadata.title.replace(/;/g, '\\n').replace(/"/g, '\\"')}", "${metadata.author.replace(/"/g, '\\"')}")
+          // `);
+          const jpgBase64 = await converterWindow.webContents.executeJavaScript(`
+              generateCoverImage("${metadata.title.replace(/\n/g, '\\n').replace(/"/g, '\\"')}", "${metadata.author.replace(/"/g, '\\"')}")
+          `);
+          
+          converterWindow.close();
+          
+          this.emitOutput(`Writing cover to: ${metadata.outputPath}\n`);
+          
+          // Save JPG file
+          fs.writeFileSync(metadata.outputPath, Buffer.from(jpgBase64, 'base64'));
+
+          const fileSize = fs.statSync(metadata.outputPath).size;
+          this.emitOutput(`Cover created successfully (${fileSize} bytes)\n`);
+          
+          return true;
+          
+      } catch (error) {
+          this.emitOutput(`Error in cover generation: ${error.message}\n`);
+          throw error;
+      }
+  }
+
+  /**
    * Format title lines
    * @param {string} name - Raw title
    * @returns {string} - Formatted title
@@ -201,6 +251,7 @@ class PublishManuscript extends ToolBase {
       
       // Use metadata title or fallback to formatted project name
       const caseTitle = metadata.title || this.formatProperCase(projectName);
+      // cls: deprecated, but ok to leave:
       const displayTitle = this.splitTitle(caseTitle);
       const showTitle = this.splitTitle(caseTitle).join(' ');
       
@@ -756,72 +807,147 @@ class PublishManuscript extends ToolBase {
    * @param {Object} options - Tool options
    * @returns {Promise<void>}
    */
+  // async generateManuscriptFiles(projectPath, displayAuthor, displayTitle, options, metadata) {
+  //   // Find the source manuscript text file
+  //   const files = await fsPromises.readdir(projectPath);
+  //   const textFiles = files.filter(file => {
+  //     const fileName = file.toLowerCase();
+  //     return fileName.endsWith('.txt') && (fileName.includes('manuscript') || fileName === 'manuscript.txt');
+  //   });
+    
+  //   if (textFiles.length === 0) {
+  //     this.emitOutput('Error: No manuscript text file found. Please ensure you have a manuscript.txt file in your project.\n');
+  //     return {
+  //       success: false,
+  //       message: 'No manuscript text file found',
+  //       outputFiles: []
+  //     };
+  //   }
+    
+  //   // Use the first manuscript text file found
+  //   const manuscriptTextFile = path.join(projectPath, textFiles[0]);
+    
+  //   this.emitOutput(`Found manuscript text file: ${textFiles[0]}\n`);
+  //   this.emitOutput(`Generating HTML, EPUB, and PDF (KDP print) files...\n`);
+    
+  //   // Create HTML converter and run it
+  //   const htmlConverter = new ManuscriptTextToHtml('manuscript-to-html');
+  //   const htmlOptions = {
+  //     manuscript_file: manuscriptTextFile,
+  //     title: displayTitle,
+  //     author: displayAuthor,
+  //     max_chapters: options.max_chapters
+  //   };
+    
+  //   this.emitOutput(`Converting to HTML...\n`);
+  //   await htmlConverter.execute(htmlOptions);
+
+  //   // Create EPUB converter and run it
+  //   const epubConverter = new ManuscriptToEpub('manuscript-to-epub');
+  //   const epubOptions = {
+  //     text_file: manuscriptTextFile,
+  //     displayTitle: displayTitle.join(' '),
+  //     title: metadata.title,
+  //     author: displayAuthor,
+  //     language: 'en',
+  //     publisher: metadata.publisher || 'StoryGrind',
+  //     description: 'Created with StoryGrind'
+  //   };
+    
+  //   this.emitOutput(`Converting to EPUB with cover image cover.jpg...\n`);
+  //   await epubConverter.execute(epubOptions);
+
+  //   // Create PDF converter and run it
+  //   const pdfConverter = new ManuscriptToPDF('manuscript-to-pdf');
+  //   const pdfOptions = {
+  //     text_file: manuscriptTextFile,
+  //     title: displayTitle.join(' '),
+  //     author: displayAuthor,
+  //     language: 'en',
+  //     publisher: 'StoryGrind',
+  //     description: 'Created with StoryGrind'
+  //   };
+    
+  //   this.emitOutput(`Converting to PDF for use with KDP print paper books...\n`);
+  //   await pdfConverter.execute(pdfOptions);
+
+
+  //   this.emitOutput(`All files generated successfully!\n\n`);
+  // }
   async generateManuscriptFiles(projectPath, displayAuthor, displayTitle, options, metadata) {
-    // Find the source manuscript text file
-    const files = await fsPromises.readdir(projectPath);
-    const textFiles = files.filter(file => {
-      const fileName = file.toLowerCase();
-      return fileName.endsWith('.txt') && (fileName.includes('manuscript') || fileName === 'manuscript.txt');
-    });
-    
-    if (textFiles.length === 0) {
-      this.emitOutput('Error: No manuscript text file found. Please ensure you have a manuscript.txt file in your project.\n');
-      return {
-        success: false,
-        message: 'No manuscript text file found',
-        outputFiles: []
+      // Find the source manuscript text file
+      const files = await fsPromises.readdir(projectPath);
+      const textFiles = files.filter(file => {
+          const fileName = file.toLowerCase();
+          return fileName.endsWith('.txt') && (fileName.includes('manuscript') || fileName === 'manuscript.txt');
+      });
+      
+      if (textFiles.length === 0) {
+          this.emitOutput('Error: No manuscript text file found. Please ensure you have a manuscript.txt file in your project.\n');
+          return {
+              success: false,
+              message: 'No manuscript text file found',
+              outputFiles: []
+          };
+      }
+      
+      // Use the first manuscript text file found
+      const manuscriptTextFile = path.join(projectPath, textFiles[0]);
+      
+      this.emitOutput(`Found manuscript text file: ${textFiles[0]}\n`);
+      
+      this.emitOutput(`\nGenerating abstract art cover with pareidolia...\n`);
+
+      const coverPath = path.join(projectPath, 'cover.jpg');
+      const coverOptions = {
+          title: metadata.title,
+          author: displayAuthor,
+          outputPath: coverPath
       };
-    }
-    
-    // Use the first manuscript text file found
-    const manuscriptTextFile = path.join(projectPath, textFiles[0]);
-    
-    this.emitOutput(`Found manuscript text file: ${textFiles[0]}\n`);
-    this.emitOutput(`Generating HTML, EPUB, and PDF (KDP print) files...\n`);
-    
-    // Create HTML converter and run it
-    const htmlConverter = new ManuscriptTextToHtml('manuscript-to-html');
-    const htmlOptions = {
-      manuscript_file: manuscriptTextFile,
-      title: displayTitle,
-      author: displayAuthor,
-      max_chapters: options.max_chapters
-    };
-    
-    this.emitOutput(`Converting to HTML...\n`);
-    await htmlConverter.execute(htmlOptions);
+      await this.generateP5Cover(coverOptions);
 
-    // Create EPUB converter and run it
-    const epubConverter = new ManuscriptToEpub('manuscript-to-epub');
-    const epubOptions = {
-      text_file: manuscriptTextFile,
-      displayTitle: displayTitle.join(' '),
-      title: metadata.title,
-      author: displayAuthor,
-      language: 'en',
-      publisher: metadata.publisher || 'StoryGrind',
-      description: 'Created with StoryGrind'
-    };
-    
-    this.emitOutput(`Converting to EPUB with cover image cover.jpg...\n`);
-    await epubConverter.execute(epubOptions);
+      this.emitOutput(`\nGenerating HTML, EPUB, and PDF files...\n`);
+      
+      // Create HTML converter and run it
+      const htmlConverter = new ManuscriptTextToHtml('manuscript-to-html');
+      const htmlOptions = {
+          manuscript_file: manuscriptTextFile,
+          title: metadata.title.replace(/;/g, '\\n').replace(/"/g, '\\"'),
+          author: displayAuthor,
+          max_chapters: options.max_chapters
+      };
+      this.emitOutput(`Converting to HTML...\n`);
+      await htmlConverter.execute(htmlOptions);
 
-    // Create PDF converter and run it
-    const pdfConverter = new ManuscriptToPDF('manuscript-to-pdf');
-    const pdfOptions = {
-      text_file: manuscriptTextFile,
-      title: displayTitle.join(' '),
-      author: displayAuthor,
-      language: 'en',
-      publisher: 'StoryGrind',
-      description: 'Created with StoryGrind'
-    };
-    
-    this.emitOutput(`Converting to PDF for use with KDP print paper books...\n`);
-    await pdfConverter.execute(pdfOptions);
+      // Create EPUB converter and run it
+      const epubConverter = new ManuscriptToEpub('manuscript-to-epub');
+      const epubOptions = {
+          text_file: manuscriptTextFile,
+          displayTitle: displayTitle.join(' '),
+          title: metadata.title,
+          author: displayAuthor,
+          language: 'en',
+          publisher: metadata.publisher || 'StoryGrind',
+          description: 'Created with StoryGrind'
+      };
+      this.emitOutput(`Converting to EPUB with cover image...\n`);
+      await epubConverter.execute(epubOptions);
+
+      // Create PDF converter and run it
+      const pdfConverter = new ManuscriptToPDF('manuscript-to-pdf');
+      const pdfOptions = {
+          text_file: manuscriptTextFile,
+          title: metadata.title.replace(/\n/g, ' '),
+          author: displayAuthor,
+          language: 'en',
+          publisher: 'StoryGrind',
+          description: 'Created with StoryGrind'
+      };
+      this.emitOutput(`Converting to PDF for use with KDP print paper books...\n`);
+      await pdfConverter.execute(pdfOptions);
 
 
-    this.emitOutput(`All files generated successfully!\n\n`);
+      this.emitOutput(`All files generated successfully!\n\n`);
   }
 
   /**

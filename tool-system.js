@@ -314,7 +314,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     },
   ]},
-  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html, .epub, .pdf) to ~/storygrind_projects Selected Project folder, generates cover.jpg with title/author, then updates the book index. *** WARNING: be sure to set everything in Project Settings.', Class: PublishManuscript, options: [
+  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html, .epub, .pdf) to ~/storygrind_projects Selected Project folder, generates cover.jpg with title/author, then updates the book index. *** WARNING: be sure to set everything (title, author, etc.) above in Project Settings.', Class: PublishManuscript, options: [
       {
         "name": "manuscript_file",
         "label": "Manuscript File",

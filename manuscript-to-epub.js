@@ -183,13 +183,6 @@ class ManuscriptToEpub extends ToolBase {
         }
       }
 
-      // Remove all cover.* (.svg/.jpg) files in the output directory before writing the new one
-      for (const file of files) {
-        if (file.startsWith('cover.')) {
-          await fsPromises.unlink(path.join(dir, file));
-        }
-      }
-
       // Convert to EPUB and get chapter info
       const result = await this.convertToEpub(textFile, metadata);
       
@@ -197,13 +190,6 @@ class ManuscriptToEpub extends ToolBase {
       await fsPromises.writeFile(outputPath, result.epubBuffer);
       
       this.emitOutput(`\nEPUB with Vellum-Kindle-compatible structure saved to: ${outputPath}\n`);
-      
-      // Final check - do the cover files still exist?
-      const finalSvgPath = path.join(saveDir, 'cover.svg');
-      const finalJpgPath = path.join(saveDir, 'cover.jpg');
-      const finalSvgExists = fs.existsSync(finalSvgPath);
-      const finalJpgExists = fs.existsSync(finalJpgPath);
-      this.emitOutput(`Final check - SVG exists: ${finalSvgExists}, JPG exists: ${finalJpgExists}\n`);
       
       // Get word count from the text file
       const textContent = fs.readFileSync(textFile, 'utf8');
@@ -819,268 +805,6 @@ nav[epub|type~="toc"] a {
   }
 
   /**
-   * Generate advanced SVG cover content (no file save)
-   * @param {Object} metadata - Book metadata
-   * @returns {string} - SVG content as string
-   */
-  async generateSVGCover(metadata) {
-    const projectName = metadata.title || metadata.displayTitle;
-    const displayTitle = metadata.title || metadata.displayTitle;
-    const authorName = metadata.author || 'Anonymous';
-
-    // Gradient logic
-    const getRandomGradient = () => {
-      const gradientPresets = [
-        { start: '#CC4444', end: '#3AA399' }, { start: '#C48829', end: '#4A5CC8' },
-        { start: '#C94A64', end: '#5566C9' }, { start: '#C85A7A', end: '#CCB030' },
-        { start: '#4455B8', end: '#5A3B7A' }, { start: '#1A77C1', end: '#C23629' },
-        { start: '#3444A8', end: '#A040A0' }, { start: '#0077B7', end: '#66A8A5' },
-        { start: '#0D7766', end: '#2BBD5D' }, { start: '#448925', end: '#88B851' },
-        { start: '#CC7844', end: '#CC5566' }, { start: '#9B2951', end: '#1A1F59' },
-        { start: '#6E25B2', end: '#3800B0' }, { start: '#CC0077', end: '#392A38' },
-        { start: '#903772', end: '#C14B61' }, { start: '#2D2F36', end: '#3466C2' },
-        { start: '#2A0029', end: '#096B71' }, { start: '#1A1724', end: '#746B83' },
-        { start: '#4F356D', end: '#414F7D' }, { start: '#24313C', end: '#2A76A9' }
-      ];
-      const gradient = gradientPresets[Math.floor(Math.random() * gradientPresets.length)];
-      if (Math.random() < 0.2) return { start: gradient.end, end: gradient.start };
-      return gradient;
-    };
-
-    // Advanced Abstract Art Generator: adds stars, blobs, zigzags
-    function getAbstractArt(innerX, innerY, innerWidth, innerHeight) {
-      const shapes = [];
-      const colors = [
-        '#ffffff', '#ededed', '#c9f1fa', '#ffa5b0', '#ffd6a5', '#f3f0ff', '#b9fbc0', '#c0b6f7', '#fff5c8',
-        '#a9def9', '#e4c1f9', '#f694c1', '#f6c6ea', '#b8bedd', '#d0f4de', '#fed6bc', '#c7ceea', '#e2f0cb'
-      ];
-      const numShapes = 50 + Math.floor(Math.random() * 9);
-      for (let i = 0; i < numShapes; i++) {
-        const shapeTypeRand = Math.random();
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        const opacity = 0.08 + Math.random() * 0.19; // 0.08–0.27
-        if (shapeTypeRand < 0.15) {
-          // Circles
-          const maxR = Math.min(innerWidth, innerHeight) / 5.5;
-          const r = 22 + Math.random() * (maxR - 22);
-          const cx = innerX + r + Math.random() * (innerWidth - 2*r);
-          const cy = innerY + r + Math.random() * (innerHeight - 2*r);
-          shapes.push(`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
-        } else if (shapeTypeRand < 0.26) {
-          // Stars (5 or 6 points)
-          const cx = innerX + 40 + Math.random() * (innerWidth - 80);
-          const cy = innerY + 40 + Math.random() * (innerHeight - 80);
-          const points = Math.random() < 0.7 ? 5 : 6;
-          const outer = 32 + Math.random() * 55;
-          const innerR = outer * (0.38 + Math.random()*0.22);
-          let starPts = [];
-          for (let j = 0; j < points * 2; j++) {
-            const ang = Math.PI * j / points;
-            const r = (j % 2 === 0) ? outer : innerR;
-            const x = cx + Math.cos(ang) * r;
-            const y = cy + Math.sin(ang) * r;
-            starPts.push(`${Math.max(innerX, Math.min(innerX+innerWidth, x)).toFixed(1)},${Math.max(innerY, Math.min(innerY+innerHeight, y)).toFixed(1)}`);
-          }
-          shapes.push(`<polygon points="${starPts.join(' ')}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
-        } else if (shapeTypeRand < 0.38) {
-          // Blobs: SVG path, 7–9 points, random radii
-          const cx = innerX + 60 + Math.random() * (innerWidth - 120);
-          const cy = innerY + 60 + Math.random() * (innerHeight - 120);
-          const pts = 7 + Math.floor(Math.random()*3);
-          const baseR = 38 + Math.random() * 36;
-          let d = '';
-          for (let k = 0; k < pts; k++) {
-            const ang = Math.PI * 2 * k / pts;
-            const r = baseR * (0.8 + Math.random()*0.5);
-            const x = cx + Math.cos(ang) * r;
-            const y = cy + Math.sin(ang) * r;
-            d += (k === 0 ? `M${x.toFixed(1)},${y.toFixed(1)}` : ` Q${cx.toFixed(1)},${cy.toFixed(1)} ${x.toFixed(1)},${y.toFixed(1)}`);
-          }
-          d += ` Z`;
-          shapes.push(`<path d="${d}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
-        } else if (shapeTypeRand < 0.53) {
-          // Zigzags (polyline)
-          const zigX = innerX + 20 + Math.random() * (innerWidth - 40);
-          const zigY = innerY + 20 + Math.random() * (innerHeight - 40);
-          const zigLen = 6 + Math.floor(Math.random()*3);
-          let pts = [];
-          let lastX = zigX, lastY = zigY;
-          const segment = 28 + Math.random() * 22;
-          for (let z = 0; z < zigLen; z++) {
-            lastX += segment * (z%2 === 0 ? 1 : -1);
-            lastY += 22 + Math.random()*22;
-            pts.push(`${Math.max(innerX, Math.min(innerX+innerWidth, lastX)).toFixed(1)},${Math.max(innerY, Math.min(innerY+innerHeight, lastY)).toFixed(1)}`);
-          }
-          shapes.push(`<polyline points="${zigX.toFixed(1)},${zigY.toFixed(1)} ${pts.join(' ')}" fill="none" stroke="${color}" stroke-width="${7 + Math.random()*6}" opacity="${opacity.toFixed(2)}" />`);
-        } else if (shapeTypeRand < 0.65) {
-          // Triangles/Quads
-          const px = [];
-          const baseX = innerX + 20 + Math.random() * (innerWidth - 40);
-          const baseY = innerY + 20 + Math.random() * (innerHeight - 40);
-          const pts = (Math.random() < 0.7 ? 3 : 4);
-          for (let p = 0; p < pts; p++) {
-            const angle = (Math.PI * 2 / pts) * p + Math.random() * 0.65;
-            const radius = 36 + Math.random() * 95;
-            const x = baseX + Math.cos(angle) * radius;
-            const y = baseY + Math.sin(angle) * radius;
-            px.push(`${Math.max(innerX, Math.min(innerX+innerWidth, x)).toFixed(1)},${Math.max(innerY, Math.min(innerY+innerHeight, y)).toFixed(1)}`);
-          }
-          shapes.push(`<polygon points="${px.join(' ')}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
-        } else if (shapeTypeRand < 0.80) {
-          // Ellipses
-          const rx = 18 + Math.random() * 80;
-          const ry = 12 + Math.random() * 65;
-          const cx = innerX + rx + Math.random() * (innerWidth - 2*rx);
-          const cy = innerY + ry + Math.random() * (innerHeight - 2*ry);
-          shapes.push(`<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${rx.toFixed(1)}" ry="${ry.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" />`);
-        } else if (shapeTypeRand < 0.95) {
-          // Bars (rectangles)
-          const w = 30 + Math.random() * 60;
-          const h = 8 + Math.random() * 42;
-          const x = innerX + Math.random() * (innerWidth - w);
-          const y = innerY + Math.random() * (innerHeight - h);
-          const angle = Math.random() * 360;
-          shapes.push(`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" transform="rotate(${angle.toFixed(1)},${(x+w/2).toFixed(1)},${(y+h/2).toFixed(1)})" rx="${(h/3).toFixed(1)}" />`);
-        } else {
-          // Wavy Paths
-          const startX = innerX + 14 + Math.random() * (innerWidth - 28);
-          const startY = innerY + 14 + Math.random() * (innerHeight - 28);
-          const curveX = innerX + 14 + Math.random() * (innerWidth - 28);
-          const curveY = innerY + 14 + Math.random() * (innerHeight - 28);
-          const endX = innerX + 14 + Math.random() * (innerWidth - 28);
-          const endY = innerY + 14 + Math.random() * (innerHeight - 28);
-          shapes.push(`<path d="M${startX},${startY} Q${curveX},${curveY} ${endX},${endY}" stroke="${color}" stroke-width="${7 + Math.random()*12}" fill="none" opacity="${opacity.toFixed(2)}" />`);
-        }
-      }
-      return shapes.join('\n    ');
-    }
-
-    // Semicolon newlines (user control), up to 20 lines
-    const splitTitle = (title) => {
-      const maxLines = 20;
-      let rawLines = title.toUpperCase().split(';').map(l => l.trim()).filter(l => l);
-      if (rawLines.length > maxLines) {
-        rawLines = rawLines.slice(0, maxLines - 1).concat([
-          rawLines.slice(maxLines - 1).join(' ')
-        ]);
-      }
-      return rawLines.map(line => {
-        const maxWordLen = 20;
-        const words = line.split(' ');
-        let safeLine = '';
-        for (let word of words) {
-          if (word.length > maxWordLen) {
-            let chunks = word.match(new RegExp(`.{1,${maxWordLen}}`, 'g'));
-            safeLine += (safeLine ? ' ' : '') + chunks.join(' ');
-          } else {
-            safeLine += (safeLine ? ' ' : '') + word;
-          }
-        }
-        return safeLine;
-      });
-    };
-
-    const testSVGTextWidth = (text, size) => {
-      return text.length * size * 0.56;
-    };
-
-    // Inner rectangle config
-    const innerX = 120, innerY = 120, innerWidth = 1360, innerHeight = 2320;
-    const topPadding = 90, bottomPadding = 180;
-    const sidePadding = 48;
-    const usableWidth = innerWidth - 2 * sidePadding;
-    const usableHeight = innerHeight - topPadding - bottomPadding;
-
-    // Gradient and abstract art
-    const gradient = getRandomGradient();
-    const artSVG = getAbstractArt(innerX, innerY, innerWidth, innerHeight);
-    const titleLines = splitTitle(displayTitle);
-    const numLines = titleLines.length;
-
-    // Fit font size so all lines fit horizontally and vertically
-    let fontSize = 180;
-    let lineSpacing = Math.max(Math.floor(fontSize * 0.13), 12);
-    const minFontSize = 44;
-    while (fontSize > minFontSize) {
-      lineSpacing = Math.max(Math.floor(fontSize * 0.13), 12);
-      let fits = true;
-      for (const line of titleLines) {
-        if (testSVGTextWidth(line, fontSize) > usableWidth) {
-          fits = false;
-          break;
-        }
-      }
-      const totalTitleHeight = fontSize * numLines + lineSpacing * (numLines - 1);
-      if (totalTitleHeight > usableHeight) fits = false;
-      if (fits) break;
-      fontSize -= 2;
-    }
-    if (fontSize < minFontSize) fontSize = minFontSize;
-    lineSpacing = Math.max(Math.floor(fontSize * 0.13), 12);
-    const firstLineY = innerY + topPadding + fontSize;
-
-    const titleSVG = titleLines.map((line, index) => {
-      const y = firstLineY + index * (fontSize + lineSpacing);
-      return `<text x="${innerX + innerWidth/2}" y="${y}" font-family="Arial, sans-serif" font-size="${fontSize}" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${this.escapeHTML(line)}</text>`;
-    }).join('\n  ');
-
-    // Author name near bottom
-    const authorY = innerY + innerHeight - bottomPadding/2;
-    const authorText = (authorName || '').toUpperCase();
-
-    // SVG template
-    const svgTemplate = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 2560" width="1600" height="2560">
-  <defs>
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="${gradient.start}" />
-      <stop offset="100%" stop-color="${gradient.end}" />
-    </linearGradient>
-    <linearGradient id="spineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#000000" stop-opacity="0.3" />
-      <stop offset="30%" stop-color="#000000" stop-opacity="0.1" />
-      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
-    </linearGradient>
-    <linearGradient id="edgeHighlight" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4" />
-      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.2" />
-      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
-    </linearGradient>
-    <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.5" />
-    </filter>
-    <filter id="bookShadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="8"/>
-      <feOffset dx="10" dy="10" result="offsetblur"/>
-      <feFlood flood-color="#000000" flood-opacity="0.3"/>
-      <feComposite in2="offsetblur" operator="in"/>
-      <feMerge>
-        <feMergeNode/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-  </defs>
-  <rect x="0" y="0" width="1600" height="2560" fill="url(#bgGradient)"/>
-  <rect x="50" y="50" width="1500" height="2460" fill="#000000" opacity="0.2" rx="15" ry="15" />
-  <rect x="40" y="40" width="1520" height="2480" fill="url(#bgGradient)" rx="12" ry="12" filter="url(#bookShadow)" />
-  <rect x="40" y="40" width="80" height="2480" fill="url(#spineGradient)" rx="12" ry="12" />
-  <rect x="40" y="40" width="1520" height="3" fill="url(#edgeHighlight)" />
-  <rect x="1540" y="40" width="20" height="2480" fill="#000000" opacity="0.1" rx="12" ry="12" />
-  <rect x="40" y="2510" width="1520" height="10" fill="#000000" opacity="0.15" rx="12" ry="12" />
-  <rect x="120" y="120" width="1360" height="2320" fill="none" stroke="#ffffff" stroke-width="2" stroke-opacity="0.1" rx="8" ry="8" />
-  <!-- Abstract Art Shapes -->
-  <g>
-    ${artSVG}
-  </g>
-  <!-- Title -->
-  ${titleSVG}
-  <!-- Author name -->
-  <text x="${innerX + innerWidth/2}" y="${authorY}" font-family="Arial, sans-serif" font-size="90" font-weight="bold" text-anchor="middle" fill="#ffffff" filter="url(#textShadow)">${this.escapeHTML(authorText)}</text>
-</svg>`;
-
-    return svgTemplate;
-  }
-
-  /**
    * Create EPUB 3.0 structure with Vellum-compatible components
    * @param {Array} chapters - Parsed chapters
    * @param {Object} metadata - Book metadata
@@ -1100,71 +824,36 @@ nav[epub|type~="toc"] a {
   </rootfiles>
 </container>`;
     zip.file('META-INF/container.xml', containerXML);
-
-    // 3. Create advanced SVG cover and save to project directory
-    const svgCover = await this.generateSVGCover(metadata);
-    // const svgFilePath = path.join(appState.CURRENT_PROJECT_PATH, 'cover.svg');
-    const svgFilePath = path.resolve(appState.CURRENT_PROJECT_PATH, 'cover.svg');
-
-    try {
-      fs.writeFileSync(svgFilePath, svgCover);
-      // console.dir({
-      //     afterWrite_exists: fs.existsSync(svgFilePath),
-      //     fileSize: fs.existsSync(svgFilePath) ? fs.statSync(svgFilePath).size : 'NOT FOUND'
-      // });
-    } catch (err) {
-        console.error('Write failed:', err.message);
-    }
     
-    // 4. Convert SVG to JPG using integrated conversion
-    this.emitOutput(`Converting SVG to JPG...\n`);
-    
-    try {
-      await this.convertSVGToJPG(svgFilePath, path.join(appState.CURRENT_PROJECT_PATH, 'cover.jpg'));
-      this.emitOutput(`SVG to JPG conversion completed successfully\n`);
-    } catch (error) {
-      this.emitOutput(`Warning: SVG to JPG conversion failed: ${error.message}\n`);
-      this.emitOutput(`Will use SVG cover as fallback\n`);
-    }
-    
-    // Verify both files exist after conversion
-    let jpgCoverPath = path.join(appState.CURRENT_PROJECT_PATH, 'cover.jpg');
-    const svgExists = fs.existsSync(svgFilePath);
-    const jpgExists = fs.existsSync(jpgCoverPath);
-    this.emitOutput(`After conversion - SVG exists: ${svgExists}, JPG exists: ${jpgExists}\n`);
-    this.emitOutput(`SVG path: ${svgFilePath}\n`);
-    this.emitOutput(`JPG path: ${jpgCoverPath}\n`);
-    
-    // 5. Add images to EPUB
-    jpgCoverPath = path.join(appState.CURRENT_PROJECT_PATH, 'cover.jpg');
+    // 3. Add images to EPUB
+    const jpgCoverPath = path.join(appState.CURRENT_PROJECT_PATH, 'cover.jpg');
     if (fs.existsSync(jpgCoverPath)) {
       const jpgCoverBuffer = fs.readFileSync(jpgCoverPath);
       zip.file('OEBPS/images/cover.jpg', jpgCoverBuffer);
       this.emitOutput(`JPG cover added to EPUB\n`);
     } else {
-      this.emitOutput(`Warning: JPG cover not found, using SVG fallback\n`);
-      zip.file('OEBPS/images/cover.svg', svgCover);
+      this.emitOutput(`Warning: JPG cover not found!\n`);
     }
 
-    // 6. Create title page
+    // 4. Create title page
     const titlePageHTML = this.createTitlePage(metadata);
     zip.file('OEBPS/title-page.xhtml', titlePageHTML);
 
-    // 7. Create copyright page
+    // 5. Create copyright page
     const copyrightHTML = this.createCopyrightPage(metadata);
     zip.file('OEBPS/copyright.xhtml', copyrightHTML);
 
-    // 8. Create contents page
+    // 6. Create contents page
     const contentsHTML = this.createContentsPage(chapters, metadata);
     zip.file('OEBPS/contents.xhtml', contentsHTML);
 
-    // 9. Create chapter HTML files
+    // 7. Create chapter HTML files
     chapters.forEach(chapter => {
       const chapterHTML = this.createChapterHTML(chapter, metadata);
       zip.file(`OEBPS/${chapter.id}.xhtml`, chapterHTML);
     });
 
-    // 10. Create about author page (only if metadata exists)
+    // 8. Create about author page (only if metadata exists)
     if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
       const aboutAuthorHTML = this.createAboutAuthorPage(metadata);
       zip.file('OEBPS/about-author.xhtml', aboutAuthorHTML);
@@ -1337,102 +1026,6 @@ ${aboutContent}
 </html>`;
   }
 
-  /**
-   * Convert SVG to JPG using BrowserWindow renderer process
-   * @param {string} svgFilePath - Path to the SVG file
-   * @param {string} jpgFilePath - Path where JPG should be saved
-   * @returns {Promise<boolean>} - Success status
-   */
-  async convertSVGToJPG(svgFilePath, jpgFilePath) {
-    const { BrowserWindow } = require('electron');
-    
-    try {
-      this.emitOutput(`Creating conversion window...\n`);
-      
-      // Create a hidden browser window for SVG rendering
-      const converterWindow = new BrowserWindow({
-        width: 1600,
-        height: 2560,
-        show: false, // Hidden window
-        webPreferences: {
-          nodeIntegration: true,
-          contextIsolation: false
-        }
-      });
-
-      // Load about:blank
-      await converterWindow.loadURL('about:blank');
-      
-      this.emitOutput(`Reading SVG file: ${svgFilePath}\n`);
-      
-      // Read SVG content
-      const svgContent = fs.readFileSync(svgFilePath, 'utf8');
-      
-      this.emitOutput(`Converting SVG to JPG...\n`);
-      
-      // Execute JavaScript in the renderer process to convert SVG to JPG
-      const jpgBase64 = await converterWindow.webContents.executeJavaScript(`
-        new Promise((resolve, reject) => {
-          try {
-            const svgBlob = new Blob([${JSON.stringify(svgContent)}], { type: 'image/svg+xml' });
-            const url = URL.createObjectURL(svgBlob);
-            const img = new Image();
-            
-            img.onload = function() {
-              try {
-                const canvas = document.createElement('canvas');
-                canvas.width = 1600;
-                canvas.height = 2560;
-                const ctx = canvas.getContext('2d');
-                
-                // Fill with white background
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, 1600, 2560);
-                
-                // Draw the SVG image
-                ctx.drawImage(img, 0, 0, 1600, 2560);
-                
-                URL.revokeObjectURL(url);
-                
-                const dataURL = canvas.toDataURL('image/jpeg', 0.94);
-                const base64Data = dataURL.replace(/^data:image\\/jpeg;base64,/, '');
-                resolve(base64Data);
-              } catch (error) {
-                reject(error);
-              }
-            };
-            
-            img.onerror = () => reject(new Error('Failed to load SVG'));
-            img.src = url;
-          } catch (error) {
-            reject(error);
-          }
-        })
-      `);
-      
-      // Close the conversion window
-      converterWindow.close();
-      
-      this.emitOutput(`Writing JPG file: ${jpgFilePath}\n`);
-      
-      // Save JPG file
-      fs.writeFileSync(jpgFilePath, Buffer.from(jpgBase64, 'base64'));
-      
-      // Verify the file was created
-      if (!fs.existsSync(jpgFilePath)) {
-        throw new Error('JPEG file was not created successfully');
-      }
-      
-      const fileSize = fs.statSync(jpgFilePath).size;
-      this.emitOutput(`JPG file created successfully (${fileSize} bytes)\n`);
-      
-      return true;
-      
-    } catch (error) {
-      this.emitOutput(`Error in SVG to JPG conversion: ${error.message}\n`);
-      throw error;
-    }
-  }
 }
 
 module.exports = ManuscriptToEpub;

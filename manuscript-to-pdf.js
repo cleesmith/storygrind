@@ -330,7 +330,7 @@ When not writing, they enjoy exploring new narrative possibilities and reading w
       
       // Use project metadata
       const metadata = {
-        title: projectMetadata.title,
+        title: projectMetadata.title.replace(/\n/g, ' '),
         author: projectMetadata.author,
         language: options.language || 'en',
         publisher: projectMetadata.publisher || 'StoryGrind',
