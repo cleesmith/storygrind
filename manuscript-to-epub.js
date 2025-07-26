@@ -1,6 +1,6 @@
 // manuscript-to-epub.js
 // Updated with toc.ncx, title page, contents page, 
-// and font support for Vellum simularity
+// and font support for Vellum simularity - Kindle Compatible
 const ToolBase = require('./tool-base');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
@@ -136,7 +136,7 @@ class ManuscriptToEpub extends ToolBase {
         throw new Error(`File not found: ${textFile}`);
       }
       
-      this.emitOutput(`Converting text to EPUB 3.0 (Vellum-compatible)...\n`);
+      this.emitOutput(`Converting text to EPUB 3.0 (Kindle-compatible)...\n`);
       
       if (errorMsg) {
         this.emitOutput(errorMsg + '\n');
@@ -189,7 +189,7 @@ class ManuscriptToEpub extends ToolBase {
       // Write the EPUB file
       await fsPromises.writeFile(outputPath, result.epubBuffer);
       
-      this.emitOutput(`\nEPUB with Vellum-Kindle-compatible structure saved to: ${outputPath}\n`);
+      this.emitOutput(`\nKindle-compatible EPUB saved to: ${outputPath}\n`);
       
       // Get word count from the text file
       const textContent = fs.readFileSync(textFile, 'utf8');
@@ -584,11 +584,11 @@ ${navItems}
   }
 
   /**
-   * Create minimal CSS like Vellum
+   * Create Kindle-compatible CSS
    * @returns {string} - CSS content
    */
   createFullWidthCSS() {
-    return `/* StoryGrind EPUB - Minimal Vellum-style CSS */
+    return `/* StoryGrind EPUB - Kindle-Compatible CSS */
 
 /* Reset and base styles */
 html {
@@ -598,77 +598,73 @@ html {
 body {
   font-family: serif;
   line-height: 1.6;
-  margin: 0;
+  margin: 1em;
   padding: 0;
   text-align: left;
 }
 
-/* Title page - Simple and clean like Vellum */
+/* Title page - Simple and clean */
 .title-page {
   text-align: center;
   page-break-after: always;
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
+  margin: 3em 0;
+  padding: 2em 0;
 }
 
 .book-title {
-  font-size: 1.5em;
-  font-weight: normal;
-  margin: 0;
+  font-size: 1.8em;
+  font-weight: bold;
+  margin: 2em 0 1em 0;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
 }
 
 .book-author {
-  font-size: 1.1em;
-  margin: 0;
+  font-size: 1.3em;
+  margin: 1.5em 0;
   font-weight: normal;
 }
 
 .book-publisher {
-  font-size: 0.9em;
-  margin: 0;
+  font-size: 1em;
+  margin: 2em 0;
   font-weight: normal;
 }
 
 /* Copyright page */
 .copyright-page {
   page-break-after: always;
-  padding: 2em 2em;
+  margin: 2em 0;
 }
 
 .copyright-page p {
   text-align: left;
-  margin: 0.5em 0;
+  margin: 0.8em 0;
   text-indent: 0;
+  font-size: 0.9em;
 }
 
 /* Contents page */
 .contents-page {
   page-break-after: always;
-  padding: 2em 2em;
+  margin: 2em 0;
 }
 
 .contents-page h1 {
   text-align: center;
-  font-size: 1.3em;
-  margin: 2em 0 2em 0;
-  font-weight: normal;
+  font-size: 1.5em;
+  margin: 2em 0;
+  font-weight: bold;
 }
 
 .book-toc ol {
   list-style: none;
-  margin: 0;
+  margin: 1em 0;
   padding: 0;
 }
 
 .book-toc li {
-  margin: 0.6em 0;
+  margin: 1em 0;
   text-align: left;
 }
 
@@ -680,40 +676,41 @@ body {
 /* Chapter styles */
 .chapter {
   page-break-before: always;
+  margin: 0;
 }
 
 h1 {
-  font-size: 1.3em;
-  font-weight: normal;
-  margin: 2em 0 2em 0;
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 3em 0 2em 0;
   text-align: center;
+  page-break-after: avoid;
 }
 
 p {
   margin: 0 0 1em 0;
   text-indent: 1.5em;
   text-align: justify;
-  hyphens: auto;
-  -webkit-hyphens: auto;
-  -moz-hyphens: auto;
+  line-height: 1.6;
 }
 
 /* First paragraph after chapter heading */
 .chapter p:first-of-type {
   text-indent: 0;
+  margin-top: 1.5em;
 }
 
 /* About author page */
 .about-author-page {
   page-break-before: always;
-  padding: 2em 2em;
+  margin: 2em 0;
 }
 
 .about-author-page h1 {
   text-align: center;
-  font-size: 1.3em;
-  margin: 2em 0 2em 0;
-  font-weight: normal;
+  font-size: 1.5em;
+  margin: 2em 0;
+  font-weight: bold;
 }
 
 .about-author-page p {
@@ -727,27 +724,42 @@ p {
 }
 
 /* Navigation styles */
-nav[epub|type~="toc"] h1 {
+nav h1 {
   text-align: center;
-  font-size: 1.3em;
-  margin: 2em 0 2em 0;
-  font-weight: normal;
+  font-size: 1.5em;
+  margin: 2em 0;
+  font-weight: bold;
 }
 
-nav[epub|type~="toc"] ol {
+nav ol {
   list-style: none;
-  margin: 0;
+  margin: 1em 0;
   padding: 0;
 }
 
-nav[epub|type~="toc"] li {
-  margin: 0.6em 0;
+nav li {
+  margin: 1em 0;
   text-align: left;
 }
 
-nav[epub|type~="toc"] a {
+nav a {
   text-decoration: none;
   color: inherit;
+}
+
+/* Basic responsive adjustments */
+@media screen and (max-width: 600px) {
+  body {
+    margin: 0.5em;
+  }
+  
+  .book-title {
+    font-size: 1.5em;
+  }
+  
+  h1 {
+    font-size: 1.3em;
+  }
 }`;
   }
 
