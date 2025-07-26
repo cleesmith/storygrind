@@ -522,12 +522,14 @@ When not writing, they enjoy exploring new narrative possibilities and reading w
       rightMargin: 63,    // 0.875 inches
       topMargin: 72,      // 1 inch
       bottomMargin: 72,   // 1 inch
-      lineHeight: 14,     // Tight spacing for ~30 lines per page
-      bodyFontSize: 10,
+      // lineHeight: 14,     // Tight spacing for ~30 lines per page
+      // bodyFontSize: 10,
+      lineHeight: 15,
+      bodyFontSize: 11,
       chapterTitleSize: 14,
       chapterNumSize: 13,
-      paragraphIndent: 28,
-      textWidth: 432 - 63 - 60,
+      paragraphIndent: 18,
+      textWidth: 432 - 63 - 63,
       paragraphSpacing: 2  // Minimal paragraph spacing
     };
     
@@ -602,7 +604,7 @@ When not writing, they enjoy exploring new narrative possibilities and reading w
           const testLine = currentLine ? `${currentLine} ${word}` : word;
           const width = bodyFont.widthOfTextAtSize(testLine, format.bodyFontSize);
           
-          if (width > format.textWidth * 0.90) {
+          if (width > format.textWidth * 0.97) {
             if (currentLine) lines.push(currentLine);
             currentLine = word;
           } else {
