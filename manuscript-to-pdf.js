@@ -259,6 +259,102 @@ class ManuscriptToPDF extends ToolBase {
     });
   }
 
+  /**
+   * Create Table of Contents pages
+   * @param {Object} doc - PDFKit document
+   * @param {Array} chapters - Array of chapter objects
+   * @param {Array} chapterPageNumbers - Array of page numbers for each chapter
+   * @param {Object} metadata - Book metadata
+   * @returns {number} - Number of TOC pages added
+   */
+  createTableOfContents(doc, chapters, chapterPageNumbers, metadata) {
+    // Start TOC on a new page
+    doc.addPage();
+    
+    const pageWidth = 432;
+    const leftMargin = 63;
+    const rightMargin = 63;
+    const contentWidth = pageWidth - leftMargin - rightMargin;
+    
+    // TOC Title
+    doc.font('bold')
+      .fontSize(18)
+      .text('CONTENTS', 0, doc.page.margins.top + 72, {
+        align: 'center',
+        width: pageWidth
+      });
+    
+    doc.moveDown(3);
+    
+    // Set up for chapter entries
+    doc.font('regular').fontSize(11);
+    let tocPagesAdded = 1;
+    
+    chapters.forEach((chapter, index) => {
+      // Check if we need a new page
+      if (doc.y > doc.page.height - doc.page.margins.bottom - 50) {
+        doc.addPage();
+        tocPagesAdded++;
+        doc.font('regular').fontSize(11);
+      }
+      
+      const pageNum = chapterPageNumbers[index];
+      
+      // Extract chapter number and title for TOC
+      const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)(?::\s*)?(.*)$/i);
+      let tocEntry;
+      
+      if (chapterMatch) {
+        const chapterNum = chapterMatch[1];
+        const titleOnly = chapterMatch[2].trim();
+        
+        if (titleOnly) {
+          tocEntry = `${chapterNum}. ${titleOnly}`;
+        } else {
+          tocEntry = chapterNum;
+        }
+      } else {
+        // Fallback for non-standard chapter titles
+        tocEntry = chapter.title;
+      }
+      
+      // Create the TOC line with dots
+      const dotWidth = doc.widthOfString('.');
+      const entryWidth = doc.widthOfString(tocEntry);
+      const pageNumWidth = doc.widthOfString(pageNum.toString());
+      const availableWidth = contentWidth - entryWidth - pageNumWidth;
+      const numDots = Math.floor(availableWidth / dotWidth) - 2; // Leave some padding
+      const dots = '.'.repeat(Math.max(numDots, 3));
+      
+      const tocLine = `${tocEntry} ${dots} ${pageNum}`;
+      
+      doc.text(tocLine, leftMargin, doc.y, {
+        width: contentWidth,
+        align: 'left'
+      });
+      
+      doc.moveDown(0.8);
+    });
+    
+    // Add "About the Author" if present (not numbered)
+    if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
+      // Check if we need a new page
+      if (doc.y > doc.page.height - doc.page.margins.bottom - 50) {
+        doc.addPage();
+        tocPagesAdded++;
+        doc.font('regular').fontSize(11);
+      }
+      
+      doc.moveDown(1);
+      doc.text('About the Author', leftMargin, doc.y, {
+        width: contentWidth,
+        align: 'left'
+      });
+    }
+    
+    return tocPagesAdded;
+  }
+
   // Create PDF with title page and all chapters
   async createPDF(chapters, metadata) {
     // Check for EB Garamond fonts
@@ -295,8 +391,10 @@ class ManuscriptToPDF extends ToolBase {
     doc.info.Author = metadata.author;
     doc.info.Creator = 'StoryGrind';
     
-    // Track chapter start pages for header logic
-    const chapterStartPages = new Set();
+    // Track pages that should not have headers (chapter starts and blank pages)
+    const skipHeaderPages = new Set();
+    // Track pages that should not have page numbers (only blank pages)
+    const skipPageNumberPages = new Set();
     
     // Add first page and create title page
     doc.addPage();
@@ -305,23 +403,59 @@ class ManuscriptToPDF extends ToolBase {
     // Add copyright page
     this.createCopyrightPage(doc, metadata);
 
-    // Track current page count
+    // First, calculate chapter page numbers for TOC
     let currentPageCount = 2; // We've added title and copyright pages
-
-    // Each chapter starts on a new page
+    
+    // Reserve space for TOC (estimate 1-2 pages, we'll adjust later)
+    const estimatedTocPages = Math.ceil(chapters.length / 25) + 1; // Rough estimate
+    currentPageCount += estimatedTocPages;
+    
+    // Calculate chapter page numbers
+    const chapterPageNumbers = [];
+    chapters.forEach((chapter, chapterIndex) => {
+      // Ensure chapters start on odd pages (right-hand pages)
+      if (currentPageCount % 2 === 0) {
+        currentPageCount++; // Account for blank page
+      }
+      currentPageCount++; // The chapter page
+      chapterPageNumbers.push(currentPageCount);
+      
+      // Estimate pages for chapter content (rough calculation)
+      const wordCount = chapter.paragraphs.join(' ').split(/\s+/).length;
+      const estimatedPages = Math.ceil(wordCount / 250); // ~250 words per page
+      currentPageCount += estimatedPages - 1; // -1 because we already counted the chapter start page
+    });
+    
+    // Now create the TOC with calculated page numbers
+    const actualTocPages = this.createTableOfContents(doc, chapters, chapterPageNumbers, metadata);
+    
+    // Add TOC pages to skip sets (no headers or page numbers)
+    for (let i = 0; i < actualTocPages; i++) {
+      const tocPageIndex = 2 + i; // After title (0) and copyright (1)
+      skipHeaderPages.add(tocPageIndex);
+      skipPageNumberPages.add(tocPageIndex);
+    }
+    
+    // Reset page count to account for actual TOC pages
+    currentPageCount = 2 + actualTocPages;
+    
+    // Now create the actual chapters
     chapters.forEach((chapter, chapterIndex) => {
       // Ensure chapters start on odd pages (right-hand pages)
       // If we're currently on an even page, add a blank page
       if (currentPageCount % 2 === 0) {
         doc.addPage(); // Add blank page
         currentPageCount++;
+        // Add this blank page to both skip sets (0-indexed)
+        skipHeaderPages.add(currentPageCount - 1);
+        skipPageNumberPages.add(currentPageCount - 1);
       }
       
       doc.addPage(); // Add the chapter page
       currentPageCount++;
       
-      // Record this as a chapter start page (0-indexed)
-      chapterStartPages.add(currentPageCount - 1);
+      // Record this as a chapter start page - skip headers but keep page numbers (0-indexed)
+      skipHeaderPages.add(currentPageCount - 1);
       
       // Reset cursor to top margin position - with extra space from top
       doc.y = doc.page.margins.top + 72; // Add 1 inch of extra space at top
@@ -388,65 +522,67 @@ class ManuscriptToPDF extends ToolBase {
       // Skip first two pages (title and copyright)
       if (i < 2) continue;
       
-      // Skip chapter start pages (no headers on chapter opening pages)
-      if (chapterStartPages.has(i)) continue;
-      
       // Switch to page
       doc.switchToPage(i);
       
       // Calculate actual page number (1-based for display)
       const pageNum = i + 1;
       
-      // Add headers
-      let oldTopMargin = doc.page.margins.top;
-      doc.page.margins.top = 0; // Remove top margin to write into it
-      
-      doc.font('regular').fontSize(10);
-      
-      // Even pages (left pages) - Author name on left
-      if (pageNum % 2 === 0) {
-        doc.text(
-          authorHeader,
-          doc.page.margins.left,
-          oldTopMargin / 2, // Centered vertically in top margin
-          { 
-            align: 'left',
-            width: doc.page.width - doc.page.margins.left - doc.page.margins.right
-          }
-        );
+      // Add headers only if not a chapter start or blank page
+      if (!skipHeaderPages.has(i)) {
+        // Add headers
+        let oldTopMargin = doc.page.margins.top;
+        doc.page.margins.top = 0; // Remove top margin to write into it
+        
+        doc.font('regular').fontSize(10);
+        
+        // Even pages (left pages) - Author name on left
+        if (pageNum % 2 === 0) {
+          doc.text(
+            authorHeader,
+            doc.page.margins.left,
+            oldTopMargin / 2, // Centered vertically in top margin
+            { 
+              align: 'left',
+              width: doc.page.width - doc.page.margins.left - doc.page.margins.right
+            }
+          );
+        }
+        // Odd pages (right pages) - Title on right
+        else {
+          doc.text(
+            titleHeader,
+            doc.page.margins.left,
+            oldTopMargin / 2, // Centered vertically in top margin
+            { 
+              align: 'right',
+              width: doc.page.width - doc.page.margins.left - doc.page.margins.right
+            }
+          );
+        }
+        
+        doc.page.margins.top = oldTopMargin; // Restore top margin
       }
-      // Odd pages (right pages) - Title on right
-      else {
-        doc.text(
-          titleHeader,
-          doc.page.margins.left,
-          oldTopMargin / 2, // Centered vertically in top margin
-          { 
-            align: 'right',
-            width: doc.page.width - doc.page.margins.left - doc.page.margins.right
-          }
-        );
+      
+      // Footer: Add page number to all pages except blank pages
+      if (!skipPageNumberPages.has(i)) {
+        let oldBottomMargin = doc.page.margins.bottom;
+        doc.page.margins.bottom = 0; // Remove bottom margin to write into it
+        
+        doc.font('regular')
+          .fontSize(10)
+          .text(
+            pageNum.toString(),
+            0,
+            doc.page.height - (oldBottomMargin / 2), // Centered vertically in bottom margin
+            { 
+              align: 'center',
+              width: doc.page.width
+            }
+          );
+        
+        doc.page.margins.bottom = oldBottomMargin; // Restore bottom margin
       }
-      
-      doc.page.margins.top = oldTopMargin; // Restore top margin
-      
-      // Footer: Add page number
-      let oldBottomMargin = doc.page.margins.bottom;
-      doc.page.margins.bottom = 0; // Remove bottom margin to write into it
-      
-      doc.font('regular')
-        .fontSize(10)
-        .text(
-          pageNum.toString(),
-          0,
-          doc.page.height - (oldBottomMargin / 2), // Centered vertically in bottom margin
-          { 
-            align: 'center',
-            width: doc.page.width
-          }
-        );
-      
-      doc.page.margins.bottom = oldBottomMargin; // Restore bottom margin
     }
 
     // End the document and return buffer
