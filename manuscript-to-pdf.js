@@ -295,36 +295,47 @@ class ManuscriptToPDF extends ToolBase {
     chapters.forEach((chapter, chapterIndex) => {
       doc.addPage(); // always addPage before each chapter
       
-      // Reset cursor to top margin position
-      doc.y = doc.page.margins.top;
+      // Reset cursor to top margin position - with extra space from top
+      doc.y = doc.page.margins.top + 72; // Add 1 inch of extra space at top
 
-      // Extract chapter number
-      const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)/i);
+      // Extract chapter number and title
+      const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)(?::\s*)?(.*)$/i);
       if (chapterMatch) {
         const chapterNum = chapterMatch[1];
-        // Don't display just the number - commented out to remove "2", "3" at top
-        // doc.font('regular')
-        //   .fontSize(13)
-        //   .text(chapterNum, { align: 'center' });
-        // doc.moveDown(0.5);
-        const titleOnly = chapter.title.replace(chapterMatch[0], '').replace(/^:\s*/, '').trim();
+        const titleOnly = chapterMatch[2].trim();
+        
+        // Display chapter number centered
+        doc.font('bold')
+          .fontSize(18)
+          .text(chapterNum, { align: 'center' });
+        
+        // Add a small gap between number and title
+        doc.moveDown(0.5);
+        
+        // Display title if present
         if (titleOnly) {
           doc.font('bold')
-            .fontSize(14)
-            .text(titleOnly.toUpperCase(), { align: 'center' });
+            .fontSize(16)
+            .text(titleOnly, { align: 'center' });
         }
       } else {
+        // Fallback for chapters without "Chapter N" format
         doc.font('bold')
-          .fontSize(14)
+          .fontSize(16)
           .text(chapter.title, { align: 'center' });
       }
 
-      doc.moveDown(1.5);
+      // Add significant blank space before content starts
+      doc.moveDown(4); // More space between title and content
+      
+      // Start the chapter content
       doc.font('regular').fontSize(11);
       chapter.paragraphs.forEach((paragraph, paraIndex) => {
         if (paraIndex === 0) {
+          // First paragraph has no indent
           doc.text(paragraph, { paragraphGap: 2, lineGap: 1 });
         } else {
+          // Subsequent paragraphs are indented
           doc.text(paragraph, { indent: 15, paragraphGap: 2, lineGap: 1 });
         }
       });
@@ -367,16 +378,14 @@ class ManuscriptToPDF extends ToolBase {
     ];
 
     let splits = [text];
+    let chapterTitles = [];
 
     // Try each pattern to find chapter breaks
     for (const pattern of chapterPatterns) {
       const matches = text.match(pattern);
       if (matches && matches.length > 1) {
         splits = text.split(pattern);
-        // Re-add the chapter titles to content
-        for (let i = 1; i < splits.length; i++) {
-          splits[i] = matches[i - 1].trim() + '\n\n' + splits[i];
-        }
+        chapterTitles = matches.map(m => m.trim());
         break;
       }
     }
@@ -390,21 +399,29 @@ class ManuscriptToPDF extends ToolBase {
     }
 
     // Process each split into chapters
+    let chapterCount = 0;
     splits.forEach((section, index) => {
       section = section.trim();
       if (section.length < 50) return;
 
-      const lines = section.split('\n');
       let title = '';
       let content = section;
 
-      const firstLine = lines[0].trim();
-
-      if (this.isManuscriptChapterTitle(firstLine)) {
-        title = firstLine;
-        content = lines.slice(1).join('\n').trim();
+      // If we have chapter titles from pattern matching, use them
+      if (chapterTitles.length > 0 && index > 0 && index - 1 < chapterTitles.length) {
+        title = chapterTitles[index - 1];
+        // Content is already clean since we split by the pattern
       } else {
-        title = `Chapter ${index + 1}`;
+        // Otherwise check if first line is a chapter title
+        const lines = section.split('\n');
+        const firstLine = lines[0].trim();
+        
+        if (this.isManuscriptChapterTitle(firstLine)) {
+          title = firstLine;
+          content = lines.slice(1).join('\n').trim();
+        } else {
+          title = `Chapter ${chapterCount + 1}`;
+        }
       }
 
       // Split content into paragraphs
@@ -415,10 +432,11 @@ class ManuscriptToPDF extends ToolBase {
 
       if (paragraphs.length > 0) {
         chapters.push({
-          id: `chapter${index + 1}`,
+          id: `chapter${chapterCount + 1}`,
           title: title,
           paragraphs: paragraphs
         });
+        chapterCount++;
       }
     });
 
