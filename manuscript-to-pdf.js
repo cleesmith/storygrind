@@ -248,6 +248,17 @@ class ManuscriptToPDF extends ToolBase {
     });
   }
 
+  /**
+   * Convert title to title case (capitalize first letter of each word)
+   * @param {string} str - String to convert
+   * @returns {string} - Title cased string
+   */
+  toTitleCase(str) {
+    return str.replace(/\w\S*/g, function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+  }
+
   // Create PDF with title page and all chapters
   async createPDF(chapters, metadata) {
     // Check for EB Garamond fonts
@@ -284,6 +295,9 @@ class ManuscriptToPDF extends ToolBase {
     doc.info.Author = metadata.author;
     doc.info.Creator = 'StoryGrind';
     
+    // Track chapter start pages for header logic
+    const chapterStartPages = new Set();
+    
     // Add first page and create title page
     doc.addPage();
     this.createTitlePage(doc, metadata);
@@ -291,9 +305,23 @@ class ManuscriptToPDF extends ToolBase {
     // Add copyright page
     this.createCopyrightPage(doc, metadata);
 
+    // Track current page count
+    let currentPageCount = 2; // We've added title and copyright pages
+
     // Each chapter starts on a new page
     chapters.forEach((chapter, chapterIndex) => {
-      doc.addPage(); // always addPage before each chapter
+      // Ensure chapters start on odd pages (right-hand pages)
+      // If we're currently on an even page, add a blank page
+      if (currentPageCount % 2 === 0) {
+        doc.addPage(); // Add blank page
+        currentPageCount++;
+      }
+      
+      doc.addPage(); // Add the chapter page
+      currentPageCount++;
+      
+      // Record this as a chapter start page (0-indexed)
+      chapterStartPages.add(currentPageCount - 1);
       
       // Reset cursor to top margin position - with extra space from top
       doc.y = doc.page.margins.top + 72; // Add 1 inch of extra space at top
@@ -339,24 +367,68 @@ class ManuscriptToPDF extends ToolBase {
           doc.text(paragraph, { indent: 15, paragraphGap: 2, lineGap: 1 });
         }
       });
+      
+      // Update page count after adding chapter content
+      // This is approximate - we'd need to track actual pages added
+      const range = doc.bufferedPageRange();
+      currentPageCount = range.start + range.count;
     });
 
-    // Now add page numbers to all pages (except title and copyright)
-    // This is done after all content is added to avoid interference
+    // Now add headers and page numbers to all pages
     const range = doc.bufferedPageRange();
     
     // CRITICAL: Reset cursor position before page numbering loop
     doc.text('', 0, 0);
     
+    // Prepare header text
+    const authorHeader = metadata.author.toUpperCase();
+    const titleHeader = this.toTitleCase(metadata.title);
+    
     for (let i = 0; i < range.count; i++) {
       // Skip first two pages (title and copyright)
       if (i < 2) continue;
       
+      // Skip chapter start pages (no headers on chapter opening pages)
+      if (chapterStartPages.has(i)) continue;
+      
       // Switch to page
       doc.switchToPage(i);
       
-      // Calculate page number (starting from 3)
+      // Calculate actual page number (1-based for display)
       const pageNum = i + 1;
+      
+      // Add headers
+      let oldTopMargin = doc.page.margins.top;
+      doc.page.margins.top = 0; // Remove top margin to write into it
+      
+      doc.font('regular').fontSize(10);
+      
+      // Even pages (left pages) - Author name on left
+      if (pageNum % 2 === 0) {
+        doc.text(
+          authorHeader,
+          doc.page.margins.left,
+          oldTopMargin / 2, // Centered vertically in top margin
+          { 
+            align: 'left',
+            width: doc.page.width - doc.page.margins.left - doc.page.margins.right
+          }
+        );
+      }
+      // Odd pages (right pages) - Title on right
+      else {
+        doc.text(
+          titleHeader,
+          doc.page.margins.left,
+          oldTopMargin / 2, // Centered vertically in top margin
+          { 
+            align: 'right',
+            width: doc.page.width - doc.page.margins.left - doc.page.margins.right
+          }
+        );
+      }
+      
+      doc.page.margins.top = oldTopMargin; // Restore top margin
       
       // Footer: Add page number
       let oldBottomMargin = doc.page.margins.bottom;
