@@ -283,7 +283,7 @@ class ManuscriptToPDF extends ToolBase {
     doc.info.Title = metadata.title;
     doc.info.Author = metadata.author;
     doc.info.Creator = 'StoryGrind';
-
+    
     // Add first page and create title page
     doc.addPage();
     this.createTitlePage(doc, metadata);
@@ -340,6 +340,37 @@ class ManuscriptToPDF extends ToolBase {
         }
       });
     });
+
+    // Now add page numbers to all pages (except title and copyright)
+    // This is done after all content is added to avoid interference
+    const range = doc.bufferedPageRange();
+    for (let i = 0; i < range.count; i++) {
+      // Skip first two pages (title and copyright)
+      if (i < 2) continue;
+      
+      // Switch to page
+      doc.switchToPage(i);
+      
+      // Calculate page number (starting from 3)
+      const pageNum = i + 1;
+      
+      // Save the current graphics state
+      doc.save();
+      
+      // Set font for page number
+      doc.font('regular').fontSize(10);
+      
+      // Add page number at bottom center
+      // Use absolute positioning to ensure it's at the bottom
+      const pageNumY = doc.page.height - 50;
+      doc.text(pageNum.toString(), 0, pageNumY, {
+        width: doc.page.width,
+        align: 'center'
+      });
+      
+      // Restore graphics state
+      doc.restore();
+    }
 
     // End the document and return buffer
     doc.end();
