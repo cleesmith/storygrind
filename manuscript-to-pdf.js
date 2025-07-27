@@ -344,6 +344,10 @@ class ManuscriptToPDF extends ToolBase {
     // Now add page numbers to all pages (except title and copyright)
     // This is done after all content is added to avoid interference
     const range = doc.bufferedPageRange();
+    
+    // CRITICAL: Reset cursor position before page numbering loop
+    doc.text('', 0, 0);
+    
     for (let i = 0; i < range.count; i++) {
       // Skip first two pages (title and copyright)
       if (i < 2) continue;
@@ -354,22 +358,23 @@ class ManuscriptToPDF extends ToolBase {
       // Calculate page number (starting from 3)
       const pageNum = i + 1;
       
-      // Save the current graphics state
-      doc.save();
+      // Footer: Add page number
+      let oldBottomMargin = doc.page.margins.bottom;
+      doc.page.margins.bottom = 0; // Remove bottom margin to write into it
       
-      // Set font for page number
-      doc.font('regular').fontSize(10);
+      doc.font('regular')
+        .fontSize(10)
+        .text(
+          pageNum.toString(),
+          0,
+          doc.page.height - (oldBottomMargin / 2), // Centered vertically in bottom margin
+          { 
+            align: 'center',
+            width: doc.page.width
+          }
+        );
       
-      // Add page number at bottom center
-      // Use absolute positioning to ensure it's at the bottom
-      const pageNumY = doc.page.height - 50;
-      doc.text(pageNum.toString(), 0, pageNumY, {
-        width: doc.page.width,
-        align: 'center'
-      });
-      
-      // Restore graphics state
-      doc.restore();
+      doc.page.margins.bottom = oldBottomMargin; // Restore bottom margin
     }
 
     // End the document and return buffer
