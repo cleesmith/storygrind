@@ -105,7 +105,7 @@ class ManuscriptToPDF extends ToolBase {
       this.emitOutput(`Found ${chapters.length} chapters\n`);
 
       // ========== TESTING MODE: Remove this block for production ==========
-      const TESTING_MODE = true; // Set to false to process entire manuscript
+      const TESTING_MODE = false; // Set to false to process entire manuscript
       if (TESTING_MODE && chapters.length > 2) {
         chapters = chapters.slice(0, 2);
         this.emitOutput(`⚠️  TESTING MODE: Limited to first ${chapters.length} chapters\n`);
@@ -284,7 +284,7 @@ class ManuscriptToPDF extends ToolBase {
         width: pageWidth
       });
     
-    doc.moveDown(3);
+    doc.moveDown(1);
     
     // Set up for chapter entries
     doc.font('regular').fontSize(11);
@@ -333,7 +333,7 @@ class ManuscriptToPDF extends ToolBase {
         align: 'left'
       });
       
-      doc.moveDown(0.8);
+      doc.moveDown(0.1);
     });
     
     // Add "About the Author" if present (not numbered)
