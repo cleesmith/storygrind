@@ -483,7 +483,10 @@ class ManuscriptToPDF extends ToolBase {
 
   /**
    * Parse Manuscript text into chapters
-   * Supports various title formats with double newline before title
+   * Supports various title formats with:
+   *  ==============                  ==============
+   *  DOUBLE NEWLINE before title and SINGLE NEWLINE after title
+   *  ==============                  ==============
    * @param {string} text - Raw text content
    * @returns {Array} - Array of chapter objects
    */
