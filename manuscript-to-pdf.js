@@ -324,11 +324,12 @@ class ManuscriptToPDF extends ToolBase {
       doc.y = doc.page.margins.top + 72; // Add 1 inch of extra space at top
 
       // Extract chapter number and title
-      const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)(?::\s*)?(.*)$/i);
+      // const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)(?::\s*)?(.*)$/i);
+      const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)[\.:]?\s*(.*)$/i);
       if (chapterMatch) {
         const chapterNum = chapterMatch[1];
         const titleOnly = chapterMatch[2].trim();
-        
+
         // Display chapter number centered
         doc.font('bold')
           .fontSize(18)
@@ -482,108 +483,138 @@ class ManuscriptToPDF extends ToolBase {
 
   /**
    * Parse Manuscript text into chapters
+   * Supports various title formats with double newline before title
    * @param {string} text - Raw text content
    * @returns {Array} - Array of chapter objects
    */
   parseManuscriptText(text) {
     const chapters = [];
-
-    // Normalize line endings
-    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-    // Manuscript chapter patterns
-    const chapterPatterns = [
-      /\n\s*Chapter\s+\d+:\s*[^\n]*\n/gi,        // "Chapter 1: The Big Show"
-      /\n\s*Chapter\s+\d+[^\n]*\n/gi,            // "Chapter 1"
-      /\n\s*Chapter\s+[IVXLCDM]+:\s*[^\n]*\n/gi, // Roman with colon
-      /\n\s*Chapter\s+[IVXLCDM]+[^\n]*\n/gi,     // Roman
-      /\n\s*\d+\.\s*[^\n]*\n/g,                  // Numbered
-      /\n\s*#{1,3}\s+[^\n]+\n/g,                 // Markdown
-      /\n\s*\*\s*\*\s*\*\s*\n/g                  // Separators
-    ];
-
-    let splits = [text];
-    let chapterTitles = [];
-
-    // Try each pattern to find chapter breaks
-    for (const pattern of chapterPatterns) {
-      const matches = text.match(pattern);
-      if (matches && matches.length > 1) {
-        splits = text.split(pattern);
-        chapterTitles = matches.map(m => m.trim());
-        break;
-      }
-    }
-
-    // If no patterns found, split by gaps
-    if (splits.length === 1) {
-      splits = text.split(/\n\s*\n\s*\n\s*\n/);
-      if (splits.length === 1) {
-        splits = text.split(/\f/);
-      }
-    }
-
-    // Process each split into chapters
+    
+    // Normalize line endings and trim
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+    
+    // Split by double (or more) newlines - this gives us potential chapter boundaries
+    const sections = text.split(/\n\s*\n\s*\n+/);
+    
     let chapterCount = 0;
-    splits.forEach((section, index) => {
-      section = section.trim();
-      if (section.length < 50) return;
-
-      let title = '';
-      let content = section;
-
-      // If we have chapter titles from pattern matching, use them
-      if (chapterTitles.length > 0 && index > 0 && index - 1 < chapterTitles.length) {
-        title = chapterTitles[index - 1];
-        // Content is already clean since we split by the pattern
-      } else {
-        // Otherwise check if first line is a chapter title
-        const lines = section.split('\n');
-        const firstLine = lines[0].trim();
+    
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i].trim();
+      if (!section || section.length < 50) continue;
+      
+      // Split section into lines
+      const lines = section.split('\n');
+      if (lines.length < 2) continue;
+      
+      // First line could be a title
+      const firstLine = lines[0].trim();
+      const remainingContent = lines.slice(1).join('\n').trim();
+      
+      // Check if first line looks like a title (not too long, has content after it)
+      if (firstLine && firstLine.length <= 120 && remainingContent.length > 50) {
+        chapterCount++;
         
-        if (this.isManuscriptChapterTitle(firstLine)) {
-          title = firstLine;
-          content = lines.slice(1).join('\n').trim();
-        } else {
-          title = `Chapter ${chapterCount + 1}`;
+        // Format the title appropriately
+        const formattedTitle = this.formatChapterTitle(firstLine, chapterCount);
+        
+        // Split remaining content into paragraphs
+        const paragraphs = remainingContent
+          .split(/\n\s*\n/)
+          .map(p => p.replace(/\n/g, ' ').trim())
+          .filter(p => p.length > 0);
+        
+        if (paragraphs.length > 0) {
+          chapters.push({
+            id: `chapter${chapterCount}`,
+            title: formattedTitle,
+            paragraphs: paragraphs
+          });
+        }
+      } else {
+        // Whole section is content without clear title
+        chapterCount++;
+        
+        const paragraphs = section
+          .split(/\n\s*\n/)
+          .map(p => p.replace(/\n/g, ' ').trim())
+          .filter(p => p.length > 0);
+        
+        if (paragraphs.length > 0) {
+          chapters.push({
+            id: `chapter${chapterCount}`,
+            title: `Chapter ${chapterCount}`,
+            paragraphs: paragraphs
+          });
         }
       }
-
-      // Split content into paragraphs
-      const paragraphs = content
-        .split(/\n\s*\n/)
-        .map(p => p.replace(/\n/g, ' ').trim())
-        .filter(p => p.length > 0);
-
-      if (paragraphs.length > 0) {
-        chapters.push({
-          id: `chapter${chapterCount + 1}`,
-          title: title,
-          paragraphs: paragraphs
-        });
-        chapterCount++;
-      }
-    });
-
-    // If still no chapters, create one big chapter
+    }
+    
+    // If no chapters found, treat whole text as one chapter
     if (chapters.length === 0) {
       const paragraphs = text
         .split(/\n\s*\n/)
         .map(p => p.replace(/\n/g, ' ').trim())
         .filter(p => p.length > 0);
-
-      chapters.push({
-        id: 'chapter1',
-        title: 'Chapter 1',
-        paragraphs: paragraphs
-      });
+      
+      if (paragraphs.length > 0) {
+        chapters.push({
+          id: 'chapter1',
+          title: 'Chapter 1',
+          paragraphs: paragraphs
+        });
+      }
     }
-
+    
     return chapters;
   }
 
   /**
-   * Check if a line looks like a Manuscript chapter title
+   * Format a chapter title, preserving existing formats or adding "Chapter N" if needed
+   * @param {string} title - Raw title text
+   * @param {number} chapterNum - Chapter number for fallback
+   * @returns {string} - Formatted title
+   */
+  formatChapterTitle(title, chapterNum) {
+    // Already has "Chapter N" format
+    const chapterMatch = title.match(/^Chapter\s+(\d+|[IVXLCDM]+)[\.:]?\s*(.*)$/i);
+    if (chapterMatch) {
+      const num = chapterMatch[1];
+      const subtitle = chapterMatch[2].trim();
+      return subtitle ? `Chapter ${num}: ${subtitle}` : `Chapter ${num}`;
+    }
+    
+    // Numbered format like "1. Title"
+    const numberedMatch = title.match(/^(\d+)\.\s*(.*)$/);
+    if (numberedMatch) {
+      const subtitle = numberedMatch[2].trim();
+      return subtitle ? `Chapter ${numberedMatch[1]}: ${subtitle}` : `Chapter ${numberedMatch[1]}`;
+    }
+    
+    // Markdown heading
+    const markdownMatch = title.match(/^#+\s+(.+)$/);
+    if (markdownMatch) {
+      return markdownMatch[1].trim();
+    }
+    
+    // Scene break markers
+    if (/^\*\s*\*\s*\*$/.test(title)) {
+      return `Chapter ${chapterNum}`;
+    }
+    
+    // Plain text title - if it's short and looks like a title, keep it as is
+    if (title.length <= 80 && !title.includes('.') && !title.includes('?')) {
+      // Check if it's all caps or title case - likely a real title
+      if (title === title.toUpperCase() || /^[A-Z]/.test(title)) {
+        return title;
+      }
+    }
+    
+    // Default: add Chapter prefix
+    return `Chapter ${chapterNum}: ${title}`;
+  }
+
+  /**
+   * Check if a line looks like a chapter title
    * @param {string} line - Line to check
    * @returns {boolean} - True if likely a chapter title
    */
