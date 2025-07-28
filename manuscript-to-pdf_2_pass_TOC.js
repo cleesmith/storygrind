@@ -117,7 +117,7 @@ class ManuscriptToPDF extends ToolBase {
         aboutAuthor: projectMetadata.aboutAuthor
       };
 
-      // Create PDF with all content
+      // Create PDF with all content using 2-pass system
       const pdfBuffer = await this.createPDF(chapters, metadata);
 
       // Save PDF
@@ -153,6 +153,370 @@ class ManuscriptToPDF extends ToolBase {
       this.emitOutput(`\nError: ${error.message}\n`);
       throw error;
     }
+  }
+
+  /**
+   * First pass: Layout simulation to get accurate page numbers
+   * @param {Array} chapters - Array of chapter objects
+   * @param {Object} metadata - Book metadata
+   * @returns {Object} - Layout information including TOC entries and page tracking
+   */
+  // simulateLayout(chapters, metadata) {
+  //   // Check for fonts (same as in createPDF)
+  //   const regularFontPath = path.join(__dirname, 'EBGaramond-Regular.ttf');
+  //   const boldFontPath = path.join(__dirname, 'EBGaramond-Bold.ttf');
+
+  //   if (!fs.existsSync(regularFontPath) || !fs.existsSync(boldFontPath)) {
+  //     throw new Error('Font files not found');
+  //   }
+
+  //   // Create a dummy PDF document for simulation
+  //   const doc = new PDFDocument({
+  //     size: [432, 648],
+  //     margins: {
+  //       top: 72,
+  //       bottom: 72,
+  //       left: 63,
+  //       right: 63
+  //     },
+  //     autoFirstPage: false,
+  //     bufferPages: true
+  //   });
+
+  //   // Register fonts
+  //   doc.registerFont('regular', regularFontPath);
+  //   doc.registerFont('bold', boldFontPath);
+
+  //   // Track page information
+  //   const tocEntries = [];
+  //   const skipHeaderPages = new Set();
+  //   const skipPageNumberPages = new Set();
+
+  //   // Title page (page 1)
+  //   doc.addPage();
+  //   this.createTitlePage(doc, metadata);
+
+  //   // Copyright page (page 2)
+  //   this.createCopyrightPage(doc, metadata);
+
+  //   // Store the page index where TOC starts
+  //   const tocStartPage = doc.bufferedPageRange().count;
+
+  //   // Create TOC to determine its page count
+  //   doc.addPage();
+  //   skipHeaderPages.add(tocStartPage);
+  //   skipPageNumberPages.add(tocStartPage);
+
+  //   // Simulate TOC
+  //   doc.font('bold').fontSize(18).text('CONTENTS', 0, doc.page.margins.top + 72, {
+  //     align: 'center',
+  //     width: 432
+  //   });
+  //   doc.moveDown(1);
+  //   doc.font('regular').fontSize(11);
+
+  //   let tocPageCount = 1;
+  //   chapters.forEach((chapter, index) => {
+  //     // Check if we need new page for TOC
+  //     if (doc.y > doc.page.height - doc.page.margins.bottom - 50) {
+  //       doc.addPage();
+  //       tocPageCount++;
+  //       skipHeaderPages.add(tocStartPage + tocPageCount - 1);
+  //       skipPageNumberPages.add(tocStartPage + tocPageCount - 1);
+  //       doc.font('regular').fontSize(11);
+  //     }
+      
+  //     // Simulate TOC entry with dummy page number
+  //     const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)(?::\s*)?(.*)$/i);
+  //     let tocEntry;
+      
+  //     if (chapterMatch) {
+  //       const chapterNum = chapterMatch[1];
+  //       const titleOnly = chapterMatch[2].trim();
+        
+  //       if (titleOnly) {
+  //         tocEntry = `${chapterNum}. ${titleOnly}`;
+  //       } else {
+  //         tocEntry = chapterNum;
+  //       }
+  //     } else {
+  //       tocEntry = chapter.title;
+  //     }
+      
+  //     // Use maximum width estimate for page number alignment
+  //     const tocLine = `${tocEntry} ......................... 999`;
+  //     doc.text(tocLine, 63, doc.y, { width: 306 });
+  //     doc.moveDown(0.1);
+  //   });
+
+  //   // Add "About the Author" to TOC if present
+  //   if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
+  //     if (doc.y > doc.page.height - doc.page.margins.bottom - 50) {
+  //       doc.addPage();
+  //       tocPageCount++;
+  //       skipHeaderPages.add(tocStartPage + tocPageCount - 1);
+  //       skipPageNumberPages.add(tocStartPage + tocPageCount - 1);
+  //     }
+  //     doc.moveDown(1);
+  //     doc.text('About the Author', 63, doc.y, { width: 306 });
+  //   }
+
+  //   // Now calculate current page count after TOC
+  //   let currentPageCount = 2 + tocPageCount; // Title + Copyright + TOC pages
+
+  //   // Check if we need a blank page after TOC (to make chapter 1 start on odd page)
+  //   let blankPageAfterToc = false;
+  //   if (currentPageCount % 2 === 0) {
+  //     blankPageAfterToc = true;
+  //     doc.addPage(); // Add blank page
+  //     skipHeaderPages.add(currentPageCount);
+  //     skipPageNumberPages.add(currentPageCount);
+  //     currentPageCount++;
+  //   }
+
+  //   // Now simulate each chapter
+  //   chapters.forEach((chapter, index) => {
+  //     // Ensure chapters start on odd pages
+  //     if (currentPageCount % 2 === 0) {
+  //       doc.addPage(); // Add blank page
+  //       skipHeaderPages.add(currentPageCount);
+  //       skipPageNumberPages.add(currentPageCount);
+  //       currentPageCount++;
+  //     }
+
+  //     doc.addPage();
+  //     tocEntries.push({
+  //       title: chapter.title,
+  //       pageNumber: currentPageCount
+  //     });
+  //     skipHeaderPages.add(currentPageCount);
+
+  //     // Simulate chapter layout
+  //     doc.y = doc.page.margins.top + 72;
+
+  //     const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)(?::\s*)?(.*)$/i);
+  //     if (chapterMatch) {
+  //       const chapterNum = chapterMatch[1];
+  //       const titleOnly = chapterMatch[2].trim();
+        
+  //       doc.font('bold').fontSize(18).text(chapterNum, { align: 'center' });
+  //       doc.moveDown(0.5);
+        
+  //       if (titleOnly) {
+  //         doc.font('bold').fontSize(16).text(titleOnly, { align: 'center' });
+  //       }
+  //     } else {
+  //       doc.font('bold').fontSize(16).text(chapter.title, { align: 'center' });
+  //     }
+
+  //     doc.moveDown(4);
+  //     doc.font('regular').fontSize(11);
+
+  //     // Simulate chapter content
+  //     chapter.paragraphs.forEach((paragraph, paraIndex) => {
+  //       if (paraIndex === 0) {
+  //         doc.text(paragraph, { paragraphGap: 2, lineGap: 1 });
+  //       } else {
+  //         doc.text(paragraph, { indent: 15, paragraphGap: 2, lineGap: 1 });
+  //       }
+  //     });
+
+  //     // Update current page count based on actual pages used
+  //     const range = doc.bufferedPageRange();
+  //     currentPageCount = range.count;
+  //   });
+
+  //   // End simulation
+  //   doc.end();
+
+  //   return {
+  //     tocEntries,
+  //     tocPageCount,
+  //     blankPageAfterToc,
+  //     skipHeaderPages,
+  //     skipPageNumberPages,
+  //     tocStartPageIndex: tocStartPage
+  //   };
+  // }
+  simulateLayout(chapters, metadata) {
+    // Check for fonts (same as in createPDF)
+    const regularFontPath = path.join(__dirname, 'EBGaramond-Regular.ttf');
+    const boldFontPath = path.join(__dirname, 'EBGaramond-Bold.ttf');
+
+    if (!fs.existsSync(regularFontPath) || !fs.existsSync(boldFontPath)) {
+      throw new Error('Font files not found');
+    }
+
+    // Create a dummy PDF document for simulation
+    const doc = new PDFDocument({
+      size: [432, 648],
+      margins: {
+        top: 72,
+        bottom: 72,
+        left: 63,
+        right: 63
+      },
+      autoFirstPage: false,
+      bufferPages: true
+    });
+
+    // Register fonts
+    doc.registerFont('regular', regularFontPath);
+    doc.registerFont('bold', boldFontPath);
+
+    // Track page information
+    const tocEntries = [];
+    const skipHeaderPages = new Set();
+    const skipPageNumberPages = new Set();
+
+    // Title page (page 1)
+    doc.addPage();
+    this.createTitlePage(doc, metadata);
+
+    // Copyright page (page 2) - createCopyrightPage adds its own page
+    this.createCopyrightPage(doc, metadata);
+
+    // Store the page index where TOC starts
+    const tocStartPage = doc.bufferedPageRange().count; // Should be 2 after title and copyright
+
+    // Create TOC to determine its page count
+    doc.addPage(); // This is page 3
+    skipHeaderPages.add(tocStartPage); // Index 2 (0-based)
+    skipPageNumberPages.add(tocStartPage);
+
+    // Simulate TOC
+    doc.font('bold').fontSize(18).text('CONTENTS', 0, doc.page.margins.top + 72, {
+      align: 'center',
+      width: 432
+    });
+    doc.moveDown(1);
+    doc.font('regular').fontSize(11);
+
+    let tocPageCount = 1;
+    chapters.forEach((chapter, index) => {
+      // Check if we need new page for TOC
+      if (doc.y > doc.page.height - doc.page.margins.bottom - 50) {
+        doc.addPage();
+        tocPageCount++;
+        skipHeaderPages.add(tocStartPage + tocPageCount - 1);
+        skipPageNumberPages.add(tocStartPage + tocPageCount - 1);
+        doc.font('regular').fontSize(11);
+      }
+      
+      // Simulate TOC entry with dummy page number
+      const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)(?::\s*)?(.*)$/i);
+      let tocEntry;
+      
+      if (chapterMatch) {
+        const chapterNum = chapterMatch[1];
+        const titleOnly = chapterMatch[2].trim();
+        
+        if (titleOnly) {
+          tocEntry = `${chapterNum}. ${titleOnly}`;
+        } else {
+          tocEntry = chapterNum;
+        }
+      } else {
+        tocEntry = chapter.title;
+      }
+      
+      // Use maximum width estimate for page number alignment
+      const tocLine = `${tocEntry} ......................... 999`;
+      doc.text(tocLine, 63, doc.y, { width: 306 });
+      doc.moveDown(0.1);
+    });
+
+    // Add "About the Author" to TOC if present
+    if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
+      if (doc.y > doc.page.height - doc.page.margins.bottom - 50) {
+        doc.addPage();
+        tocPageCount++;
+        skipHeaderPages.add(tocStartPage + tocPageCount - 1);
+        skipPageNumberPages.add(tocStartPage + tocPageCount - 1);
+      }
+      doc.moveDown(1);
+      doc.text('About the Author', 63, doc.y, { width: 306 });
+    }
+
+    // Now simulate each chapter
+    chapters.forEach((chapter, index) => {
+      // Get the current total page count BEFORE checking for blank page
+      let currentTotalPages = doc.bufferedPageRange().count;
+      
+      // Ensure chapters start on odd pages (right-hand pages)
+      // Page numbers are 1-based for display
+      if ((currentTotalPages + 1) % 2 === 0) {
+        doc.addPage(); // Add blank page
+        skipHeaderPages.add(currentTotalPages); // 0-indexed
+        skipPageNumberPages.add(currentTotalPages);
+        currentTotalPages++; // Update our count
+      }
+
+      // Now add the chapter page
+      doc.addPage();
+      
+      // The page number for this chapter is the total count after adding the page
+      const chapterPageNumber = doc.bufferedPageRange().count;
+      
+      // Record this chapter's starting page
+      tocEntries.push({
+        title: chapter.title,
+        pageNumber: chapterPageNumber
+      });
+      
+      // Mark as chapter start page (0-indexed for the set)
+      skipHeaderPages.add(chapterPageNumber - 1);
+
+      // Simulate chapter layout
+      doc.y = doc.page.margins.top + 72;
+
+      const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)(?::\s*)?(.*)$/i);
+      if (chapterMatch) {
+        const chapterNum = chapterMatch[1];
+        const titleOnly = chapterMatch[2].trim();
+        
+        doc.font('bold').fontSize(18).text(chapterNum, { align: 'center' });
+        doc.moveDown(0.5);
+        
+        if (titleOnly) {
+          doc.font('bold').fontSize(16).text(titleOnly, { align: 'center' });
+        }
+      } else {
+        doc.font('bold').fontSize(16).text(chapter.title, { align: 'center' });
+      }
+
+      doc.moveDown(4);
+      doc.font('regular').fontSize(11);
+
+      // Simulate chapter content
+      chapter.paragraphs.forEach((paragraph, paraIndex) => {
+        // Check if we need a new page
+        if (doc.y > doc.page.height - doc.page.margins.bottom - 30) {
+          doc.addPage();
+        }
+        
+        if (paraIndex === 0) {
+          doc.text(paragraph, { paragraphGap: 2, lineGap: 1 });
+        } else {
+          doc.text(paragraph, { indent: 15, paragraphGap: 2, lineGap: 1 });
+        }
+      });
+    });
+
+    // Calculate the blank page after TOC flag
+    const blankPageAfterToc = (2 + tocPageCount) % 2 === 0;
+
+    // End simulation
+    doc.end();
+
+    return {
+      tocEntries,
+      tocPageCount,
+      blankPageAfterToc,
+      skipHeaderPages,
+      skipPageNumberPages,
+      tocStartPageIndex: tocStartPage
+    };
   }
 
   createTitlePage(doc, metadata) {
@@ -247,7 +611,102 @@ class ManuscriptToPDF extends ToolBase {
     });
   }
 
-  // Create PDF with title page and all chapters
+  /**
+   * Create Table of Contents with accurate page numbers
+   * @param {Object} doc - PDFKit document
+   * @param {Array} chapters - Array of chapter objects
+   * @param {Array} tocEntries - Array of TOC entries with page numbers
+   * @param {Object} metadata - Book metadata
+   * @returns {number} - Number of TOC pages created
+   */
+  createTableOfContents(doc, chapters, tocEntries, metadata) {
+    const pageWidth = 432;
+    const leftMargin = 63;
+    const rightMargin = 63;
+    const contentWidth = pageWidth - leftMargin - rightMargin;
+    
+    // TOC Title
+    doc.font('bold')
+      .fontSize(18)
+      .text('CONTENTS', 0, doc.page.margins.top + 72, {
+        align: 'center',
+        width: pageWidth
+      });
+    
+    doc.moveDown(1);
+    
+    // Set up for chapter entries
+    doc.font('regular').fontSize(11);
+    
+    let tocPageCount = 1;
+    
+    tocEntries.forEach((entry, index) => {
+      // Check if we need a new page
+      if (doc.y > doc.page.height - doc.page.margins.bottom - 50) {
+        doc.addPage();
+        tocPageCount++;
+        doc.font('regular').fontSize(11);
+      }
+      
+      const chapter = chapters[index];
+      const pageNum = entry.pageNumber;
+      
+      // Extract chapter number and title for TOC
+      const chapterMatch = chapter.title.match(/Chapter\s+(\d+|[IVXLCDM]+)(?::\s*)?(.*)$/i);
+      let tocEntry;
+      
+      if (chapterMatch) {
+        const chapterNum = chapterMatch[1];
+        const titleOnly = chapterMatch[2].trim();
+        
+        if (titleOnly) {
+          tocEntry = `${chapterNum}. ${titleOnly}`;
+        } else {
+          tocEntry = chapterNum;
+        }
+      } else {
+        // Fallback for non-standard chapter titles
+        tocEntry = chapter.title;
+      }
+      
+      // Create the TOC line with dots
+      const dotWidth = doc.widthOfString('.');
+      const entryWidth = doc.widthOfString(tocEntry);
+      const pageNumWidth = doc.widthOfString(pageNum.toString());
+      const availableWidth = contentWidth - entryWidth - pageNumWidth;
+      const numDots = Math.floor(availableWidth / dotWidth) - 2; // Leave some padding
+      const dots = '.'.repeat(Math.max(numDots, 3));
+      
+      const tocLine = `${tocEntry} ${dots} ${pageNum}`;
+      
+      doc.text(tocLine, leftMargin, doc.y, {
+        width: contentWidth,
+        align: 'left'
+      });
+      
+      doc.moveDown(0.1);
+    });
+    
+    // Add "About the Author" if present (not numbered)
+    if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
+      // Check if we need a new page
+      if (doc.y > doc.page.height - doc.page.margins.bottom - 50) {
+        doc.addPage();
+        tocPageCount++;
+        doc.font('regular').fontSize(11);
+      }
+      
+      doc.moveDown(1);
+      doc.text('About the Author', leftMargin, doc.y, {
+        width: contentWidth,
+        align: 'left'
+      });
+    }
+    
+    return tocPageCount;
+  }
+
+  // Create PDF with title page and all chapters using 2-pass system
   async createPDF(chapters, metadata) {
     // Check for EB Garamond fonts
     const regularFontPath = path.join(__dirname, 'EBGaramond-Regular.ttf');
@@ -260,6 +719,13 @@ class ManuscriptToPDF extends ToolBase {
       throw new Error(`EB Garamond Bold font file not found at: ${boldFontPath}. Please ensure EBGaramond-Bold.ttf is in the same directory as this script.`);
     }
 
+    // FIRST PASS: Simulate layout to get accurate page numbers
+    this.emitOutput('First pass: Calculating page layout...\n');
+    const layoutInfo = this.simulateLayout(chapters, metadata);
+
+    // SECOND PASS: Create the actual PDF with correct TOC
+    this.emitOutput('Second pass: Creating final PDF...\n');
+    
     const doc = new PDFDocument({
       size: [432, 648], // 6" x 9"
       margins: {
@@ -293,12 +759,27 @@ class ManuscriptToPDF extends ToolBase {
     // Add copyright page
     this.createCopyrightPage(doc, metadata);
 
-    // Ensure first chapter starts on odd page (right-hand page)
-    let currentPageCount = 2; // Title + Copyright
+    // Create TOC with accurate page numbers from first pass
+    doc.addPage();
+    let tocStartIndex = doc.bufferedPageRange().count - 1;
+    skipHeaderPages.add(tocStartIndex);
+    skipPageNumberPages.add(tocStartIndex);
+    
+    const actualTocPages = this.createTableOfContents(doc, chapters, layoutInfo.tocEntries, metadata);
+    
+    // Mark any additional TOC pages
+    for (let i = 1; i < actualTocPages; i++) {
+      skipHeaderPages.add(tocStartIndex + i);
+      skipPageNumberPages.add(tocStartIndex + i);
+    }
+
+    // Check if we need a blank page after TOC (to make chapter 1 start on odd page)
+    let currentPageCount = 2 + actualTocPages; // Title + Copyright + TOC pages
     if (currentPageCount % 2 === 0) {
       doc.addPage(); // Add blank page
       skipHeaderPages.add(currentPageCount);
       skipPageNumberPages.add(currentPageCount);
+      currentPageCount++;
     }
 
     // Now create the actual chapters
@@ -308,6 +789,7 @@ class ManuscriptToPDF extends ToolBase {
       currentPageCount = currentRange.count;
       
       // Ensure chapters start on odd pages (right-hand pages)
+      // Page numbers are 1-based, but indices are 0-based
       if ((currentPageCount + 1) % 2 === 0) {
         doc.addPage(); // Add blank page
         // Mark blank page (0-indexed)
@@ -365,29 +847,6 @@ class ManuscriptToPDF extends ToolBase {
         }
       });
     });
-
-    // Add "About the Author" if present
-    if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
-      // Get current page count
-      let currentRange = doc.bufferedPageRange();
-      currentPageCount = currentRange.count;
-      
-      // Ensure it starts on odd page
-      if ((currentPageCount + 1) % 2 === 0) {
-        doc.addPage(); // Add blank page
-        skipHeaderPages.add(currentPageCount);
-        skipPageNumberPages.add(currentPageCount);
-      }
-
-      doc.addPage();
-      skipHeaderPages.add(doc.bufferedPageRange().count - 1);
-      
-      doc.y = doc.page.margins.top + 72;
-      doc.font('bold').fontSize(16).text('About the Author', { align: 'center' });
-      doc.moveDown(4);
-      doc.font('regular').fontSize(11);
-      doc.text(metadata.aboutAuthor, { paragraphGap: 2, lineGap: 1 });
-    }
 
     // Now add headers and page numbers to all pages
     const range = doc.bufferedPageRange();
@@ -601,7 +1060,7 @@ class ManuscriptToPDF extends ToolBase {
       /^[A-Z][A-Z\s]{4,}$/,
     ];
 
-    return patterns.some(pattern => pattern.test(line));
+    return patterns.some(pattern => pattern.test(pattern));
   }
 
   /**
