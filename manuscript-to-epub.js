@@ -955,23 +955,20 @@ nav a {
     const year = new Date().getFullYear();
     
     let copyrightContent;
-    
+    // default copyright text
+    copyrightContent = `    <p>Copyright © ${year} ${this.escapeHTML(metadata.author)}</p>
+      <p></p>
+      <p>All rights reserved.</p>
+      <p></p>
+      <p>Published by ${this.escapeHTML(metadata.publisher)}</p>
+      <p></p>
+      <p>This is a work of fiction. Names, characters, places, and incidents either are the product of the author's imagination or are used fictitiously. Any resemblance to actual persons, living or dead, events, or locales is entirely coincidental.</p>
+      <p></p>
+      <p>First Edition: ${year}</p>`;
+    // Add user's custom copyright text if available
     if (metadata.copyright && metadata.copyright.trim()) {
-      // Use custom copyright text from metadata
-      copyrightContent = metadata.copyright.split('\n').map(line => 
-        line.trim() ? `    <p>${this.escapeHTML(line.trim())}</p>` : '    <p></p>'
-      ).join('\n');
-    } else {
-      // Use default copyright text
-      copyrightContent = `    <p>Copyright © ${year} ${this.escapeHTML(metadata.author)}</p>
-    <p></p>
-    <p>All rights reserved.</p>
-    <p></p>
-    <p>Published by ${this.escapeHTML(metadata.publisher)}</p>
-    <p></p>
-    <p>This is a work of fiction. Names, characters, places, and incidents either are the product of the author's imagination or are used fictitiously. Any resemblance to actual persons, living or dead, events, or locales is entirely coincidental.</p>
-    <p></p>
-    <p>First Edition: ${year}</p>`;
+      // add custom copyright text from metadata
+      copyrightContent += metadata.copyright.split('\n').map(line => line.trim() ? `    <p>${this.escapeHTML(line.trim())}</p>` : '    <p></p>').join('\n');
     }
 
     return `<?xml version="1.0" encoding="UTF-8"?>
