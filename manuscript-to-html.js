@@ -157,7 +157,9 @@ class ManuscriptTextToHtml extends ToolBase {
       
       // Convert to HTML - processStory expects title as array of strings
       const titleArray = metadata.title ? [metadata.title] : ['Untitled'];
+      //                       ************
       const htmlContent = this.processStory(manuscriptFile, manuscriptContent, titleArray);
+      //                       ************
       
       // Create output filename with timestamp
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
@@ -181,16 +183,16 @@ class ManuscriptTextToHtml extends ToolBase {
       this.emitOutput(`\nHTML saved to: ${outputPath}\n`);
       outputFiles.push(outputPath);
       
-      // Get chapter count
-      const chapters = this.parseManuscript(manuscriptContent);
-      this.emitOutput(`\nChapters in HTML: ${chapters.length}\n`);
+      // Get chapter count ??? this is not needed:
+      // const chapters = this.parseManuscript(manuscriptContent);
+      // this.emitOutput(`\nChapters in HTML: ${chapters.length}\n`);
       
       // Return the result
       return {
         success: true,
         outputFiles,
         stats: {
-          chapterCount: chapters.length
+          chapterCount: 0 // chapters.length
         }
       };
     } catch (error) {
