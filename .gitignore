@@ -1,4 +1,5 @@
 # 0. testing
+*.pdf
 manuscript.txt
 test*
 Terminal*

@@ -24,15 +24,15 @@ class KDP6x9CoverCreator {
     this.trimWidth = 6;      // inches
     this.trimHeight = 9;     // inches
     
-    // Paper thickness per page in inches
+    // Paper thickness per page in inches (calibrated to match KDP calculator)
     this.paperThickness = {
       white: {
-        bw: 0.0025,      // Black & White
-        color: 0.002252   // Color
+        bw: 0.002237,    // Black & White (calibrated from KDP calculator)
+        color: 0.002237  // Color (same as B&W for white paper)
       },
       cream: {
-        bw: 0.0025,      // Black & White  
-        color: 0.002252   // Color
+        bw: 0.002237,    // Black & White (same thickness)
+        color: 0.002237  // Color (same as B&W for cream paper)
       }
     };
 
@@ -160,8 +160,9 @@ class KDP6x9CoverCreator {
         dims.layout.spineEndPx - dims.layout.spineStartPx, 
         dims.fullCover.heightPx);
 
-      // Add spine text if provided
-      if (spineTitle || spineAuthor) {
+      // Add spine text if provided and page count is sufficient
+      // Minimum 100 pages for readable spine text (spine too narrow below this)
+      if ((spineTitle || spineAuthor) && pageCount >= 100) {
         ctx.save();
         
         // Calculate available space (spine width minus some padding)
@@ -215,6 +216,8 @@ class KDP6x9CoverCreator {
         }
         
         ctx.restore();
+      } else if ((spineTitle || spineAuthor) && pageCount < 100) {
+        console.log(`Note: Spine text skipped - minimum 100 pages required for readable text (current: ${pageCount} pages)`);
       }
 
       // Load and draw front cover image
@@ -235,17 +238,22 @@ class KDP6x9CoverCreator {
         this.addGuideLines(ctx, dims);
       }
 
-      // Create PDF with the canvas image
+      // Create PDF with proper dimensions in points (72 points = 1 inch)
+      const pdfWidthPoints = dims.fullCover.width * 72;
+      const pdfHeightPoints = dims.fullCover.height * 72;
+      
+      console.log(`Creating PDF: ${dims.fullCover.width}" × ${dims.fullCover.height}" (${pdfWidthPoints} × ${pdfHeightPoints} points)`);
+      
       const doc = new PDFDocument({
-        size: [dims.fullCover.widthPx, dims.fullCover.heightPx],
+        size: [pdfWidthPoints, pdfHeightPoints],
         margins: { top: 0, left: 0, bottom: 0, right: 0 }
       });
       
-      // Convert canvas to buffer and add to PDF
+      // Convert canvas to buffer and add to PDF with proper scaling
       const imageBuffer = canvas.toBuffer('image/png');
       doc.image(imageBuffer, 0, 0, {
-        width: dims.fullCover.widthPx,
-        height: dims.fullCover.heightPx
+        width: pdfWidthPoints,
+        height: pdfHeightPoints
       });
       
       // Save PDF
@@ -380,6 +388,7 @@ Parameters:
 - author: Author name for spine (optional) - appears at bottom, right-justified
          Text reads bottom-to-top (left-to-right when book is flat)
          Text automatically sized to fit spine width
+         Note: Spine text only appears for books with 100+ pages (spine too narrow otherwise)
 - paperType: "white" or "cream" (default: white)
 - inkType: "bw" or "color" (default: bw)
 
