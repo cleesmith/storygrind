@@ -317,7 +317,7 @@ class ManuscriptToEpub extends ToolBase {
 
       const firstLine = lines[0].trim();
       
-      if (this.isManuscriptChapterTitle(firstLine)) {
+      if (this.formatChapterTitle(firstLine)) {
         title = firstLine;
         content = lines.slice(1).join('\n').trim();
       } else {
@@ -361,7 +361,7 @@ class ManuscriptToEpub extends ToolBase {
    * @param {string} line - Line to check
    * @returns {boolean} - True if likely a chapter title
    */
-  isManuscriptChapterTitle(line) {
+  formatChapterTitle(line) {
     if (line.length > 120) return false;
     
     const patterns = [
