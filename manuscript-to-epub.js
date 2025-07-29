@@ -262,202 +262,137 @@ class ManuscriptToEpub extends ToolBase {
 
   /**
    * Parse Manuscript text into chapters
+   * Supports various title formats with:
+   *  ==============                  ==============
+   *  DOUBLE NEWLINE before title and SINGLE NEWLINE after title
+   *  ==============                  ==============
    * @param {string} text - Raw text content
    * @returns {Array} - Array of chapter objects
    */
   parseManuscriptText(text) {
     const chapters = [];
     
-    // Normalize line endings
-    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    // Normalize line endings and trim
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
     
-    // Manuscript chapter patterns
-    const chapterPatterns = [
-      /\n\s*Chapter\s+\d+:\s*[^\n]*\n/gi,        // Primary: "Chapter 1: The Big Show"
-      /\n\s*Chapter\s+\d+[^\n]*\n/gi,            // Fallback: "Chapter 1"
-      /\n\s*Chapter\s+[IVXLCDM]+:\s*[^\n]*\n/gi, // Roman with colon
-      /\n\s*Chapter\s+[IVXLCDM]+[^\n]*\n/gi,     // Roman
-      /\n\s*\d+\.\s*[^\n]*\n/g,                  // Numbered
-      /\n\s*#{1,3}\s+[^\n]+\n/g,                 // Markdown
-      /\n\s*\*\s*\*\s*\*\s*\n/g                  // Separators
-    ];
-
-    let splits = [text];
+    // Split by double (or more) newlines - this gives us potential chapter boundaries
+    const sections = text.split(/\n\s*\n\s*\n+/);
     
-    // Try each pattern to find chapter breaks
-    for (const pattern of chapterPatterns) {
-      const matches = text.match(pattern);
-      if (matches && matches.length > 1) {
-        splits = text.split(pattern);
-        // Re-add the chapter titles to content
-        for (let i = 1; i < splits.length; i++) {
-          splits[i] = matches[i - 1].trim() + '\n\n' + splits[i];
-        }
-        break;
-      }
-    }
-
-    // If no patterns found, split by gaps
-    if (splits.length === 1) {
-      console.log('No chapter patterns found, trying gap detection...');
-      splits = text.split(/\n\s*\n\s*\n\s*\n/);
-      if (splits.length === 1) {
-        splits = text.split(/\f/);
-      }
-    }
-
-    // Process each split into chapters
-    splits.forEach((section, index) => {
-      section = section.trim();
-      if (section.length < 50) return;
-
-      const lines = section.split('\n');
-      let title = '';
-      let content = section;
-
-      const firstLine = lines[0].trim();
+    let chapterCount = 0;
+    
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i].trim();
+      if (!section || section.length < 50) continue;
       
-      if (this.formatChapterTitle(firstLine)) {
-        title = firstLine;
-        content = lines.slice(1).join('\n').trim();
+      // Split section into lines
+      const lines = section.split('\n');
+      if (lines.length < 2) continue;
+      
+      // First line could be a title
+      const firstLine = lines[0].trim();
+      const remainingContent = lines.slice(1).join('\n').trim();
+      
+      // Check if first line looks like a title (not too long, has content after it)
+      if (firstLine && firstLine.length <= 120 && remainingContent.length > 50) {
+        chapterCount++;
+        
+        // Format the title appropriately
+        const formattedTitle = this.formatChapterTitle(firstLine, chapterCount);
+        
+        // Split remaining content into paragraphs
+        const paragraphs = remainingContent
+          .split(/\n\s*\n/)
+          .map(p => p.replace(/\n/g, ' ').trim())
+          .filter(p => p.length > 0);
+        
+        if (paragraphs.length > 0) {
+          chapters.push({
+            id: `chapter${chapterCount}`,
+            title: formattedTitle,
+            content: paragraphs  // Note: EPUB uses 'content' while PDF uses 'paragraphs'
+          });
+        }
       } else {
-        title = `Chapter ${index + 1}`;
+        // Whole section is content without clear title
+        chapterCount++;
+        
+        const paragraphs = section
+          .split(/\n\s*\n/)
+          .map(p => p.replace(/\n/g, ' ').trim())
+          .filter(p => p.length > 0);
+        
+        if (paragraphs.length > 0) {
+          chapters.push({
+            id: `chapter${chapterCount}`,
+            title: `Chapter ${chapterCount}`,
+            content: paragraphs  // Note: EPUB uses 'content' while PDF uses 'paragraphs'
+          });
+        }
       }
-
-      // Split content into paragraphs
-      const paragraphs = content
-        .split(/\n\s*\n/)
-        .map(p => p.replace(/\n/g, ' ').trim())
-        .filter(p => p.length > 0);
-
-      if (paragraphs.length > 0) {
-        chapters.push({
-          id: `chapter${index + 1}`,
-          title: title,
-          content: paragraphs
-        });
-      }
-    });
-
-    // If still no chapters, create one big chapter
+    }
+    
+    // If no chapters found, treat whole text as one chapter
     if (chapters.length === 0) {
       const paragraphs = text
         .split(/\n\s*\n/)
         .map(p => p.replace(/\n/g, ' ').trim())
         .filter(p => p.length > 0);
-
-      chapters.push({
-        id: 'chapter1',
-        title: 'Chapter 1',
-        content: paragraphs
-      });
+      
+      if (paragraphs.length > 0) {
+        chapters.push({
+          id: 'chapter1',
+          title: 'Chapter 1',
+          content: paragraphs  // Note: EPUB uses 'content' while PDF uses 'paragraphs'
+        });
+      }
     }
-
+    
     return chapters;
   }
 
   /**
-   * Check if a line looks like a Manuscript chapter title
-   * @param {string} line - Line to check
-   * @returns {boolean} - True if likely a chapter title
+   * Format a chapter title, preserving existing formats or adding "Chapter N" if needed
+   * @param {string} title - Raw title text
+   * @param {number} chapterNum - Chapter number for fallback
+   * @returns {string} - Formatted title
    */
-  formatChapterTitle(line) {
-    if (line.length > 120) return false;
-    
-    const patterns = [
-      /^Chapter\s+\d+:\s*.+/i,
-      /^Chapter\s+\d+$/i,
-      /^Chapter\s+\d+\s+.+/i,
-      /^Chapter\s+[IVXLCDM]+:\s*.+/i,
-      /^Chapter\s+[IVXLCDM]+$/i,
-      /^\d+\.\s*.+/,
-      /^#{1,3}\s+.+/,
-      /^[A-Z][A-Z\s]{4,}$/,
-    ];
-
-    return patterns.some(pattern => pattern.test(line));
-  }
-
-  /**
-   * Create NCX file for EPUB 2 compatibility (NEW)
-   * @param {Array} chapters - Chapters array
-   * @param {Object} metadata - Book metadata
-   * @returns {string} - NCX content
-   */
-  createTocNCX(chapters, metadata) {
-    const uuid = this.generateUUID();
-    
-    // Build navMap entries for each chapter
-    const navPoints = [];
-    let playOrder = 1;
-    
-    // Add title page
-    navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
-      <navLabel>
-        <text>Title Page</text>
-      </navLabel>
-      <content src="title-page.xhtml"/>
-    </navPoint>`);
-    playOrder++;
-    
-    // Add copyright page
-    navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
-      <navLabel>
-        <text>Copyright</text>
-      </navLabel>
-      <content src="copyright.xhtml"/>
-    </navPoint>`);
-    playOrder++;
-    
-    // Add contents
-    navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
-      <navLabel>
-        <text>Contents</text>
-      </navLabel>
-      <content src="contents.xhtml"/>
-    </navPoint>`);
-    playOrder++;
-    
-    // Add chapters
-    chapters.forEach(chapter => {
-      navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
-      <navLabel>
-        <text>${this.escapeHTML(chapter.title)}</text>
-      </navLabel>
-      <content src="${chapter.id}.xhtml"/>
-    </navPoint>`);
-      playOrder++;
-    });
-    
-    // Add about author page (only if metadata exists)
-    if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
-      navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
-        <navLabel>
-          <text>About the Author</text>
-        </navLabel>
-        <content src="about-author.xhtml"/>
-      </navPoint>`);
+  formatChapterTitle(title, chapterNum) {
+    // Already has "Chapter N" format
+    const chapterMatch = title.match(/^Chapter\s+(\d+|[IVXLCDM]+)[\.:]?\s*(.*)$/i);
+    if (chapterMatch) {
+      const num = chapterMatch[1];
+      const subtitle = chapterMatch[2].trim();
+      return subtitle ? `Chapter ${num}: ${subtitle}` : `Chapter ${num}`;
     }
     
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
-<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
-  <head>
-    <meta name="dtb:uid" content="${uuid}"/>
-    <meta name="dtb:depth" content="1"/>
-    <meta name="dtb:totalPageCount" content="0"/>
-    <meta name="dtb:maxPageNumber" content="0"/>
-  </head>
-  <docTitle>
-    <text>${metadata.displayTitle}</text>
-  </docTitle>
-  <docAuthor>
-    <text>${metadata.author}</text>
-  </docAuthor>
-  <navMap>
-${navPoints.join('\n')}
-  </navMap>
-</ncx>`;
+    // Numbered format like "1. Title"
+    const numberedMatch = title.match(/^(\d+)\.\s*(.*)$/);
+    if (numberedMatch) {
+      const subtitle = numberedMatch[2].trim();
+      return subtitle ? `Chapter ${numberedMatch[1]}: ${subtitle}` : `Chapter ${numberedMatch[1]}`;
+    }
+    
+    // Markdown heading
+    const markdownMatch = title.match(/^#+\s+(.+)$/);
+    if (markdownMatch) {
+      return markdownMatch[1].trim();
+    }
+    
+    // Scene break markers
+    if (/^\*\s*\*\s*\*$/.test(title)) {
+      return `Chapter ${chapterNum}`;
+    }
+    
+    // Plain text title - if it's short and looks like a title, keep it as is
+    if (title.length <= 80 && !title.includes('.') && !title.includes('?')) {
+      // Check if it's all caps or title case - likely a real title
+      if (title === title.toUpperCase() || /^[A-Z]/.test(title)) {
+        return title;
+      }
+    }
+    
+    // Default: add Chapter prefix
+    return `Chapter ${chapterNum}: ${title}`;
   }
 
   /**
@@ -551,6 +486,88 @@ ${spineItems}
   }
 
   /**
+   * Create NCX file for EPUB 2 compatibility (NEW)
+   * @param {Array} chapters - Chapters array
+   * @param {Object} metadata - Book metadata
+   * @returns {string} - NCX content
+   */
+  createTocNCX(chapters, metadata) {
+    const uuid = this.generateUUID();
+    
+    // Build navMap entries for each chapter
+    const navPoints = [];
+    let playOrder = 1;
+    
+    // Add title page
+    navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
+      <navLabel>
+        <text>Title Page</text>
+      </navLabel>
+      <content src="title-page.xhtml"/>
+    </navPoint>`);
+    playOrder++;
+    
+    // Add copyright page
+    navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
+      <navLabel>
+        <text>Copyright</text>
+      </navLabel>
+      <content src="copyright.xhtml"/>
+    </navPoint>`);
+    playOrder++;
+    
+    // Add contents
+    navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
+      <navLabel>
+        <text>Contents</text>
+      </navLabel>
+      <content src="contents.xhtml"/>
+    </navPoint>`);
+    playOrder++;
+    
+    // Add chapters
+    chapters.forEach(chapter => {
+      navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
+      <navLabel>
+        <text>${this.escapeHTML(chapter.title)}</text>
+      </navLabel>
+      <content src="${chapter.id}.xhtml"/>
+    </navPoint>`);
+      playOrder++;
+    });
+    
+    // Add about author page (only if metadata exists)
+    if (metadata.aboutAuthor && metadata.aboutAuthor.trim()) {
+      navPoints.push(`    <navPoint id="navpoint-${playOrder}" playOrder="${playOrder}">
+        <navLabel>
+          <text>About the Author</text>
+        </navLabel>
+        <content src="about-author.xhtml"/>
+      </navPoint>`);
+    }
+    
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head>
+    <meta name="dtb:uid" content="${uuid}"/>
+    <meta name="dtb:depth" content="1"/>
+    <meta name="dtb:totalPageCount" content="0"/>
+    <meta name="dtb:maxPageNumber" content="0"/>
+  </head>
+  <docTitle>
+    <text>${metadata.displayTitle}</text>
+  </docTitle>
+  <docAuthor>
+    <text>${metadata.author}</text>
+  </docAuthor>
+  <navMap>
+${navPoints.join('\n')}
+  </navMap>
+</ncx>`;
+  }
+
+  /**
    * Create EPUB 3.0 navigation document (updated for new pages)
    * @param {Array} chapters - Chapters array
    * @param {Object} metadata - Book metadata
@@ -603,31 +620,37 @@ body {
   text-align: left;
 }
 
-/* Title page - Simple and clean */
+/* Title page */
 .title-page {
   text-align: center;
   page-break-after: always;
-  margin: 3em 0;
-  padding: 2em 0;
+  margin: 0;
+  padding: 0;
 }
 
 .book-title {
+  text-align: center;
   font-size: 1.8em;
   font-weight: bold;
-  margin: 2em 0 1em 0;
+  margin: 0;
+  padding-top: 25%;  /* Position from top */
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 .book-author {
+  text-align: center;
   font-size: 1.3em;
-  margin: 1.5em 0;
+  margin: 0;
+  padding-top: 20%;  /* Space from title */
   font-weight: normal;
 }
 
 .book-publisher {
+  text-align: center;
   font-size: 1em;
-  margin: 2em 0;
+  margin: 0;
+  padding-top: 20%;  /* Space from author */
   font-weight: normal;
 }
 
