@@ -157,9 +157,7 @@ class ManuscriptTextToHtml extends ToolBase {
       
       // Convert to HTML - processStory expects title as array of strings
       const titleArray = metadata.title ? [metadata.title] : ['Untitled'];
-      //                       ************
       const htmlContent = this.processStory(manuscriptFile, manuscriptContent, titleArray);
-      //                       ************
       
       // Create output filename with timestamp
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
@@ -183,16 +181,17 @@ class ManuscriptTextToHtml extends ToolBase {
       this.emitOutput(`\nHTML saved to: ${outputPath}\n`);
       outputFiles.push(outputPath);
       
-      // Get chapter count ??? this is not needed:
-      // const chapters = this.parseManuscript(manuscriptContent);
-      // this.emitOutput(`\nChapters in HTML: ${chapters.length}\n`);
+      // Get chapter count from the parsing
+      const chapters = this.parseManuscriptText(manuscriptContent);
+      this.emitOutput(`\nChapters in HTML: ${Math.min(chapters.length, this.maxChapters)}\n`);
       
       // Return the result
       return {
         success: true,
         outputFiles,
         stats: {
-          chapterCount: 0 // chapters.length
+          chapterCount: Math.min(chapters.length, this.maxChapters),
+          wordCount: this.countWords(manuscriptContent)
         }
       };
     } catch (error) {
@@ -200,6 +199,165 @@ class ManuscriptTextToHtml extends ToolBase {
       this.emitOutput(`\nError: ${error.message}\n`);
       throw error;
     }
+  }
+
+  /**
+   * Parse Manuscript text into chapters
+   * Supports various title formats with:
+   *  ==============                  ==============
+   *  DOUBLE NEWLINE before title and SINGLE NEWLINE after title
+   *  ==============                  ==============
+   * @param {string} text - Raw text content
+   * @returns {Array} - Array of chapter objects
+   */
+  parseManuscriptText(text) {
+    const chapters = [];
+    
+    // Normalize line endings and trim
+    text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+    
+    // Split by double (or more) newlines - this gives us potential chapter boundaries
+    const sections = text.split(/\n\s*\n\s*\n+/);
+    
+    let chapterCount = 0;
+    
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i].trim();
+      if (!section || section.length < 50) continue;
+      
+      // Split section into lines
+      const lines = section.split('\n');
+      if (lines.length < 2) continue;
+      
+      // First line could be a title
+      const firstLine = lines[0].trim();
+      const remainingContent = lines.slice(1).join('\n').trim();
+      
+      // Check if first line looks like a title (not too long, has content after it)
+      if (firstLine && firstLine.length <= 120 && remainingContent.length > 50) {
+        chapterCount++;
+        
+        // Format the title appropriately
+        const formattedTitle = this.formatChapterTitle(firstLine, chapterCount);
+        
+        // Split remaining content into paragraphs
+        const paragraphs = remainingContent
+          .split(/\n\s*\n/)
+          .map(p => p.replace(/\n/g, ' ').trim())
+          .filter(p => p.length > 0);
+        
+        if (paragraphs.length > 0) {
+          chapters.push({
+            id: `chapter${chapterCount}`,
+            number: chapterCount,
+            title: formattedTitle,
+            content: paragraphs
+          });
+          
+          // Stop if we've reached max chapters
+          if (chapters.length >= this.maxChapters) {
+            break;
+          }
+        }
+      } else {
+        // Whole section is content without clear title
+        chapterCount++;
+        
+        const paragraphs = section
+          .split(/\n\s*\n/)
+          .map(p => p.replace(/\n/g, ' ').trim())
+          .filter(p => p.length > 0);
+        
+        if (paragraphs.length > 0) {
+          chapters.push({
+            id: `chapter${chapterCount}`,
+            number: chapterCount,
+            title: `Chapter ${chapterCount}`,
+            content: paragraphs
+          });
+          
+          // Stop if we've reached max chapters
+          if (chapters.length >= this.maxChapters) {
+            break;
+          }
+        }
+      }
+    }
+    
+    // If no chapters found, treat whole text as one chapter
+    if (chapters.length === 0) {
+      const paragraphs = text
+        .split(/\n\s*\n/)
+        .map(p => p.replace(/\n/g, ' ').trim())
+        .filter(p => p.length > 0);
+      
+      if (paragraphs.length > 0) {
+        chapters.push({
+          id: 'chapter1',
+          number: 1,
+          title: 'Chapter 1',
+          content: paragraphs
+        });
+      }
+    }
+    
+    return chapters;
+  }
+
+  /**
+   * Format a chapter title, preserving existing formats or adding "Chapter N" if needed
+   * @param {string} title - Raw title text
+   * @param {number} chapterNum - Chapter number for fallback
+   * @returns {string} - Formatted title
+   */
+  formatChapterTitle(title, chapterNum) {
+    // Already has "Chapter N" format
+    const chapterMatch = title.match(/^Chapter\s+(\d+|[IVXLCDM]+)[\.:]?\s*(.*)$/i);
+    if (chapterMatch) {
+      const num = chapterMatch[1];
+      const subtitle = chapterMatch[2].trim();
+      return subtitle ? `Chapter ${num}: ${subtitle}` : `Chapter ${num}`;
+    }
+    
+    // Numbered format like "1. Title"
+    const numberedMatch = title.match(/^(\d+)\.\s*(.*)$/);
+    if (numberedMatch) {
+      const subtitle = numberedMatch[2].trim();
+      return subtitle ? `Chapter ${numberedMatch[1]}: ${subtitle}` : `Chapter ${numberedMatch[1]}`;
+    }
+    
+    // Markdown heading
+    const markdownMatch = title.match(/^#+\s+(.+)$/);
+    if (markdownMatch) {
+      return markdownMatch[1].trim();
+    }
+    
+    // Scene break markers
+    if (/^\*\s*\*\s*\*$/.test(title)) {
+      return `Chapter ${chapterNum}`;
+    }
+    
+    // Plain text title - if it's short and looks like a title, keep it as is
+    if (title.length <= 80 && !title.includes('.') && !title.includes('?')) {
+      // Check if it's all caps or title case - likely a real title
+      if (title === title.toUpperCase() || /^[A-Z]/.test(title)) {
+        return title;
+      }
+    }
+    
+    // Default: add Chapter prefix
+    return `Chapter ${chapterNum}: ${title}`;
+  }
+
+  /**
+   * Format content array into HTML paragraphs
+   * @param {Array} contentArray - Array of paragraph strings
+   * @returns {string} HTML formatted content
+   */
+  formatContent(contentArray) {
+    return contentArray
+      .map(paragraph => `<p>${this.escapeHtml(paragraph)}</p>`)
+      .join('\n    ');
   }
 
   /**
@@ -231,76 +389,6 @@ class ManuscriptTextToHtml extends ToolBase {
   }
 
   /**
-   * Parse manuscript text and extract chapters
-   * @param {string} manuscriptText - The full manuscript text
-   * @returns {Array} Array of chapter objects {title, content}
-   */
-  parseManuscript(manuscriptText) {
-    const lines = manuscriptText.split('\n');
-    const chapters = [];
-    let currentChapter = null;
-    let currentContent = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      
-      // Check if this line is a chapter heading
-      const chapterMatch = line.match(/^Chapter\s+(\d+)[:.]\s*(.+)$/i);
-      
-      if (chapterMatch) {
-        // Save previous chapter if it exists
-        if (currentChapter && currentContent.length > 0) {
-          currentChapter.content = this.formatContent(currentContent);
-          chapters.push(currentChapter);
-          
-          // Stop if we've reached the maximum chapters for testing
-          if (chapters.length >= this.maxChapters) {
-            break;
-          }
-        }
-        
-        // Start new chapter - normalize format to "Chapter X: Title" with proper case
-        currentChapter = {
-          number: parseInt(chapterMatch[1]),
-          title: `Chapter ${chapterMatch[1]}: ${this.toProperCase(chapterMatch[2])}`,
-          content: ''
-        };
-        currentContent = [];
-      } else if (currentChapter && line.length > 0) {
-        // Add non-empty lines to current chapter content
-        currentContent.push(line);
-      }
-    }
-    
-    // Add the last chapter if it exists and we haven't reached the limit
-    if (currentChapter && currentContent.length > 0 && chapters.length < this.maxChapters) {
-      currentChapter.content = this.formatContent(currentContent);
-      chapters.push(currentChapter);
-    }
-    
-    // Handle non-chaptered content like short stories
-    if (chapters.length === 0) {
-      const lines = manuscriptText.split('\n').filter(line => line.trim());
-      const title = lines[0] && lines[0].trim().toUpperCase() === lines[0].trim() ? lines[0] : "Story";
-      const content = this.formatContent(lines.slice(title === lines[0] ? 1 : 0));
-      chapters.push({ number: 1, title, content });
-    }
-    
-    return chapters;
-  }
-
-  /**
-   * Format content lines into HTML paragraphs
-   * @param {Array} contentLines - Array of content lines
-   * @returns {string} HTML formatted content
-   */
-  formatContent(contentLines) {
-    return contentLines
-      .map(line => `<p>${this.escapeHtml(line)}</p>`)
-      .join('');
-  }
-
-  /**
    * Convert title to proper case (first letter of each word capitalized)
    * @param {string} title - Title to convert
    * @returns {string} Title in proper case
@@ -325,7 +413,8 @@ class ManuscriptTextToHtml extends ToolBase {
 
   /**
    * Generate HTML from chapters using the established pattern
-   * @param {string} storyTitle - Title of the story
+   * @param {string} titleAuthor - Title and author for page title
+   * @param {string} titleAuthorDisplay - Title and author for display
    * @param {Array} chapters - Array of chapter objects
    * @returns {string} Complete HTML document
    */
@@ -333,7 +422,9 @@ class ManuscriptTextToHtml extends ToolBase {
     const chaptersHTML = chapters.map(chapter => `
 <div class="chapter-container">
   <div class="chapter-title">${chapter.title}</div>
-  <div class="chapter-text">${chapter.content}</div>
+  <div class="chapter-text">
+    ${chapter.content}
+  </div>
 </div>`).join('\n\n');
 
     return `<!DOCTYPE html>
@@ -491,16 +582,27 @@ ${chaptersHTML}
 
   /**
    * Main function to process a story and generate HTML
-   * @param {string} title - user entered story title
    * @param {string} manuscriptPath - Path to manuscript file (to extract title)
    * @param {string} manuscriptText - The manuscript text content
+   * @param {Array} storyTitle - Array containing story title
    * @returns {string} Complete HTML document
    */
   processStory(manuscriptPath, manuscriptText, storyTitle) {
-    const chapters = this.parseManuscript(manuscriptText);
+    const chapters = this.parseManuscriptText(manuscriptText);
+    
+    // Limit chapters to maxChapters
+    const limitedChapters = chapters.slice(0, this.maxChapters);
+    
+    // Format content for each chapter
+    const formattedChapters = limitedChapters.map(chapter => ({
+      ...chapter,
+      content: this.formatContent(chapter.content)
+    }));
+    
     const titleAuthor = `${storyTitle.join(' ').replace(/;/g, '')} by ${this.formatProperCase(appState.AUTHOR_NAME)}`;
     const titleAuthorDisplay = `${storyTitle.join(' ').replace(/;/g, '')} &nbsp;<small><em>by ${this.formatProperCase(appState.AUTHOR_NAME)}</em></small>`;
-    return this.generateHTML(titleAuthor, titleAuthorDisplay, chapters);
+    
+    return this.generateHTML(titleAuthor, titleAuthorDisplay, formattedChapters);
   }
 
   /**
@@ -517,6 +619,29 @@ ${chaptersHTML}
    */
   setMaxChapters(maxChapters) {
     this.maxChapters = maxChapters;
+  }
+
+  /**
+   * Ensure file path is absolute
+   * @param {string} filePath - File path (may be relative or absolute)
+   * @param {string} basePath - Base path to prepend for relative paths
+   * @returns {string} - Absolute file path
+   */
+  ensureAbsolutePath(filePath, basePath) {
+    if (!filePath) return filePath;
+    if (path.isAbsolute(filePath)) {
+      return filePath;
+    }
+    return path.join(basePath, filePath);
+  }
+
+  /**
+   * Count words in text
+   * @param {string} text - Text to count words in
+   * @returns {number} - Word count
+   */
+  countWords(text) {
+    return text.split(/\s+/).filter(word => word.length > 0).length;
   }
 }
 
