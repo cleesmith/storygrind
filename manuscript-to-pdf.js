@@ -617,28 +617,6 @@ class ManuscriptToPDF extends ToolBase {
   }
 
   /**
-   * Check if a line looks like a chapter title
-   * @param {string} line - Line to check
-   * @returns {boolean} - True if likely a chapter title
-   */
-  isManuscriptChapterTitle(line) {
-    if (line.length > 120) return false;
-
-    const patterns = [
-      /^Chapter\s+\d+:\s*.+/i,
-      /^Chapter\s+\d+$/i,
-      /^Chapter\s+\d+\s+.+/i,
-      /^Chapter\s+[IVXLCDM]+:\s*.+/i,
-      /^Chapter\s+[IVXLCDM]+$/i,
-      /^\d+\.\s*.+/,
-      /^#{1,3}\s+.+/,
-      /^[A-Z][A-Z\s]{4,}$/,
-    ];
-
-    return patterns.some(pattern => pattern.test(line));
-  }
-
-  /**
    * Ensure file path is absolute
    * @param {string} filePath - File path (may be relative or absolute)
    * @param {string} basePath - Base path to prepend for relative paths
