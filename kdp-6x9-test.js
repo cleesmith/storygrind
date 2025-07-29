@@ -128,7 +128,11 @@ class KDP6x9CoverCreator {
       spineTitle = '',
       spineAuthor = '',
       spineTextColor = '#ffffff',
-      spineTextFont = 'Arial'
+      spineTextFont = 'Arial',
+      authorPhoto = '',
+      blurbText = '',
+      blurbTextColor = '#ffffff',
+      blurbTextFont = 'Arial'
     } = options;
 
     try {
@@ -153,6 +157,11 @@ class KDP6x9CoverCreator {
       // Draw back cover area
       ctx.fillStyle = backCoverColor;
       ctx.fillRect(0, 0, dims.layout.backCoverEndPx, dims.fullCover.heightPx);
+
+      // Add back cover content (author photo and blurb text)
+      if (authorPhoto || blurbText) {
+        await this.addBackCoverContent(ctx, dims, authorPhoto, blurbText, blurbTextColor, blurbTextFont);
+      }
 
       // Draw spine area
       ctx.fillStyle = spineColor;
@@ -332,6 +341,103 @@ class KDP6x9CoverCreator {
   }
 
   /**
+   * Add back cover content (author photo and blurb text)
+   */
+  async addBackCoverContent(ctx, dims, authorPhotoPath, blurbText, blurbTextColor, blurbTextFont) {
+    const safeMargin = this.inchesToPixels(0.25); // 0.25" increased safety margin
+    const barcodeHeight = this.inchesToPixels(1.5); // Reserve 1.5" for barcode at bottom
+    
+    // Back cover area boundaries
+    const backCoverStartX = safeMargin;
+    const backCoverEndX = dims.layout.backCoverEndPx - safeMargin;
+    const backCoverStartY = safeMargin;
+    const backCoverEndY = dims.fullCover.heightPx - safeMargin - barcodeHeight;
+    
+    let currentY = backCoverStartY;
+    
+    // Add author photo if provided
+    if (authorPhotoPath) {
+      try {
+        await fs.access(authorPhotoPath);
+        const authorImage = await loadImage(authorPhotoPath);
+        
+        // Author photo dimensions (1.5" x 2" max)
+        const photoMaxWidth = this.inchesToPixels(1.5);
+        const photoMaxHeight = this.inchesToPixels(2);
+        
+        // Calculate scaled dimensions maintaining aspect ratio
+        const aspectRatio = authorImage.width / authorImage.height;
+        let photoWidth, photoHeight;
+        
+        if (aspectRatio > photoMaxWidth / photoMaxHeight) {
+          // Width is limiting factor
+          photoWidth = photoMaxWidth;
+          photoHeight = photoMaxWidth / aspectRatio;
+        } else {
+          // Height is limiting factor
+          photoHeight = photoMaxHeight;
+          photoWidth = photoMaxHeight * aspectRatio;
+        }
+        
+        // Draw photo in upper left
+        ctx.drawImage(authorImage, backCoverStartX, currentY, photoWidth, photoHeight);
+        
+        // Update currentY to below the photo with some spacing
+        currentY += photoHeight + this.inchesToPixels(0.25); // 0.25" spacing
+        
+      } catch (e) {
+        console.log(`Warning: Author photo not found or could not be loaded: ${authorPhotoPath}`);
+      }
+    }
+    
+    // Add blurb text if provided
+    if (blurbText) {
+      ctx.save();
+      
+      // Text styling - make it readable like spine text
+      const fontSize = 48; // 48px font for much better readability
+      ctx.font = `${fontSize}px ${blurbTextFont}`;
+      ctx.fillStyle = blurbTextColor;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      
+      // Text wrapping
+      const maxWidth = backCoverEndX - backCoverStartX;
+      const lineHeight = fontSize * 1.4; // 1.4x line spacing
+      
+      // Simple word wrapping
+      const words = blurbText.split(' ');
+      const lines = [];
+      let currentLine = '';
+      
+      for (const word of words) {
+        const testLine = currentLine + (currentLine ? ' ' : '') + word;
+        const metrics = ctx.measureText(testLine);
+        
+        if (metrics.width > maxWidth && currentLine) {
+          lines.push(currentLine);
+          currentLine = word;
+        } else {
+          currentLine = testLine;
+        }
+      }
+      if (currentLine) {
+        lines.push(currentLine);
+      }
+      
+      // Draw wrapped text
+      lines.forEach((line, index) => {
+        const y = currentY + (index * lineHeight);
+        if (y + lineHeight <= backCoverEndY) {
+          ctx.fillText(line, backCoverStartX, y);
+        }
+      });
+      
+      ctx.restore();
+    }
+  }
+
+  /**
    * Generate a detailed report for the cover
    */
   generateReport(pageCount, paperType = 'white', inkType = 'bw') {
@@ -377,8 +483,8 @@ Commands:
   calculate <pageCount> [paperType] [inkType]
     Calculate cover dimensions only
   
-  create <pageCount> <frontCoverImage> <outputPath> [title] [author]
-    Create a full cover with your front cover image
+  create <pageCount> <frontCoverImage> <outputPath> [title] [author] [authorPhoto] [blurbText]
+    Create a full cover with your front cover image and optional back cover content
 
 Parameters:
 - pageCount: Number of pages (24-828)
@@ -389,6 +495,8 @@ Parameters:
          Text reads bottom-to-top (left-to-right when book is flat)
          Text automatically sized to fit spine width
          Note: Spine text only appears for books with 100+ pages (spine too narrow otherwise)
+- authorPhoto: Path to author photo for back cover (optional) - appears in upper left
+- blurbText: Book description/blurb for back cover (optional) - appears below author photo
 - paperType: "white" or "cream" (default: white)
 - inkType: "bw" or "color" (default: bw)
 
@@ -396,7 +504,7 @@ Examples:
   node kdp-6x9-cover.js calculate 200
   node kdp-6x9-cover.js create 200 cover.jpg output-cover.pdf
   node kdp-6x9-cover.js create 200 cover.jpg output-cover.pdf "The Accounting" "Clee Smith"
-  node kdp-6x9-cover.js create 200 cover.jpg output-cover.pdf "My Book Title"
+  node kdp-6x9-cover.js create 200 cover.jpg output-cover.pdf "The Accounting" "Clee Smith" author.jpg "This compelling story follows..."
 
 Options:
   -h, --help      Show this help message
@@ -425,6 +533,8 @@ Options:
       const outputPath = args[3];
       const spineTitle = args[4] || '';
       const spineAuthor = args[5] || '';
+      const authorPhoto = args[6] || '';
+      const blurbText = args[7] || '';
       
       if (isNaN(pageCount)) {
         throw new Error('Page count must be a number');
@@ -432,7 +542,7 @@ Options:
       
       if (!frontCoverImage || !outputPath) {
         console.error('Error: Missing required parameters');
-        console.error('Usage: node kdp-6x9-cover.js create <pageCount> <frontCoverImage> <outputPath> [title] [author]');
+        console.error('Usage: node kdp-6x9-cover.js create <pageCount> <frontCoverImage> <outputPath> [title] [author] [authorPhoto] [blurbText]');
         process.exit(1);
       }
       
@@ -444,6 +554,12 @@ Options:
         console.log(`- Spine title: ${spineTitle}`);
         console.log(`- Spine author: ${spineAuthor}`);
       }
+      if (authorPhoto) {
+        console.log(`- Author photo: ${authorPhoto}`);
+      }
+      if (blurbText) {
+        console.log(`- Blurb text: ${blurbText.substring(0, 50)}...`);
+      }
       
       const result = await calculator.createCoverWithFrontImage(
         pageCount, 
@@ -453,6 +569,8 @@ Options:
           showGuides: true,
           spineTitle: spineTitle,
           spineAuthor: spineAuthor,
+          authorPhoto: authorPhoto,
+          blurbText: blurbText,
           backgroundColor: '#000000'
         }
       );
