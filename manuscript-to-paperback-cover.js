@@ -315,6 +315,7 @@ class ManuscriptToPaperbackCover extends ToolBase {
 
       // Load and draw front cover image
       this.emitOutput(`Loading front cover image: ${frontCoverImagePath}\n`);
+console.dir(frontCoverImagePath);
       const image = await loadImage(frontCoverImagePath);
       
       // Calculate front cover dimensions
@@ -551,12 +552,8 @@ class ManuscriptToPaperbackCover extends ToolBase {
     }
 
     try {
-console.dir(`execute:`);
-console.dir(options);
       // Read project metadata
       const projectMetadata = await this.readProjectMetadata(saveDir);
-console.dir(`projectMetadata:`);
-console.dir(projectMetadata);
 
       // Get required options with defaults
       const pageCount = parseInt(options.page_count);
@@ -567,8 +564,6 @@ console.dir(projectMetadata);
 
       // Optional paths
       const authorPhotoPath = options.author_photo ? this.ensureAbsolutePath(options.author_photo, saveDir) : '';
-console.dir(`authorPhotoPath:`);
-console.dir(authorPhotoPath);
 
       // Validate page count
       if (isNaN(pageCount)) {
