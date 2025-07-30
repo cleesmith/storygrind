@@ -891,12 +891,15 @@ class PublishManuscript extends ToolBase {
       const coverCreator = new ManuscriptToPaperbackCover('manuscript-to-paperback-cover');
       const bookCoverOptions = {
           page_count: pageCount,
-          front_cover_image: coverPath,
+          // front_cover_image: coverPath,
+          front_cover_image: options.cover_image,
           paper_type: 'white',
           ink_type: 'bw',
           show_guides: true,
-          author_photo: `/Users/cleesmith/Downloads/me_painterly.png`
+          author_photo: options.back_image
       };
+console.dir(`generateManuscriptFiles: options:`);
+console.dir(options);
 
       this.emitOutput(`\nCreating paperback cover for ${pageCount} pages...\n`);
       await coverCreator.execute(bookCoverOptions);
