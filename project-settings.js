@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const copyrightInput = document.getElementById('copyright-input');
   const dedicationInput = document.getElementById('dedication-input');
   const aboutAuthorInput = document.getElementById('about-author-input');
+  const backCoverBlurb = document.getElementById('back-cover-blurb');
 
   console.log('Found elements:', {
     cancelBtn: !!cancelBtn,
@@ -28,7 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
     buyUrlInput: !!buyUrlInput,
     copyrightInput: !!copyrightInput,
     dedicationInput: !!dedicationInput,
-    aboutAuthorInput: !!aboutAuthorInput
+    aboutAuthorInput: !!aboutAuthorInput,
+    backCoverBlurb: !!backCoverBlurb
   });
 
   // Track current project info
@@ -83,7 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
         '_buy_url.txt': buyUrlInput,
         '_copyright.txt': copyrightInput,
         '_dedication.txt': dedicationInput,
-        '_about_author.txt': aboutAuthorInput
+        '_about_author.txt': aboutAuthorInput,
+        '_back_cover_blurb.txt': backCoverBlurb
       };
       
       for (const [filename, inputElement] of Object.entries(metadataFiles)) {
@@ -111,8 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     try {
-      console.log('Saving metadata files for project:', projectName);
-      
       // Save each metadata field to its corresponding file
       const metadataFiles = {
         '_title.txt': titleInput.value.trim(),
@@ -122,14 +123,13 @@ document.addEventListener('DOMContentLoaded', function() {
         '_buy_url.txt': buyUrlInput.value.trim(),
         '_copyright.txt': copyrightInput.value.trim(),
         '_dedication.txt': dedicationInput.value.trim(),
-        '_about_author.txt': aboutAuthorInput.value.trim()
+        '_about_author.txt': aboutAuthorInput.value.trim(),
+        '_back_cover_blurb.txt': backCoverBlurb.value.trim()
       };
       
       for (const [filename, content] of Object.entries(metadataFiles)) {
         await window.electronAPI.writeProjectMetadata(projectName, filename, content);
       }
-      
-      console.log('Metadata files saved successfully');
       return true;
     } catch (error) {
       console.error('Error saving metadata files:', error);
@@ -173,9 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Listen for theme changes from main process
   if (window.electronAPI.onSetTheme) {
-    console.log('Setting up theme listener...');
     window.electronAPI.onSetTheme((theme) => {
-      console.log('Theme changed to:', theme);
       document.body.className = theme === 'light' ? 'light-mode' : 'dark-mode';
     });
   }

@@ -404,7 +404,7 @@ class ManuscriptToPDF extends ToolBase {
     doc.text('', 0, 0);
     
     // Prepare header text
-    const authorHeader = metadata.author.toUpperCase();
+    const authorHeader = metadata.author;
     const titleHeader = this.toTitleCase(metadata.title);
     
     // range.count = total number of pages

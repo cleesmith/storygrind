@@ -1,4 +1,9 @@
 // manuscript-to-paperback-cover.js
+
+// 1. frontCoverImage: Path to your front cover JPG image with Browse button
+// 2. authorPhoto: Path to author photo for back cover (optional) with Browse button
+// 3. blurbText: Book description/blurb for back cover (optional)
+
 const ToolBase = require('./tool-base');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
@@ -271,7 +276,12 @@ class ManuscriptToPaperbackCover extends ToolBase {
           
           ctx.textAlign = 'left';
           ctx.textBaseline = 'middle';
-          ctx.fillText(spineTitle, 0, 0);
+          const cleanSpineTitle = spineTitle
+              .replace(/\n/g, ' ')      // Replace newlines with spaces
+              .replace(/\s+/g, ' ')     // Replace multiple spaces with single space
+              .trim();                  // Remove leading/trailing whitespace
+
+          ctx.fillText(cleanSpineTitle, 0, 0);
           
           ctx.restore();
         }
@@ -288,7 +298,12 @@ class ManuscriptToPaperbackCover extends ToolBase {
           
           ctx.textAlign = 'right';
           ctx.textBaseline = 'middle';
-          ctx.fillText(spineAuthor, 0, 0);
+          // Sanitize spine author - ensure single line
+          const cleanSpineAuthor = spineAuthor
+              .replace(/\n/g, ' ')      // Replace newlines with spaces
+              .replace(/\s+/g, ' ')     // Replace multiple spaces with single space
+              .trim();                  // Remove leading/trailing whitespace
+          ctx.fillText(cleanSpineAuthor, 0, 0);
           
           ctx.restore();
         }

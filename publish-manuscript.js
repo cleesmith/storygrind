@@ -51,9 +51,6 @@ class PublishManuscript extends ToolBase {
           await converterWindow.loadFile(htmlPath);
           
           // Generate the cover image
-          // const jpgBase64 = await converterWindow.webContents.executeJavaScript(`
-          //     generateCoverImage("${metadata.title.replace(/;/g, '\\n').replace(/"/g, '\\"')}", "${metadata.author.replace(/"/g, '\\"')}")
-          // `);
           const jpgBase64 = await converterWindow.webContents.executeJavaScript(`
               generateCoverImage("${metadata.title.replace(/\n/g, '\\n').replace(/"/g, '\\"')}", "${metadata.author.replace(/"/g, '\\"')}")
           `);

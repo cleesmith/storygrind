@@ -314,7 +314,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     },
   ]},
-  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: 'Publishes manuscript files (.html, .epub, .pdf) to ~/storygrind_projects Selected Project folder, generates cover.jpg with title/author, then updates the book index. *** WARNING: be sure to set everything (title, author, etc.) above in Project Settings.', Class: PublishManuscript, options: [
+  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: '[[* WARNING: be sure to setup title, author, and so on using the Project Settings button]]   This tool publishes manuscript based files--cover.jpg, .html, .epub, and .pdf files to your Writing Project folder in: "~/storygrind_projects".  As well as, updating the book index at: "~/storygrind_projects/index.html"', Class: PublishManuscript, options: [
       {
         "name": "manuscript_file",
         "label": "Manuscript File",
@@ -326,6 +326,34 @@ const TOOL_DEFS = [
           {
             "name": "Text Files",
             "extensions": ["txt"]
+          }
+        ]
+      },
+      {
+        "name": "cover_image",
+        "label": "Cover .jpg file",
+        "type": "file",
+        "description": "Select a cover JPG",
+        "required": true,
+        "default": "cover.jpg",
+        "filters": [
+          {
+            "name": "Image Files",
+            "extensions": ["jpg"]
+          }
+        ]
+      },
+      {
+        "name": "back_image",
+        "label": "Back cover .jpg file",
+        "type": "file",
+        "description": "Select a back cover image, usually author photo",
+        "required": false,
+        "default": "",
+        "filters": [
+          {
+            "name": "Image Files",
+            "extensions": ["jpg"]
           }
         ]
       },

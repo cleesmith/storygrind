@@ -1868,7 +1868,7 @@ function setupIPCHandlers() {
         // Allow both text and markdown files for this tool
         options.filters = [{ name: 'Text Files', extensions: ['txt', 'md'] }];
       }
-      
+
       const dialogOptions = {
         title: options.title || 'Select File',
         defaultPath: startPath,
