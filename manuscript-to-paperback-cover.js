@@ -79,7 +79,7 @@ class ManuscriptToPaperbackCover extends ToolBase {
       '_copyright.txt': 'copyright',
       '_dedication.txt': 'dedication',
       '_about_author.txt': 'aboutAuthor',
-      '_blurb.txt': 'blurb'
+      '_back_cover_blurb.txt': 'blurb'
     };
 
     // Check if metadata directory exists
