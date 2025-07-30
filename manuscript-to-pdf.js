@@ -9,6 +9,7 @@ const appState = require('./state.js');
 class ManuscriptToPDF extends ToolBase {
   constructor(name, config = {}) {
     super(name, config);
+    this.pages = 0;
   }
 
   /**
@@ -117,26 +118,31 @@ class ManuscriptToPDF extends ToolBase {
         aboutAuthor: projectMetadata.aboutAuthor
       };
 
-      // Create PDF with all content
-      const pdfBuffer = await this.createPDF(chapters, metadata);
+      // Create PDF with all content - now returns object with pdfData and pageCount
+      const result = await this.createPDF(chapters, metadata);
+      const pdfData = result.pdfData;
+      const pageCount = result.pageCount;
 
       // Save PDF
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
       const baseFileName = path.basename(textFile, path.extname(textFile));
       const outputFilename = `${baseFileName}_${timestamp}.pdf`;
       const outputPath = path.join(saveDir, outputFilename);
-
       let dir = path.dirname(outputPath);
       let files = await fsPromises.readdir(dir);
-      // Remove all .pdf files in the output directory
-      // before writing the new one
+
+      // Remove all .pdf files in the output directory before writing the new one
       for (const file of files) {
         if (file.endsWith('.pdf')) {
           await fsPromises.unlink(path.join(dir, file));
         }
       }
 
-      fs.writeFileSync(outputPath, pdfBuffer);
+      // Write the PDF data to file
+      fs.writeFileSync(outputPath, pdfData);
+
+      // Now you have pageCount available for your KDP cover calculations
+      this.emitOutput(`\nGenerated PDF with ${pageCount} pages`);
 
       this.emitOutput(`\nPDF saved to: ${outputPath}\n`);
 
@@ -145,7 +151,8 @@ class ManuscriptToPDF extends ToolBase {
         outputFiles: [outputPath],
         stats: {
           chapterCount: chapters.length,
-          wordCount: this.countWords(textContent)
+          wordCount: this.countWords(textContent),
+          pages: pageCount
         }
       };
     } catch (error) {
@@ -400,6 +407,7 @@ class ManuscriptToPDF extends ToolBase {
     const authorHeader = metadata.author.toUpperCase();
     const titleHeader = this.toTitleCase(metadata.title);
     
+    // range.count = total number of pages
     for (let i = 0; i < range.count; i++) {
       // Skip first two pages (title and copyright)
       if (i < 2) continue;
@@ -470,15 +478,29 @@ class ManuscriptToPDF extends ToolBase {
     // End the document and return buffer
     doc.end();
 
+    // return new Promise((resolve, reject) => {
+    //   const buffers = [];
+    //   doc.on('data', buffers.push.bind(buffers));
+    //   doc.on('end', () => {
+    //     const pdfData = Buffer.concat(buffers);
+    //     resolve(pdfData);
+    //   });
+    //   doc.on('error', reject);
+    // });
+
     return new Promise((resolve, reject) => {
       const buffers = [];
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => {
         const pdfData = Buffer.concat(buffers);
-        resolve(pdfData);
+        resolve({
+          pdfData: pdfData,
+          pageCount: range.count
+        });
       });
       doc.on('error', reject);
     });
+
   }
 
   /**

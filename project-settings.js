@@ -61,7 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
       // Load metadata files
       await loadMetadataFiles();
       
-      console.log('Project settings loaded successfully');
     } catch (error) {
       console.error('Error loading project settings:', error);
       dialogTitle.textContent = 'Project Settings: Error loading project';
@@ -153,15 +152,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Handle save button
   saveBtn.addEventListener('click', async function() {
-    console.log('Save button clicked');
-    
     // Disable save button to prevent double-clicking
     saveBtn.disabled = true;
     
     try {
       const success = await saveMetadataFiles();
       if (success) {
-        console.log('Project settings saved successfully');
         // Close the dialog
         window.electronAPI.closeProjectSettings();
       } else {
@@ -186,8 +182,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize by loading current project
   loadCurrentProject();
-
-  console.log('Project settings dialog initialization complete');
 });
 
 // Global error handler

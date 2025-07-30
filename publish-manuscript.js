@@ -13,6 +13,7 @@ const appState = require('./state.js');
 const ManuscriptTextToHtml = require('./manuscript-to-html');
 const ManuscriptToEpub = require('./manuscript-to-epub');
 const ManuscriptToPDF = require('./manuscript-to-pdf');
+const ManuscriptToPaperbackCover = require('./manuscript-to-paperback-cover');
 
 class PublishManuscript extends ToolBase {
   /**
@@ -807,73 +808,6 @@ class PublishManuscript extends ToolBase {
    * @param {Object} options - Tool options
    * @returns {Promise<void>}
    */
-  // async generateManuscriptFiles(projectPath, displayAuthor, displayTitle, options, metadata) {
-  //   // Find the source manuscript text file
-  //   const files = await fsPromises.readdir(projectPath);
-  //   const textFiles = files.filter(file => {
-  //     const fileName = file.toLowerCase();
-  //     return fileName.endsWith('.txt') && (fileName.includes('manuscript') || fileName === 'manuscript.txt');
-  //   });
-    
-  //   if (textFiles.length === 0) {
-  //     this.emitOutput('Error: No manuscript text file found. Please ensure you have a manuscript.txt file in your project.\n');
-  //     return {
-  //       success: false,
-  //       message: 'No manuscript text file found',
-  //       outputFiles: []
-  //     };
-  //   }
-    
-  //   // Use the first manuscript text file found
-  //   const manuscriptTextFile = path.join(projectPath, textFiles[0]);
-    
-  //   this.emitOutput(`Found manuscript text file: ${textFiles[0]}\n`);
-  //   this.emitOutput(`Generating HTML, EPUB, and PDF (KDP print) files...\n`);
-    
-  //   // Create HTML converter and run it
-  //   const htmlConverter = new ManuscriptTextToHtml('manuscript-to-html');
-  //   const htmlOptions = {
-  //     manuscript_file: manuscriptTextFile,
-  //     title: displayTitle,
-  //     author: displayAuthor,
-  //     max_chapters: options.max_chapters
-  //   };
-    
-  //   this.emitOutput(`Converting to HTML...\n`);
-  //   await htmlConverter.execute(htmlOptions);
-
-  //   // Create EPUB converter and run it
-  //   const epubConverter = new ManuscriptToEpub('manuscript-to-epub');
-  //   const epubOptions = {
-  //     text_file: manuscriptTextFile,
-  //     displayTitle: displayTitle.join(' '),
-  //     title: metadata.title,
-  //     author: displayAuthor,
-  //     language: 'en',
-  //     publisher: metadata.publisher || 'StoryGrind',
-  //     description: 'Created with StoryGrind'
-  //   };
-    
-  //   this.emitOutput(`Converting to EPUB with cover image cover.jpg...\n`);
-  //   await epubConverter.execute(epubOptions);
-
-  //   // Create PDF converter and run it
-  //   const pdfConverter = new ManuscriptToPDF('manuscript-to-pdf');
-  //   const pdfOptions = {
-  //     text_file: manuscriptTextFile,
-  //     title: displayTitle.join(' '),
-  //     author: displayAuthor,
-  //     language: 'en',
-  //     publisher: 'StoryGrind',
-  //     description: 'Created with StoryGrind'
-  //   };
-    
-  //   this.emitOutput(`Converting to PDF for use with KDP print paper books...\n`);
-  //   await pdfConverter.execute(pdfOptions);
-
-
-  //   this.emitOutput(`All files generated successfully!\n\n`);
-  // }
   async generateManuscriptFiles(projectPath, displayAuthor, displayTitle, options, metadata) {
       // Find the source manuscript text file
       const files = await fsPromises.readdir(projectPath);
@@ -904,11 +838,12 @@ class PublishManuscript extends ToolBase {
           author: displayAuthor,
           outputPath: coverPath
       };
+      //         ***************
       await this.generateP5Cover(coverOptions);
 
-      this.emitOutput(`\nGenerating HTML, EPUB, and PDF files...\n`);
+      this.emitOutput(`\nGenerating HTML, EPUB, PDF files...\n`);
       
-      // Create HTML converter and run it
+      // Create HTML converter and run it:
       const htmlConverter = new ManuscriptTextToHtml('manuscript-to-html');
       const htmlOptions = {
           manuscript_file: manuscriptTextFile,
@@ -919,7 +854,7 @@ class PublishManuscript extends ToolBase {
       this.emitOutput(`Converting to HTML...\n`);
       await htmlConverter.execute(htmlOptions);
 
-      // Create EPUB converter and run it
+      // Create EPUB converter and run it:
       const epubConverter = new ManuscriptToEpub('manuscript-to-epub');
       const epubOptions = {
           text_file: manuscriptTextFile,
@@ -933,7 +868,7 @@ class PublishManuscript extends ToolBase {
       this.emitOutput(`Converting to EPUB with cover image...\n`);
       await epubConverter.execute(epubOptions);
 
-      // Create PDF converter and run it
+      // Create PDF converter and run it:
       const pdfConverter = new ManuscriptToPDF('manuscript-to-pdf');
       const pdfOptions = {
           text_file: manuscriptTextFile,
@@ -944,10 +879,33 @@ class PublishManuscript extends ToolBase {
           description: 'Created with StoryGrind'
       };
       this.emitOutput(`Converting to PDF for use with KDP print paper books...\n`);
-      await pdfConverter.execute(pdfOptions);
+
+      const result = await pdfConverter.execute(pdfOptions);
+
+      // Extract the page count from the stats
+      const pageCount = result.stats.pages;
+      const wordCount = result.stats.wordCount;
+      const chapterCount = result.stats.chapterCount;
+
+      this.emitOutput(`\nGenerated PDF with ${pageCount} pages`);
 
 
-      this.emitOutput(`All files generated successfully!\n\n`);
+      // Create PDF Paperbook 6x9 cover maker and run it:
+      const coverCreator = new ManuscriptToPaperbackCover('manuscript-to-paperback-cover');
+      const bookCoverOptions = {
+          page_count: pageCount,
+          front_cover_image: coverPath,
+          paper_type: 'white',
+          ink_type: 'bw',
+          show_guides: true,
+          author_photo: `/Users/cleesmith/Downloads/me_painterly.png`
+      };
+
+      this.emitOutput(`\nCreating paperback cover for ${pageCount} pages...\n`);
+      await coverCreator.execute(bookCoverOptions);
+
+
+      this.emitOutput(`\nAll files generated successfully!\n\n`);
   }
 
   /**

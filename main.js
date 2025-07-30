@@ -526,7 +526,6 @@ function createProjectSettingsDialog() {
   projectSettingsWindow.loadFile(path.join(__dirname, 'project-settings.html'));
   
   projectSettingsWindow.once('ready-to-show', () => {
-    console.log('Project settings dialog ready to show');
     projectSettingsWindow.show();
     
     // Apply current theme
@@ -534,7 +533,6 @@ function createProjectSettingsDialog() {
       mainWindow.webContents.executeJavaScript('document.body.classList.contains("light-mode")')
         .then(isLightMode => {
           if (projectSettingsWindow && !projectSettingsWindow.isDestroyed()) {
-            console.log('Sending theme to project settings dialog:', isLightMode ? 'light' : 'dark');
             projectSettingsWindow.webContents.send('set-theme', isLightMode ? 'light' : 'dark');
           }
         })
@@ -1713,7 +1711,6 @@ function setupIPCHandlers() {
 
   // Project Settings Dialog handlers
   ipcMain.on('open-project-settings', () => {
-    console.log('Project settings dialog requested');
     createProjectSettingsDialog();
   });
 
