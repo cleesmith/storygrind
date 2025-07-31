@@ -314,7 +314,7 @@ const TOOL_DEFS = [
       "group": "Input Files"
     },
   ]},
-  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: '[[* WARNING: be sure to setup title, author, and so on using the Project Settings button]]   This tool publishes manuscript based files--cover.jpg, .html, .epub, and .pdf files to your Writing Project folder in: "~/storygrind_projects".  As well as, updating the book index at: "~/storygrind_projects/index.html"', Class: PublishManuscript, options: [
+  { id: 'publish_manuscript', title: 'Publish or Unpublish Manuscript', description: '>>> WARNING: be sure to setup title, author, and so on using the Project Settings button <<<  ... This tool publishes manuscript based files--cover.jpg, .html, .epub, and .pdf files to your Writing Project folder in: "~/storygrind_projects".  As well as, updating the book index at: "~/storygrind_projects/index.html"', Class: PublishManuscript, options: [
       {
         "name": "manuscript_file",
         "label": "Manuscript File",

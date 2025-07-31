@@ -279,9 +279,19 @@ class PublishManuscript extends ToolBase {
 
       this.emitOutput(`Project: ${appState.CURRENT_PROJECT}\n`);
       this.emitOutput(`\nUsing manuscript file: ${selectedFileName}\n`);
-      this.emitOutput(`\nTitle: ${showTitle}\n`);
 
       const filePath = path.join(appState.PROJECTS_DIR, 'index.html');
+
+      this.emitOutput(`\nSee these 5 files generated in Finder or File Explorer popup window:`);
+      this.emitOutput(`\n1. manuscript_?timestamp?.html`);
+      this.emitOutput(`\n\n2. cover.jpg`);
+      this.emitOutput(`\n\n3. manuscript_?timestamp?.epub`);
+      this.emitOutput(`\n\n4. manuscript_?timestamp?.pdf ... with KDP defaults:`);
+      this.emitOutput(`\n     Ink and Paper Type......: Black & white interior with white paper`);
+      this.emitOutput(`\n     Trim Size...............: 6 x 9 in (15.24 x 22.86 cm)`);
+      this.emitOutput(`\n     Bleed Setting...........: No Bleed`);
+      this.emitOutput(`\n     Paperback cover finish..: Matte`);
+      this.emitOutput(`\n\n5. paperback_cover_?timestamp?.pdf\n\n\n`);
 
       setTimeout(() => {
         try {
@@ -317,7 +327,7 @@ class PublishManuscript extends ToolBase {
       return {
         success: true,
         message: `Published ${displayTitle} successfully`,
-        outputFiles: editableFiles,
+        outputFiles: [],
         stats: {
           manuscriptFiles: manuscriptFiles.length,
           projectName: projectName,
