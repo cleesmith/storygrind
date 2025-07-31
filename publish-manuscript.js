@@ -282,38 +282,25 @@ class PublishManuscript extends ToolBase {
       this.emitOutput(`\nTitle: ${showTitle}\n`);
 
       const filePath = path.join(appState.PROJECTS_DIR, 'index.html');
-      this.emitOutput(`\n\t***************************************************************\n`);
-      this.emitOutput(`\t*                 PUBLISHING COMPLETED\n`);
-      this.emitOutput(`\t*\n`);
-      this.emitOutput(`\t* \tSTANDBY, your web browser will open in:\n`);
-      this.emitOutput(`\t*\n`);
-      this.emitOutput(`\t* \t\t-->>>  3 seconds  <<<--\n`);
-      this.emitOutput(`\t*\n`);
-      this.emitOutput(`\t* \tto show your book entry with cover, HTML, EPUB at:\n`);
-      this.emitOutput(`\t*\n`);
-      this.emitOutput(`\t* \t\t${filePath}\n`);
-      this.emitOutput(`\t*\n`);
-      this.emitOutput(`\t***************************************************************\n`);
 
       setTimeout(() => {
         try {
           let child;
           if (process.platform === 'darwin') {
-            // macOS - open command uses default browser
-            child = spawn('open', [filePath], {
+            // macOS - reveal folder in Finder (shows parent directory with folder selected)
+            child = spawn('open', [projectPath], {
               detached: true,
               stdio: 'ignore'
             });
           } else if (process.platform === 'win32') {
-            // Windows - start command opens with default program
-            child = spawn('start', [filePath], {
+            // Windows - select folder in File Explorer
+            child = spawn('explorer', [projectPath], {
               detached: true,
-              stdio: 'ignore',
-              shell: true
+              stdio: 'ignore'
             });
           } else {
-            // Linux/Unix - xdg-open uses default application
-            child = spawn('xdg-open', [filePath], {
+            // Linux/Unix - open folder with default file manager
+            child = spawn('xdg-open', [projectPath], {
               detached: true,
               stdio: 'ignore'
             });
@@ -325,7 +312,7 @@ class PublishManuscript extends ToolBase {
         } catch (error) {
           // Fail silently as requested
         }
-      }, 3000);
+      }, 1000);
 
       return {
         success: true,
