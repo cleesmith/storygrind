@@ -1,16 +1,31 @@
 module.exports = {
   packagerConfig: {
-    asar: true,
+    asar: {
+      unpack: "**/{*.node,*.dylib,*.so,*.dll}"
+    },
     name: 'StoryGrind',
     executableName: 'StoryGrind',
     appBundleId: 'com.slipthetrap.storygrind',
-    // Platform-specific icon handling
-    icon: process.platform === 'darwin' 
-      ? './resources/storygrind.icns'
-      : './resources/icons/win/icon',
-    osxSign: false,
-    osxNotarize: false,
-    // Include embedded spellchecker dictionary files
+    icon: './resources/storygrind.icns',
+    // Platform-specific icon
+    // icon: process.platform === 'darwin' 
+    //   ? './resources/storygrind.icns'
+    //   : './resources/icons/win/icon',
+    // Only sign/notarize on Mac
+    ...(process.platform === 'darwin' && {
+      osxSign: false,
+      osxNotarize: false
+    }),
+    // Windows-specific metadata
+    ...(process.platform === 'win32' && {
+      win32metadata: {
+        CompanyName: 'Chris Smith',
+        FileDescription: 'StoryGrind - Creative Fiction Writing Tool',
+        OriginalFilename: 'StoryGrind.exe',
+        ProductName: 'StoryGrind',
+        InternalName: 'StoryGrind'
+      }
+    }),
     extraResource: [
       'lib/spellchecker/dict'
     ],
@@ -42,7 +57,6 @@ module.exports = {
       /\.png$/,
       /\.jpg$/,
       /\.jpeg$/,
-      // Don't ignore codemirror directory
       function(path) {
         return path.startsWith('/codemirror/') ? false : null;
       }
@@ -52,7 +66,7 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-zip',
-      platforms: ['win32', 'linux'],
+      platforms: ['darwin', 'win32']
     }
   ]
 };

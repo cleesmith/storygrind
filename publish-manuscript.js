@@ -895,11 +895,9 @@ class PublishManuscript extends ToolBase {
           front_cover_image: options.cover_image,
           paper_type: 'white',
           ink_type: 'bw',
-          show_guides: true,
+          show_guides: false,
           author_photo: options.back_image
       };
-console.dir(`generateManuscriptFiles: options:`);
-console.dir(options);
 
       this.emitOutput(`\nCreating paperback cover for ${pageCount} pages...\n`);
       await coverCreator.execute(bookCoverOptions);

@@ -315,8 +315,6 @@ class ManuscriptToPaperbackCover extends ToolBase {
 
       // Load and draw front cover image
       this.emitOutput(`Loading front cover image: ${frontCoverImagePath}\n`);
-console.dir(`Loading front cover image:`);
-console.dir(frontCoverImagePath);
       const image = await loadImage(frontCoverImagePath);
       
       // Calculate front cover dimensions
@@ -559,8 +557,6 @@ console.dir(frontCoverImagePath);
       // Get required options with defaults
       const pageCount = parseInt(options.page_count);
       const frontCoverImagePath = this.ensureAbsolutePath(options.front_cover_image, saveDir);
-console.dir(`execute: frontCoverImagePath:`);
-console.dir(frontCoverImagePath);
 
       const paperType = options.paper_type || 'white';
       const inkType = options.ink_type || 'bw';
