@@ -5,7 +5,7 @@
 // npm install
 // npm run make 
 
-// Windows_win32_x64_StoryGrind_v6.0.0_July_18_2025.zip
+// Windows_win32_x64_StoryGrind_v7.0.0_August_1_2025.zip
 
 
 // previously:
@@ -55,6 +55,7 @@
 
 // ... clean before signing/notarizing:
 // rm -rf out/
+
 // npm run package
 
 // security find-identity -v -p codesigning
@@ -97,7 +98,7 @@ const opts = {
   // ditto -c -k --keepParent "out/StoryGrind-darwin-x64/StoryGrind.app" "StoryGrind.zip"
   // xcrun notarytool submit "StoryGrind.zip" --keychain-profile "notarytool-profile" --wait
   // xcrun stapler staple "out/StoryGrind-darwin-x64/StoryGrind.app"
-  // create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Intel_x64_StoryGrind_v6.0.0_July_21_2025.dmg" "out/StoryGrind-darwin-x64/StoryGrind.app"
+  // create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Intel_x64_StoryGrind_v7.0.0_August_1_2025.dmg" "out/StoryGrind-darwin-x64/StoryGrind.app"
 
   // Required for notarization
   optionsForFile: (filePath) => {
