@@ -110,85 +110,6 @@ const PublishManuscript = loadToolClass('publish-manuscript');
 const WritingAITool = require('./writing-ai-tools');
 const ChapterWriter = loadToolClass('chapter-writer');
 
-/*
-  { id: 'manuscript_to_epub', title: 'Manuscript to EPUB Converter', description: 'Converts manuscript text files to EPUB format with full-width layout', Class: ManuscriptToEpub, options: [
-      {
-        "name": "text_file",
-        "label": "Text File",
-        "type": "file",
-        "description": "Manuscript text file to convert to EPUB",
-        "required": true,
-        "default": "manuscript.txt",
-        "filters": [
-          {
-            "name": "Text Files",
-            "extensions": ["txt"]
-          }
-        ]
-      },
-      {
-        "name": "title",
-        "label": "Book Title",
-        "type": "text",
-        "description": "Title of the book (optional - will use folder name if not provided)",
-        "required": false,
-        "default": ""
-      },
-      {
-        "name": "author",
-        "label": "Author",
-        "type": "text",
-        "description": "Author name",
-        "required": false,
-        "default": ""
-      }
-  ]},
-  { id: 'manuscript_to_html', title: 'Manuscript to HTML Converter', description: 'Converts manuscript text files to HTML format with dark mode support', Class: ManuscriptToHtml, options: [
-      {
-        "name": "manuscript_file",
-        "label": "Manuscript File",
-        "type": "file",
-        "description": "Manuscript text file to convert to HTML",
-        "required": true,
-        "default": "manuscript.txt",
-        "filters": [
-          {
-            "name": "Text Files",
-            "extensions": ["txt"]
-          }
-        ]
-      },
-      {
-        "name": "title",
-        "label": "Story Title",
-        "type": "text",
-        "description": "Title of the story (optional - will use folder name if not provided)",
-        "required": false,
-        "default": ""
-      },
-      {
-        "name": "author",
-        "label": "Author",
-        "type": "text",
-        "description": "Author name",
-        "required": false,
-        "default": ""
-      },
-      {
-        "name": "max_chapters",
-        "label": "Max Chapters",
-        "type": "select",
-        "description": "Select Chapter 1 for a taste of your writing, or All Chapters for entire manuscript.",
-        "required": false,
-        "default": "1",
-        "choices": [
-          { "value": "1", "label": "Chapter 1" },
-          { "value": "all", "label": "All Chapters" }
-        ]
-      }
-  ]},
-*/
-
 const TOOL_DEFS = [
   { id: 'tokens_words_counter', title: `Tokens & Words Counter`, description: `This tool can test that your AI API key is working properly!  Also, use it to count the approximate tokens and words in text files.`, Class: TokensWordsCounter, options: [
     {
@@ -206,23 +127,6 @@ const TOOL_DEFS = [
           ]
         }
       ]
-    }
-  ]},
-  { id: 'proofreader_spelling', title: `Proofreader Spelling`, description: `This tool does NOT use your AI api keys!  Since AI's are not useful for spell checking words in entire manuscripts ... too much to ask I suppose.  However this tool is blazingly fast; Moby Dick in under 2 seconds.  Honestly though, most editor software like: Word, Pages, google Docs, Reedsy, Vellum (best!) and so on offer good spell checking already.`, Class: ProofreaderSpelling, options: [
-    {
-      "name": "manuscript_file",
-      "label": "Manuscript File",
-      "type": "file",
-      "description": "Manuscript to spell check.",
-      "required": true,
-      "default": "manuscript.txt",
-      "filters": [
-        {
-          "name": "Text Files",
-          "extensions": ["txt"]
-        }
-      ],
-      "group": "Input Files"
     }
   ]},
   { id: 'brainstorm', title: `Brainstorm`, description: `Helps generate initial story ideas. Appends more ideas to the existing 'ideas.txt' file.`, Class: WritingAITool, options: [
@@ -394,6 +298,23 @@ const TOOL_DEFS = [
           { "value": "yes", "label": "Yes - Unpublish (this does NOT delete: covers, HTML, EPUB, or PDF files)" }
         ]
       }
+  ]},
+  { id: 'proofreader_spelling', title: `Proofreader Spelling`, description: `Since AI's are not useful for spell checking words in entire manuscripts ... too much to ask I suppose.  However this tool is blazingly fast; Moby Dick in under 2 seconds.  Honestly though, most editor software like: Word, Pages, google Docs, Reedsy, Vellum (best!) and so on offer good spell checking already.`, Class: ProofreaderSpelling, options: [
+    {
+      "name": "manuscript_file",
+      "label": "Manuscript File",
+      "type": "file",
+      "description": "Manuscript to spell check.",
+      "required": true,
+      "default": "manuscript.txt",
+      "filters": [
+        {
+          "name": "Text Files",
+          "extensions": ["txt"]
+        }
+      ],
+      "group": "Input Files"
+    }
   ]},
   { id: 'docx_comments', title: 'DOCX: Extract Comments as Text', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [
       {

@@ -172,7 +172,7 @@ window.electronAPI.onProjectUpdated((event) => {
 // Function to determine if a tool is an AI tool
 function isAiTool(tool) {
   // Check if tool requires AI API service - non-AI tools don't need AI
-  const nonAiTools = ['docx_comments', 'epub_converter', 'manuscript_to_epub', 'manuscript_to_html', 'publish_manuscript'];
+  const nonAiTools = ['proofreader_spelling', 'docx_comments', 'epub_converter', 'manuscript_to_epub', 'manuscript_to_html', 'publish_manuscript'];
   return !nonAiTools.includes(tool.name);
 }
 
@@ -261,7 +261,8 @@ function loadToolsForCategory(category) {
   }
   
   // Define tool categories
-  const coreTools = ["tokens_words_counter", "proofreader_spelling", "narrative_integrity", "developmental_editing", "line_editing", "copy_editing", "proofreader_plot_consistency", "proofreader_punctuation"];
+  // const coreTools = ["tokens_words_counter", "proofreader_spelling", "narrative_integrity", "developmental_editing", "line_editing", "copy_editing", "proofreader_plot_consistency", "proofreader_punctuation"];
+  const coreTools = ["tokens_words_counter", "narrative_integrity", "developmental_editing", "line_editing", "copy_editing", "proofreader_plot_consistency", "proofreader_punctuation"];
   const writingTools = ["brainstorm", "outline_writer", "world_writer", "chapter_writer"];
   
   let categoryTools = [];
@@ -448,7 +449,7 @@ aiCategorySelect.addEventListener('change', () => {
 
 // Tools with hardcoded implementations (not editable prompts)
 const hardcodedTools = [
-  'tokens_words_counter', 'docx_comments', 'epub_converter'
+  'tokens_words_counter', 'docx_comments', 'epub_converter', 'proofreader_spelling'
 ];
 
 // Check if a tool has an editable prompt

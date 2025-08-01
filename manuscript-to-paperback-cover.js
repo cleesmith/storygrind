@@ -428,7 +428,7 @@ class ManuscriptToPaperbackCover extends ToolBase {
    * Add back cover content (author photo and blurb text)
    */
   async addBackCoverContent(ctx, dims, authorPhotoPath, blurbText, blurbTextColor, blurbTextFont) {
-    const safeMargin = this.inchesToPixels(0.25); // 0.25" increased safety margin
+    const safeMargin = this.inchesToPixels(0.45); // 0.25 is too close, so increased safety margin
     const barcodeHeight = this.inchesToPixels(1.5); // Reserve 1.5" for barcode at bottom
     
     // Back cover area boundaries

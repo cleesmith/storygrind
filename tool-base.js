@@ -229,7 +229,7 @@ class ToolBase {
         
         if (projectPath) {
           resolvedPath = path.join(projectPath, filePath);
-          console.log(`Resolved relative path "${filePath}" to: "${resolvedPath}"`);
+          // console.log(`Resolved relative path "${filePath}" to: "${resolvedPath}"`);
         }
       }
       
