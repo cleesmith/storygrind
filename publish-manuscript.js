@@ -282,7 +282,7 @@ class PublishManuscript extends ToolBase {
 
       const filePath = path.join(appState.PROJECTS_DIR, 'index.html');
 
-      this.emitOutput(`\nSee these 5 files generated in Finder or File Explorer popup window:`);
+      this.emitOutput(`\nView these 5 files generated in the Finder or File Explorer popup window:`);
       this.emitOutput(`\n1. manuscript_?timestamp?.html`);
       this.emitOutput(`\n\n2. cover.jpg`);
       this.emitOutput(`\n\n3. manuscript_?timestamp?.epub`);
@@ -291,7 +291,9 @@ class PublishManuscript extends ToolBase {
       this.emitOutput(`\n     Trim Size...............: 6 x 9 in (15.24 x 22.86 cm)`);
       this.emitOutput(`\n     Bleed Setting...........: No Bleed`);
       this.emitOutput(`\n     Paperback cover finish..: Matte`);
-      this.emitOutput(`\n\n5. paperback_cover_?timestamp?.pdf\n\n\n`);
+      this.emitOutput(`\n\n5. paperback_cover_?timestamp?.pdf\n`);
+      this.emitOutput(`\n\n* where _?timestamp? is like: _20250801T124537\n`);
+      this.emitOutput(`\nnote: each time this tool runs all 5 previous files are deleted!\n\n\n`);
 
       setTimeout(() => {
         try {
@@ -836,6 +838,7 @@ class PublishManuscript extends ToolBase {
       await this.generateP5Cover(coverOptions);
 
       this.emitOutput(`\nGenerating HTML, EPUB, PDF files...\n`);
+
       
       // Create HTML converter and run it:
       const htmlConverter = new ManuscriptTextToHtml('manuscript-to-html');
@@ -847,6 +850,7 @@ class PublishManuscript extends ToolBase {
       };
       this.emitOutput(`Converting to HTML...\n`);
       await htmlConverter.execute(htmlOptions);
+
 
       // Create EPUB converter and run it:
       const epubConverter = new ManuscriptToEpub('manuscript-to-epub');
@@ -862,6 +866,7 @@ class PublishManuscript extends ToolBase {
       this.emitOutput(`Converting to EPUB with cover image...\n`);
       await epubConverter.execute(epubOptions);
 
+
       // Create PDF converter and run it:
       const pdfConverter = new ManuscriptToPDF('manuscript-to-pdf');
       const pdfOptions = {
@@ -872,7 +877,7 @@ class PublishManuscript extends ToolBase {
           publisher: 'StoryGrind',
           description: 'Created with StoryGrind'
       };
-      this.emitOutput(`Converting to PDF for use with KDP print paper books...\n`);
+      this.emitOutput(`Converting to PDF for use with KDP paperback books...\n`);
 
       const result = await pdfConverter.execute(pdfOptions);
 
@@ -884,7 +889,7 @@ class PublishManuscript extends ToolBase {
       this.emitOutput(`\nGenerated PDF with ${pageCount} pages`);
 
 
-      // Create PDF Paperbook 6x9 cover maker and run it:
+      // Create PDF paperback 6x9 book cover maker and run it:
       const coverCreator = new ManuscriptToPaperbackCover('manuscript-to-paperback-cover');
       const bookCoverOptions = {
           page_count: pageCount,
