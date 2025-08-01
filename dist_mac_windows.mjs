@@ -75,7 +75,7 @@
 // xcrun stapler validate "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // change name for Silicon or Intel:
-// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Silicon_arm64_StoryGrind_v7.0.0_July_31_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
+// create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Silicon_arm64_StoryGrind_v7.0.0_August_3_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
 
 // open out/storygrind-darwin-arm64/storygrind.app
 
