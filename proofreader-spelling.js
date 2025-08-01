@@ -1,6 +1,11 @@
 // proofreader-spelling.js
 // Non-AI spell checking tool with multi-language dictionary support
 // Uses simple-spellchecker library for fast, accurate spell checking
+// 
+// lib/spellchecker: Local spellchecker implementation, modified from: https://github.com/jfmdev/simple-spellchecker
+// lib/spellchecker/dict: Bundled dictionary ZIP files for multiple languages
+// Dictionaries are extracted to `~/storygrind_projects/tool-prompts/dictionaries/` on first run
+// Supports 15 languages: en-US, en-GB, de-DE, es-ES, es-MX, fr-FR, it-IT, lt-LT, nl-NL, pl-PL, pt-BR, ru-RU, sv-SE, tr-TR, uk-UA
 
 const ToolBase = require('./tool-base');
 const SpellChecker = require('./lib/spellchecker');
