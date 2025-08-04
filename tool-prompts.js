@@ -1567,9 +1567,79 @@ Use the outline as your guide for plot events, the world document for setting an
 
 // User Tools
 anything_goes: `
-... without using Markdown formatting:
+IMPORTANT: 
+Thoroughly read the manuscript, think hard, make at least 2 passes through the manuscript, then do the following:
 
-List the chapters in the manuscript.`,
+
+Extract characters, emotions, and relationships from the provided text.
+
+* Extract entities exactly as they appear in the original text (do not paraphrase).
+* Identify entities in the order they appear, without overlapping text spans.
+* Assign clear and meaningful attributes to each extracted entity to provide context and depth.
+* Attributes can include multiple emotions or nuanced emotional states if clearly indicated.
+* Include implicit relationships or emotions if they are strongly suggested by context.
+* If ambiguity arises, clearly note your interpretation within the attributes.
+* In play scripts, character names typically appear in ALL-CAPS followed by a period.
+
+
+Here's an example for guidance:
+
+Input Text:
+ROMEO. But soft! What light through yonder window breaks?
+It is the east, and Juliet is the sun.
+JULIET. O Romeo, Romeo! Wherefore art thou Romeo?
+
+Expected Extractions:
+
+Entity Type: character
+Text: ROMEO
+Attributes: emotional\_state = wonder
+
+Entity Type: emotion
+Text: But soft!
+Attributes: feeling = gentle awe, character = Romeo
+
+Entity Type: relationship
+Text: Juliet is the sun
+Attributes: type = metaphor, character\_1 = Romeo, character\_2 = Juliet
+
+Entity Type: character
+Text: JULIET
+Attributes: emotional\_state = yearning
+
+Entity Type: emotion
+Text: Wherefore art thou Romeo?
+Attributes: feeling = longing question, character = Juliet
+
+
+=== FINAL OUTPUT EXAMPLE ===
+Downloading and processing Romeo and Juliet from Project Gutenberg...
+Downloaded 147,843 characters (25,976 words) from 1513-0.txt
+Extracted 4,088 entities from 147,843 characters
+
+CHARACTER SUMMARY (153 unique characters) [put newline after each character!]
+============================================================
+ROMEO: 287 mentions (emotional_state: excitement, emotional_state: eager to please)
+
+JULIET: 204 mentions (emotional_state: fond, emotional_state: resilient)
+
+NURSE: 168 mentions (emotional_state: reporting, emotional_state: teasing and evasive)
+
+MERCUTIO: 107 mentions (emotional_state: approving, emotional_state: responsive)
+
+BENVOLIO: 82 mentions (emotional_state: cautious, emotional_state: teasing)
+
+
+ENTITY TYPE BREAKDOWN
+============================================================
+character: 1,685 (41.2%)
+emotion: 1,524 (37.3%)
+relationship: 879 (21.5%)
+=== END FINAL OUTPUT EXAMPLE ===
+
+
+SPECIAL INSTRUCTIONS: do not respond using Markdown, just plain text only
+`,
 
 nonfiction_SelfHelp_editing: `Thoroughly complete the following 2 TASKS for SELF-HELP NON-FICTION:
 
