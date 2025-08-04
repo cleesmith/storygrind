@@ -259,7 +259,7 @@ class PublishManuscript extends ToolBase {
       appState.setAuthorName(metadata.author);
 
       // Generate fresh manuscript files (HTML, cover.jpg, EPUB) from source text
-      await this.generateManuscriptFiles(projectPath, appState.AUTHOR_NAME, displayTitle, options, metadata);
+      const generationResult = await this.generateManuscriptFiles(projectPath, appState.AUTHOR_NAME, displayTitle, options, metadata);
 
       // Now find the newly created manuscript files
       const manuscriptFiles = await this.findManuscriptFiles(projectPath);
@@ -282,18 +282,34 @@ class PublishManuscript extends ToolBase {
 
       const filePath = path.join(appState.PROJECTS_DIR, 'index.html');
 
-      this.emitOutput(`\nView these 5 files generated in the Finder or File Explorer popup window:`);
-      this.emitOutput(`\n1. manuscript_?timestamp?.html`);
-      this.emitOutput(`\n\n2. cover.jpg`);
-      this.emitOutput(`\n\n3. manuscript_?timestamp?.epub`);
-      this.emitOutput(`\n\n4. manuscript_?timestamp?.pdf ... with KDP defaults:`);
-      this.emitOutput(`\n     Ink and Paper Type......: Black & white interior with white paper`);
-      this.emitOutput(`\n     Trim Size...............: 6 x 9 in (15.24 x 22.86 cm)`);
-      this.emitOutput(`\n     Bleed Setting...........: No Bleed`);
-      this.emitOutput(`\n     Paperback cover finish..: Matte`);
-      this.emitOutput(`\n\n5. paperback_cover_?timestamp?.pdf\n`);
-      this.emitOutput(`\n\n* where _?timestamp? is like: _20250801T124537\n`);
-      this.emitOutput(`\nnote: each time this tool runs all 5 previous files are deleted!\n\n\n`);
+      // Use the result from generateManuscriptFiles to know if paperback cover was generated
+      if (generationResult.paperbackCoverGenerated) {
+        this.emitOutput(`\nView these 5 files generated in the Finder or File Explorer popup window:`);
+        this.emitOutput(`\n1. manuscript_?timestamp?.html`);
+        this.emitOutput(`\n\n2. cover.jpg`);
+        this.emitOutput(`\n\n3. manuscript_?timestamp?.epub`);
+        this.emitOutput(`\n\n4. manuscript_?timestamp?.pdf ... with KDP defaults:`);
+        this.emitOutput(`\n     Ink and Paper Type......: Black & white interior with white paper`);
+        this.emitOutput(`\n     Trim Size...............: 6 x 9 in (15.24 x 22.86 cm)`);
+        this.emitOutput(`\n     Bleed Setting...........: No Bleed`);
+        this.emitOutput(`\n     Paperback cover finish..: Matte`);
+        this.emitOutput(`\n\n5. paperback_cover_?timestamp?.pdf\n`);
+        this.emitOutput(`\n\n* where _?timestamp? is like: _20250801T124537\n`);
+        this.emitOutput(`\nnote: each time this tool runs all 5 previous files are deleted!\n\n\n`);
+      } else {
+        this.emitOutput(`\nView these 4 files generated in the Finder or File Explorer popup window:`);
+        this.emitOutput(`\n1. manuscript_?timestamp?.html`);
+        this.emitOutput(`\n\n2. cover.jpg`);
+        this.emitOutput(`\n\n3. manuscript_?timestamp?.epub`);
+        this.emitOutput(`\n\n4. manuscript_?timestamp?.pdf ... with KDP defaults:`);
+        this.emitOutput(`\n     Ink and Paper Type......: Black & white interior with white paper`);
+        this.emitOutput(`\n     Trim Size...............: 6 x 9 in (15.24 x 22.86 cm)`);
+        this.emitOutput(`\n     Bleed Setting...........: No Bleed`);
+        this.emitOutput(`\n     Paperback cover finish..: Matte`);
+        this.emitOutput(`\n\n* where _?timestamp? is like: _20250801T124537\n`);
+        this.emitOutput(`\nnote: KDP paperback cover was not generated (requires 24+ pages)\n`);
+        this.emitOutput(`\nnote: each time this tool runs all previous files are deleted!\n\n\n`);
+      }
 
       setTimeout(() => {
         try {
@@ -902,10 +918,27 @@ class PublishManuscript extends ToolBase {
       };
 
       this.emitOutput(`\nCreating paperback cover for ${pageCount} pages...\n`);
-      await coverCreator.execute(bookCoverOptions);
-
-
-      this.emitOutput(`\nAll files generated successfully!\n\n`);
+      const coverResult = await coverCreator.execute(bookCoverOptions);
+      
+      // Check if the cover was skipped due to page count
+      if (coverResult.skipped) {
+          this.emitOutput(`\nThe following files have been generated successfully:\n`);
+          this.emitOutput(`- cover.jpg (book cover image)\n`);
+          this.emitOutput(`- manuscript_*.html (web version)\n`);
+          this.emitOutput(`- manuscript_*.epub (ebook)\n`);
+          this.emitOutput(`- manuscript_*.pdf (interior pages)\n`);
+          if (coverResult.reason === 'minimum_page_count') {
+              this.emitOutput(`\nTo generate a KDP paperback cover, your manuscript needs at least 24 pages.\n`);
+          }
+      } else {
+          this.emitOutput(`\nAll files generated successfully!\n\n`);
+      }
+      
+      // Return information about what was generated
+      return {
+          paperbackCoverGenerated: !coverResult.skipped,
+          coverResult: coverResult
+      };
   }
 
   /**

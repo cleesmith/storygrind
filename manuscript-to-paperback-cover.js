@@ -131,14 +131,7 @@ class ManuscriptToPaperbackCover extends ToolBase {
    * Calculate spine width based on page count
    */
   calculateSpineWidth(pageCount, paperType = 'white', inkType = 'bw') {
-    if (pageCount < 24) {
-      throw new Error('Minimum page count is 24 for paperback books');
-    }
-    
-    if (pageCount > 828) {
-      throw new Error('Maximum page count is 828 for paperback books');
-    }
-
+    // Don't throw errors here - let the execute method handle validation
     const thickness = this.paperThickness[paperType][inkType];
     const spineWidth = (pageCount * thickness) + this.coverThickness;
     
@@ -570,6 +563,38 @@ class ManuscriptToPaperbackCover extends ToolBase {
         throw new Error('Page count must be a number');
       }
 
+      // Check minimum page count requirement
+      if (pageCount < 24) {
+        this.emitOutput(`Note: KDP paperback cover not generated - manuscript has ${pageCount} pages but KDP requires a minimum of 24 pages.\n`);
+        return {
+          success: true,  // Not a failure, just a skip
+          skipped: true,
+          reason: 'minimum_page_count',
+          message: `Manuscript has ${pageCount} pages but KDP requires minimum 24 pages`,
+          outputFiles: [],
+          stats: {
+            pageCount: pageCount,
+            minimumRequired: 24
+          }
+        };
+      }
+
+      // Check maximum page count
+      if (pageCount > 828) {
+        this.emitOutput(`Note: KDP paperback cover not generated - manuscript has ${pageCount} pages but KDP maximum is 828 pages.\n`);
+        return {
+          success: true,  // Not a failure, just a skip
+          skipped: true,
+          reason: 'maximum_page_count',
+          message: `Manuscript has ${pageCount} pages but KDP maximum is 828 pages`,
+          outputFiles: [],
+          stats: {
+            pageCount: pageCount,
+            maximumAllowed: 828
+          }
+        };
+      }
+
       if (!frontCoverImagePath) {
         throw new Error('Front cover image path is required');
       }
@@ -639,6 +664,7 @@ class ManuscriptToPaperbackCover extends ToolBase {
 
       return {
         success: true,
+        skipped: false,
         outputFiles: [outputPath],
         stats: {
           pageCount: pageCount,
