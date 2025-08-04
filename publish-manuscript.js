@@ -821,29 +821,11 @@ class PublishManuscript extends ToolBase {
    * @returns {Promise<void>}
    */
   async generateManuscriptFiles(projectPath, displayAuthor, displayTitle, options, metadata) {
-      // Find the source manuscript text file
-      const files = await fsPromises.readdir(projectPath);
-      const textFiles = files.filter(file => {
-          const fileName = file.toLowerCase();
-          return fileName.endsWith('.txt') && (fileName.includes('manuscript') || fileName === 'manuscript.txt');
-      });
-      
-      if (textFiles.length === 0) {
-          this.emitOutput('Error: No manuscript text file found. Please ensure you have a manuscript.txt file in your project.\n');
-          return {
-              success: false,
-              message: 'No manuscript text file found',
-              outputFiles: []
-          };
-      }
-      
-      // Use the first manuscript text file found
-      const manuscriptTextFile = path.join(projectPath, textFiles[0]);
-      
-      this.emitOutput(`Found manuscript text file: ${textFiles[0]}\n`);
+      const manuscriptTextFile = options.manuscript_file;
+      this.emitOutput(`Found manuscript text file: ${manuscriptTextFile}\n`);
+
       
       this.emitOutput(`\nGenerating abstract art cover with pareidolia...\n`);
-
       const coverPath = path.join(projectPath, 'cover.jpg');
       const coverOptions = {
           title: metadata.title,
@@ -853,9 +835,9 @@ class PublishManuscript extends ToolBase {
       //         ***************
       await this.generateP5Cover(coverOptions);
 
+
       this.emitOutput(`\nGenerating HTML, EPUB, PDF files...\n`);
 
-      
       // Create HTML converter and run it:
       const htmlConverter = new ManuscriptTextToHtml('manuscript-to-html');
       const htmlOptions = {
