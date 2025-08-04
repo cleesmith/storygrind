@@ -99,7 +99,7 @@ function loadToolClass(toolName) {
 
 // Exception tools that remain as traditional classes:
 const TokensWordsCounter = loadToolClass('tokens-words-counter');
-const ProofreaderSpelling = loadToolClass('proofreader-spelling');
+// const ProofreaderSpelling = loadToolClass('proofreader-spelling');
 const DocxComments = loadToolClass('docx-comments');
 const EpubConverter = loadToolClass('epub-converter');
 const ManuscriptToEpub = loadToolClass('manuscript-to-epub');
@@ -298,23 +298,6 @@ const TOOL_DEFS = [
           { "value": "yes", "label": "Yes - Unpublish (this does NOT delete: covers, HTML, EPUB, or PDF files)" }
         ]
       }
-  ]},
-  { id: 'proofreader_spelling', title: `Proofreader Spelling`, description: `Since AI's are not useful for spell checking words in entire manuscripts ... too much to ask I suppose.  However this tool is blazingly fast; Moby Dick in under 2 seconds.  Honestly though, most editor software like: Word, Pages, google Docs, Reedsy, Vellum (best!) and so on offer good spell checking already.`, Class: ProofreaderSpelling, options: [
-    {
-      "name": "manuscript_file",
-      "label": "Manuscript File",
-      "type": "file",
-      "description": "Manuscript to spell check.",
-      "required": true,
-      "default": "manuscript.txt",
-      "filters": [
-        {
-          "name": "Text Files",
-          "extensions": ["txt"]
-        }
-      ],
-      "group": "Input Files"
-    }
   ]},
   { id: 'docx_comments', title: 'DOCX: Extract Comments as Text', description: 'Extracts comments and associated text from DOCX files and saves them to a text file', Class: DocxComments, options: [
       {

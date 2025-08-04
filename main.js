@@ -1797,15 +1797,16 @@ function setupIPCHandlers() {
       // Get the prompt file path using the same logic as tool execution
       const promptPath = promptManager.getPromptFilePath(toolId);
       
-      if (!fs.existsSync(promptPath)) {
-        if (toolId === 'proofreader_spelling') {
-          dialog.showErrorBox('Info', `Proofreader Spelling is no longer an AI-based prompt, so there's nothing to edit. This may change as AI's evolve.`);
-          return false;
-        }
-        console.error('Prompt file not found for tool:', toolId, 'at path:', promptPath);
-        dialog.showErrorBox('Error', `Prompt file not found for tool: ${toolId}`);
-        return false;
-      }
+      // Aug 4, 2025: Proofreader Spelling does not work on Windows?
+      // if (!fs.existsSync(promptPath)) {
+      //   if (toolId === 'proofreader_spelling') {
+      //     dialog.showErrorBox('Info', `Proofreader Spelling is no longer an AI-based prompt, so there's nothing to edit. This may change as AI's evolve.`);
+      //     return false;
+      //   }
+      //   console.error('Prompt file not found for tool:', toolId, 'at path:', promptPath);
+      //   dialog.showErrorBox('Error', `Prompt file not found for tool: ${toolId}`);
+      //   return false;
+      // }
       
       createEditorDialog(promptPath);
       return true;

@@ -23,7 +23,6 @@ class PromptManager {
       'developmental_editing',
       'line_editing', 
       'copy_editing',
-      'proofreader_spelling',
       'proofreader_punctuation',
       'proofreader_plot_consistency',
       'narrative_integrity'
@@ -49,7 +48,6 @@ class PromptManager {
     // Tools that should NOT have prompt files created (they have JS implementations)
     this.builtInToolsToSkip = [
       'tokens_words_counter',
-      'proofreader_spelling', 
       'docx_comments',
       'epub_converter'
     ];
