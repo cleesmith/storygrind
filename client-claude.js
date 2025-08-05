@@ -231,6 +231,7 @@ class AiApiService {
           }
         }
       }
+
     } catch (error) {
       console.error('Claude API streaming error:', error);
       throw error;
