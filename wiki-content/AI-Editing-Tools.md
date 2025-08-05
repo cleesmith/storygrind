@@ -11,11 +11,6 @@ These are the essential tools most writers will use regularly:
 - **Best for**: Tracking progress, understanding API usage, submission requirements
 - **Output**: Detailed word counts by chapter, token analysis, reading time estimates
 
-### Proofreader Spelling
-- **What it does**: A non-AI based spell checker
-- **Best for**: Blazingly fast spell checking, Moby Dick in under 2 seconds
-- **Output**: Ignores proper names, but does have false-positives
-
 ### Developmental Editing
 - **What it does**: Analyzes your story's structure, pacing, character development, and themes
 - **Best for**: First drafts, major revisions, structural problems

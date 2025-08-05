@@ -41,7 +41,7 @@ StoryGrind is a free desktop application that helps writers, authors, and editor
 - **Google Gemini** - Easy to get started and less expensive
 - **OpenAI** **GPT**'s and **o**'s - Widely used and familiar
 
-**Non-AI tools** (fast spell check, file conversion: .docx ↔️ .txt) work without any AI (free).
+**Non-AI tools** (file conversion: .docx ↔️ .txt) work without any AI (free).
 
 ## 📋 Documentation Quick Links
 

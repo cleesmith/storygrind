@@ -3,7 +3,7 @@
 ## 🆓 About StoryGrind
 
 ### Is StoryGrind really free?
-Yes! StoryGrind itself is completely free and open source. However, AI-powered tools require an API key from a provider (Anthropic, Google, OpenAI, or OpenRouter), and those providers charge for usage. Non-AI tools (spell check, file conversion) work without any API key.
+Yes! StoryGrind itself is completely free and open source. However, AI-powered tools require an API key from a provider (Anthropic, Google, OpenAI, or OpenRouter), and those providers charge for usage. Non-AI tools (file conversion) work without any API key.
 
 ### What file formats does StoryGrind support?
 StoryGrind works with plain text only- `.txt` files, and the Tools only use `.txt`. For convenience, it can also convert between these formats: `.docx` to `.txt` and vice versa. All output files are saved as `.txt` for maximum compatibility.
@@ -73,7 +73,7 @@ While StoryGrind's tools work only with .txt plain text files, your project subf
 For backing up your work, you can sync your writing folder to cloud storage services like iCloud, Dropbox, or Google Drive. This protects your manuscripts and lets you access them from other devices. For writers who want to track changes to their work over time, GitHub is another option that saves every version of your files automatically.
 
 ### Can I use StoryGrind offline?
-A little bit, but not really, as it's the AI that's providing the editing 🪄 magic. File converters, spell checking, the built-in editor; are all usable offline.
+A little bit, but not really, as it's the AI that's providing the editing 🪄 magic. File converters, the built-in editor; are all usable offline.
 
 ## 🔑 API Keys & Setup
 

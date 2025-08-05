@@ -124,7 +124,7 @@ A typical StoryGrind workflow:
 2. **Analyze** with broad tools (Developmental Editing, Narrative Integrity)
 3. **Revise** your manuscript based on structural feedback
 4. **Refine** with detailed tools (Line Editing, Copy Editing)
-5. **Polish** with proofreading tools (Spelling, Punctuation)
+5. **Polish** with proofreading tools (Punctuation)
 6. **Repeat** as needed
 
 ## 💡 Tips for Success
@@ -135,7 +135,6 @@ A typical StoryGrind workflow:
 - Understand the results before processing your entire manuscript
 
 ### Use Non-AI Tools Too
-- **Spell Checker** works without any API key
 - **File conversion** tools are completely free
 - These can handle basic tasks while you focus AI tools on complex analysis
 
