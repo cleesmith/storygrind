@@ -397,6 +397,17 @@ function createWindow() {
   
   // Show the main window
   mainWindow.show();
+
+  global.rendererReady = false;
+  // wait for renderer to be fully ready
+  mainWindow.webContents.once('dom-ready', () => {
+    mainWindow.webContents.once('did-finish-load', () => {
+      setTimeout(() => {
+        global.rendererReady = true;
+        console.log('🚀 Renderer ready - but some tools may require a longer wait!');
+      }, 400); // conservative delay for most modern hardware
+    });
+  });
   
   // Ensure proper cleanup on Windows when main window closes
   mainWindow.on('closed', () => {
@@ -1101,7 +1112,7 @@ function setupToolHandlers() {
       // Execute the tool in the background
       (async () => {
         try {
-          // Send initial output notification
+          // Send initial output notification, never shown = prime pump:
           sendOutput(`Starting: ${toolName} ...\n\n`);
           
           // Get the tool

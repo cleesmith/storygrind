@@ -287,8 +287,8 @@ class PublishManuscript extends ToolBase {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
-    // Give Electron renderer time to be ready
-    await new Promise(resolve => setTimeout(resolve, 200));
+    // give Electron renderer time to be ready, some devices/Windows are too slow:
+    await new Promise(resolve => setTimeout(resolve, 400));
 
     const projectPath = appState.CURRENT_PROJECT_PATH;
     // doing an emitOutput early seems to help ?

@@ -283,23 +283,26 @@ runBtn.addEventListener('click', async () => {
         //   'brainstorm', 'outline_writer', 'world_writer', 'chapter_writer',
         //   'tokens_words_counter'
         // ];
-        
         // if (!excludedTools.includes(toolData.name)) {
         //   // Show Edit button and dropdown for non-excluded tools
         //   editBtn.style.display = 'inline-block';
         //   toolSelectElement.style.display = 'inline-block';
         // }
-        // Show Edit button and dropdown
-        editBtn.style.display = 'inline-block';
-        toolSelectElement.style.display = 'inline-block';
+
+        if (result.createdFiles.length > 0) {
+          // show Edit button and dropdown
+          editBtn.style.display = 'inline-block';
+          toolSelectElement.style.display = 'inline-block';
+        }
 
         runBtn.disabled = true;
+
         // Reset setupCompleted flag to require going through setup again
         setupCompleted = false;        
 
         // Add completion message to output area
         // outputElement.textContent += `\n\nTool finished with exit code: ${result.code}`;
-        
+
         // Handle file selector
         if (editBtn.style.display !== 'none') {
           // Clear and populate dropdown
