@@ -279,7 +279,8 @@ class ToolBase {
    * @param {string} text - Text to emit
    */
   emitOutput(text) {
-    // console.log(text);
+    // console.dir(`emitOutput:`);
+    // console.dir(text);
   }
   
   /**

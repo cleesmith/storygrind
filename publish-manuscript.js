@@ -136,9 +136,85 @@ class PublishManuscript extends ToolBase {
    * @param {string} projectPath - Path to the project directory
    * @returns {Promise<Object>} - Metadata object with validation
    */
+  // async readProjectMetadata(projectPath) {
+  //   const projectName = path.basename(projectPath);
+  //   const metadataDir = path.join(projectPath, 'metadata');
+    
+  //   const metadata = {
+  //     title: '',
+  //     author: '',
+  //     pov: '',
+  //     publisher: '',
+  //     buyUrl: '',
+  //     copyright: '',
+  //     dedication: '',
+  //     aboutAuthor: ''
+  //   };
+    
+  //   const requiredFiles = {
+  //     '_title.txt': 'title',
+  //     '_author.txt': 'author'
+  //   };
+    
+  //   const optionalFiles = {
+  //     '_pov.txt': 'pov',
+  //     '_publisher.txt': 'publisher', 
+  //     '_buy_url.txt': 'buyUrl',
+  //     '_copyright.txt': 'copyright',
+  //     '_dedication.txt': 'dedication',
+  //     '_about_author.txt': 'aboutAuthor'
+  //   };
+    
+  //   // Check if metadata directory exists
+  //   if (!fs.existsSync(metadataDir)) {
+  //     this.emitOutput(`Project metadata not found!\n\nPlease click Close, then click "Project Settings" to set up your selected\nproject's metadata (title, author, etc.) before trying to run Publish Manuscript.\n`);
+  //     return null;
+  //   }
+    
+  //   // Read required files
+  //   for (const [filename, key] of Object.entries(requiredFiles)) {
+  //     const filePath = path.join(metadataDir, filename);
+  //     try {
+  //       const content = await fsPromises.readFile(filePath, 'utf8');
+  //       metadata[key] = content.trim();
+        
+  //       if (!metadata[key]) {
+  //         this.emitOutput(`${key.charAt(0).toUpperCase() + key.slice(1)} is required but empty. Please click "Project Settings" and fill in the ${key} field.\n`);
+  //         return null;
+  //       }
+  //     } catch (error) {
+  //       if (error.code === 'ENOENT') {
+  //         this.emitOutput(`${key.charAt(0).toUpperCase() + key.slice(1)} not found. Please click "Project Settings" to set up your project metadata.\n`);
+  //         return null;
+  //       }
+  //       this.emitOutput(`Error reading metadata: ${error.message}\n`);
+  //       return null;
+  //     }
+  //   }
+    
+  //   // Read optional files
+  //   for (const [filename, key] of Object.entries(optionalFiles)) {
+  //     const filePath = path.join(metadataDir, filename);
+  //     try {
+  //       const content = await fsPromises.readFile(filePath, 'utf8');
+  //       metadata[key] = content.trim();
+  //     } catch (error) {
+  //       // Optional files can be missing or empty
+  //       metadata[key] = '';
+  //     }
+  //   }
+    
+  //   return metadata;
+  // }
+  /**
+   * Read and validate project metadata
+   * @param {string} projectPath - Path to the project directory
+   * @returns {Promise<{metadata: Object, errors: string[]}>} - Object containing metadata and any errors
+   */
   async readProjectMetadata(projectPath) {
     const projectName = path.basename(projectPath);
     const metadataDir = path.join(projectPath, 'metadata');
+    const errors = [];
     
     const metadata = {
       title: '',
@@ -167,8 +243,8 @@ class PublishManuscript extends ToolBase {
     
     // Check if metadata directory exists
     if (!fs.existsSync(metadataDir)) {
-      this.emitOutput(`Project metadata not found!\n\nPlease click Close, then click "Project Settings" to set up your selected\nproject's metadata (title, author, etc.) before trying to run Publish Manuscript.\n`);
-      return null;
+      errors.push('Project metadata not found!\n\nPlease click Close, then click "Project Settings" to set up your selected\nproject\'s metadata (title, author, etc.) before trying to run Publish Manuscript.');
+      return { metadata, errors };
     }
     
     // Read required files
@@ -179,16 +255,14 @@ class PublishManuscript extends ToolBase {
         metadata[key] = content.trim();
         
         if (!metadata[key]) {
-          this.emitOutput(`${key.charAt(0).toUpperCase() + key.slice(1)} is required but empty. Please click "Project Settings" and fill in the ${key} field.\n`);
-          return null;
+          errors.push(`${key.charAt(0).toUpperCase() + key.slice(1)} is required but empty. Please click "Project Settings" and fill in the ${key} field.`);
         }
       } catch (error) {
         if (error.code === 'ENOENT') {
-          this.emitOutput(`${key.charAt(0).toUpperCase() + key.slice(1)} not found. Please click "Project Settings" to set up your project metadata.\n`);
-          return null;
+          errors.push(`${key.charAt(0).toUpperCase() + key.slice(1)} not found. Please click "Project Settings" to set up your project metadata.`);
+        } else {
+          errors.push(`Error reading ${key}: ${error.message}`);
         }
-        this.emitOutput(`Error reading metadata: ${error.message}\n`);
-        return null;
       }
     }
     
@@ -199,12 +273,12 @@ class PublishManuscript extends ToolBase {
         const content = await fsPromises.readFile(filePath, 'utf8');
         metadata[key] = content.trim();
       } catch (error) {
-        // Optional files can be missing or empty
+        // Optional files can be missing or empty - no error needed
         metadata[key] = '';
       }
     }
     
-    return metadata;
+    return { metadata, errors };
   }
 
   /**
@@ -213,40 +287,58 @@ class PublishManuscript extends ToolBase {
    * @returns {Promise<Object>} - Execution result
    */
   async execute(options) {
+    // Give Electron renderer time to be ready
+    await new Promise(resolve => setTimeout(resolve, 200));
+
     const projectPath = appState.CURRENT_PROJECT_PATH;
+    // doing an emitOutput early seems to help ?
+    this.emitOutput(`Project: ${projectPath}\n`);
     
     if (!projectPath) {
       this.emitOutput('Error: No project selected. Please select a project first.\n');
       return {
         success: false,
         message: 'No project selected',
-        outputFiles: []
+        outputFiles: [],
+        stats: {}
       };
     }
 
     try {
       // Unpublish this book
       if (options.unpublish === 'yes') {
+        this.emitOutput('Unpublishing book...\n');
         return await this.unpublishBook(projectPath, options);
       }
+    } catch (error) {
+      console.error('Error in Publish Manuscript:', error);
+      this.emitOutput(`\nError: ${error.message}\n`);
+      throw error;
+    }
 
+    this.emitOutput(`\nGet Project Settings...\n`);
+
+    try {
       // Show only the selected file
       const selectedFile = options.manuscript_file;
       const selectedFileName = path.basename(selectedFile);
 
       // Extract project name from path
       const projectName = path.basename(projectPath);
-      
-      // Read and validate project metadata
-      const metadata = await this.readProjectMetadata(projectPath);
-      if (!metadata) {
+
+      const { metadata, errors } = await this.readProjectMetadata(projectPath);
+      if (errors.length > 0) {
+        for (const error of errors) {
+          this.emitOutput(error + '\n');
+        }
         return {
           success: false,
           message: 'No Project Settings found',
-          outputFiles: []
+          outputFiles: [],
+          stats: {}
         };
       }
-      
+
       // Use metadata title or fallback to formatted project name
       const caseTitle = metadata.title || this.formatProperCase(projectName);
       // cls: deprecated, but ok to leave:

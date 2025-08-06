@@ -475,8 +475,6 @@ async function initializeToolSystem(settings) {
  * @returns {Promise<Object>} - Tool execution result
  */
 async function executeToolById(toolId, options, runId = null, sendOutput = null) {
-  // console.log(`Executing tool: ${toolId} with options:`, options);
-  
   // Get the tool implementation
   const tool = toolRegistry.getTool(toolId);
   
