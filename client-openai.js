@@ -21,7 +21,7 @@ class AiApiService {
     this.apiKeyMissing = true;
     this.prompt = null;
     this.user = "storygrind";
-    this.temp = 0.3;
+    // this.temp = 0.3;
 
     // Perform async initialization
     this._initializeClient();
@@ -124,15 +124,15 @@ class AiApiService {
       throw new Error('No manuscript loaded.');
     }
     const fullInput = `=== MANUSCRIPT ===\n${this.prompt}\n=== MANUSCRIPT ===\n${prompt}`;
-    console.log(fullInput);
+    // console.log(fullInput);
     try {
       const response = await this.client.responses.create({
         user: "storygrind",
         model: this.config.model_name,
         instructions: "You are a very experienced creative fiction writer and editor.",
         input: fullInput,
-        stream: true,
-        temperature: options.temperature || this.temp,
+        stream: true
+        // temperature: options.temperature || this.temp,
       });
       
       for await (const event of response) {
@@ -167,8 +167,8 @@ class AiApiService {
       const response = await this.client.chat.completions.create({
         model: this.config.model_name,
         messages: [{ role: 'user', content: text }],
-        max_tokens: 1, // Minimal generation to save costs
-        temperature: 0
+        // max_completion_tokens: 1, // Minimal generation to save costs
+        // temperature: 0
       });
       
       return response.usage.prompt_tokens;
