@@ -1121,7 +1121,10 @@ function setupToolHandlers() {
           if (!tool) {
             throw new Error(`Tool not found: ${toolName}`);
           }
-          
+    
+          // give Electron renderer time to be ready, some devices/Windows are too slow:
+          await new Promise(resolve => setTimeout(resolve, 400));
+
           // Execute the tool (passing sendOutput so it can assign emitOutput)
           const result = await toolSystem.executeToolById(toolName, optionValues, runId, sendOutput);
           

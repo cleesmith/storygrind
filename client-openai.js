@@ -81,10 +81,10 @@ class AiApiService {
    * @returns {boolean} True if model supports chat completions
    */
   isChatCompatible(model) {
-    const modelId = model.id || '';
-    
-    // Positive pattern: Known chat models
-    return /^(gpt-|o\d+|chatgpt-)/.test(modelId);
+    const id = (typeof model === "string" ? model : model?.id) ?? "";
+    const s = id.toLowerCase();
+    // accept gpt-5, gpt-5-mini, gpt-5-nano, etc., but NOT gpt-5-chat (or any *-chat*)
+    return s.startsWith("gpt-5") && !/(^|[-_.])chat($|[-_.]|$)/.test(s);
   }
 
   /**
@@ -131,8 +131,9 @@ class AiApiService {
         model: this.config.model_name,
         instructions: "You are a very experienced creative fiction writer and editor.",
         input: fullInput,
+        text: { verbosity: "high" }, //low, medium, high
+        reasoning: { effort: "high" }, // minimal, low, medium, high
         stream: true
-        // temperature: options.temperature || this.temp,
       });
       
       for await (const event of response) {
@@ -149,6 +150,7 @@ class AiApiService {
       }
     } catch (err) {
       console.error('OpenAI responses error:', err.message);
+      console.error('Full error:', err);
       throw err;
     }
   }
@@ -164,19 +166,29 @@ class AiApiService {
         throw new Error('OpenAI client not initialized');
       }
       
-      const response = await this.client.chat.completions.create({
-        model: this.config.model_name,
-        messages: [{ role: 'user', content: text }],
-        // max_completion_tokens: 1, // Minimal generation to save costs
-        // temperature: 0
+      // Aug 7, 2025: stop working with release of gpt-5:
+      // const response = await this.client.chat.completions.create({
+      //   model: this.config.model_name,
+      //   messages: [{ role: 'user', content: text }],
+      //   // max_completion_tokens: 1, // Minimal generation to save costs
+      //   // temperature: 0
+      // });
+      // return response.usage.prompt_tokens;
+
+      const response = await this.client.responses.create({
+        model: 'gpt-5-nano', // nano is cheaper than: this.config.model_name
+        input: text,
+        max_output_tokens: 16,  // be cheap, 16 is minimum required
+        text: { verbosity: "low" }, //low, medium, high
       });
-      
-      return response.usage.prompt_tokens;
+      return response.usage.input_tokens;
+
     } catch (error) {
       console.error('Token counting error:', error);
       return -1;
     }
   }
 }
+
 
 module.exports = AiApiService;

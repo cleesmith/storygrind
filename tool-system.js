@@ -491,7 +491,6 @@ async function executeToolById(toolId, options, runId = null, sendOutput = null)
   try {
     // Execute the tool
     const result = await tool.execute(options);
-    
     return result;
   } catch (error) {
     console.error(`Error executing tool ${toolId}:`, error);

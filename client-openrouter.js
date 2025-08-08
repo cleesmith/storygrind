@@ -153,9 +153,7 @@ class AiApiService {
         stream: true,
         temperature: options.temperature || this.temp,
         reasoning: {
-          // ... one of the following (not both):
-          // effort: "high", // "high", "medium", or "low" (OpenAI-style)
-          max_tokens: 32000, // specific token limit (Anthropic-style)
+          effort: "high", // "high", "medium", or "low" (OpenAI-style)
           // ... optional: default is false. All models support this.
           exclude: false, // set to true to exclude reasoning tokens from response
           // ... or enable reasoning with the default parameters:
@@ -198,16 +196,55 @@ class AiApiService {
       const response = await this.client.chat.completions.create({
         model: this.config.model_name,
         messages: [{ role: 'user', content: text }],
-        max_tokens: 1, // Minimal generation to save costs
+        max_tokens: 16, // minimal generation to save costs
         temperature: 0
       });
-      
       return response.usage.prompt_tokens;
     } catch (error) {
       console.error('Token counting error:', error);
       return -1;
     }
   }
+//   async countTokens(text) {
+//     try {
+//       if (!this.client || this.apiKeyMissing) {
+//         throw new Error('OpenAI client not initialized');
+//       }
+      
+//       // const response = await this.client.chat.completions.create({
+//       const response = await this.client.responses.create({
+//         model: this.config.model_name,
+//         messages: [{ role: 'user', content: text }],
+//         // max_completion_tokens: 1, // Minimal generation to save costs
+//         // temperature: 0
+//       });
+
+//       // Responses API uses input_tokens; legacy chat used prompt_tokens
+//       let tokens = 0;
+//       try {
+//         tokens = Number(response?.usage?.input_tokens ?? response?.usage?.prompt_tokens) || 0;
+//       } catch {}
+//       return tokens;
+
+//       // return response.usage.prompt_tokens;
+
+//       // const response = await this.client.responses.create({
+//       //   model: this.config.model_name,
+//       //   input: text,
+//       //   max_output_tokens: 16,  // be cheap, 16 is minimum required
+//       //   text: { verbosity: "low" }, //low, medium, high
+//       // });
+//       // return response.usage.input_tokens;
+
+//     } catch (error) {
+// console.dir(`countTokens: error:`);
+// console.dir(error);
+// console.dir(`.......................................`);
+//       console.error('Token counting error:', error);
+//       return -1;
+//     }
+//   }
+
 }
 
 module.exports = AiApiService;

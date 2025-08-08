@@ -214,14 +214,14 @@ runBtn.addEventListener('click', async () => {
   // Start timing
   startTime = Date.now();
   isRunning = true;
-  canClose = false; // Prevent closing the window while tool is running
+  canClose = false; // prevent closing the window while tool is running
   startTimer();
   
   // Update UI - disable ALL buttons except Force Quit
   runBtn.disabled = true;
   setupBtn.disabled = true;
   clearBtn.disabled = true;
-  closeBtn.disabled = true; // Disable the X close button
+  closeBtn.disabled = true; // disable the X close button
   
   // Remove any existing Edit button and select dropdown
   const existingEditButton = document.getElementById('edit-button');
@@ -247,7 +247,7 @@ runBtn.addEventListener('click', async () => {
     window.electronAPI.removeAllListeners('tool-output');
     window.electronAPI.removeAllListeners('tool-finished');
     window.electronAPI.removeAllListeners('tool-error');
-    
+
     // Run the tool
     currentRunId = await window.electronAPI.startToolRun(toolData.name, currentOptionValues);
     console.log('Tool started with run ID:', currentRunId);

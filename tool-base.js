@@ -74,8 +74,6 @@ class ToolBase {
    * @returns {Promise<object>} - Tool execution result
    */
   async execute(options) {
-    // console.log(`Executing ${this.title} with options:`, options);
-    
     // Make sure we have an API service (required for AI tools)
     if (!this.apiService) {
       const errorMsg = `Error: ${this.title} requires an API service but none was provided.\n`;
@@ -100,6 +98,7 @@ class ToolBase {
     try {
       const manuscriptContent = await this.readInputFile(manuscriptFile);
       const manuscriptWordCount = this.countWords(manuscriptContent);
+
       const manuscriptTokens = await this.apiService.countTokens(manuscriptContent);
 
       // Load manuscript content into the API service
@@ -180,6 +179,7 @@ class ToolBase {
       const minutes = Math.floor(elapsed / 60);
       const seconds = elapsed % 60;
       
+      this.emitOutput(`\n ### \n`);
       this.emitOutput(`\nCompleted in: ⏰ ${minutes}m ${seconds.toFixed(2)}s.\n`);
       
       const wordCount = this.countWords(fullResponse);
@@ -343,8 +343,6 @@ class ToolBase {
 
       const reportWithStats = `=== ${this.title.toUpperCase()} REPORT ===
 Date: ${dateTimeStr}
-Prompt tokens: ${promptTokens}
-Response tokens: ${responseTokens}
 
 ${content}\n`;
       
