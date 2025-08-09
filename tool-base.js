@@ -193,7 +193,6 @@ class ToolBase {
       outputFiles.push(...savedFiles);
       
       // Files created successfully
-      
       return {
         success: true,
         outputFiles
