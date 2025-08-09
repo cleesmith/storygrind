@@ -247,9 +247,9 @@ class ChapterWriter extends ToolBase {
       
       // Debug: Show the actual prompt being sent (commented out - uncomment if needed for debugging)
       // this.emitOutput(`\n\npromptTokens=${promptTokens}\n=== FINAL PROMPT SENT TO AI ===\n${prompt}\n=== END FINAL PROMPT ===\n\n`);
-      
-      // Call AI API with streaming
-      this.emitOutput(`\nSending request to AI API (streaming)...\n\n`);
+    
+      this.emitOutput(`\nSending request to AI API: ${this.apiService.config.model_name}  . . .\n`);
+      this.emitOutput(`\n`);
       
       const startTime = Date.now();
       let fullResponse = "";

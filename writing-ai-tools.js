@@ -153,8 +153,8 @@ class WritingAITool extends ToolBase {
     const wordCount = this.countWords(fullResponse);
     this.emitOutput(`Generated brainstorm has approximately ${wordCount} words.\n`);
     
-    const responseTokens = await this.apiService.countTokens(fullResponse);
-    this.emitOutput(`Response token count: ${responseTokens}\n`);
+    // const responseTokens = await this.apiService.countTokens(fullResponse);
+    // this.emitOutput(`Response token count: ${responseTokens}\n`);
       
     // Save the brainstorm to a file
     const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
@@ -250,8 +250,8 @@ class WritingAITool extends ToolBase {
       const wordCount = this.countWords(fullResponse);
       this.emitOutput(`Outline has approximately ${wordCount} words.\n`);
       
-      const responseTokens = await this.apiService.countTokens(fullResponse);
-      this.emitOutput(`Outline token count: ${responseTokens}\n`);
+      // const responseTokens = await this.apiService.countTokens(fullResponse);
+      // this.emitOutput(`Outline token count: ${responseTokens}\n`);
       
       // Save the outline to a file
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
@@ -269,7 +269,7 @@ class WritingAITool extends ToolBase {
         outputFiles,
         stats: {
           wordCount,
-          tokenCount: responseTokens,
+          // tokenCount: responseTokens,
           elapsedTime: `${minutes}m ${seconds.toFixed(2)}s`
         }
       };
@@ -389,8 +389,8 @@ class WritingAITool extends ToolBase {
       const wordCount = this.countWords(fullResponse);
       this.emitOutput(`World document has approximately ${wordCount} words.\n`);
       
-      const responseTokens = await this.apiService.countTokens(fullResponse);
-      this.emitOutput(`World document token count: ${responseTokens}\n`);
+      // const responseTokens = await this.apiService.countTokens(fullResponse);
+      // this.emitOutput(`World document token count: ${responseTokens}\n`);
       
       // Save the world document to a file
       const timestamp = new Date().toISOString().replace(/[-:.]/g, '').substring(0, 15);
@@ -411,7 +411,7 @@ class WritingAITool extends ToolBase {
         outputFiles,
         stats: {
           wordCount,
-          tokenCount: responseTokens,
+          // tokenCount: responseTokens,
           elapsedTime: `${minutes}m ${seconds.toFixed(2)}s`
         }
       };
