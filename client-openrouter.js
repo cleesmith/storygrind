@@ -13,7 +13,7 @@ const Store = require('electron-store');
 class AiApiService {
   constructor(config = {}) {
     this.config = {
-      model_name: 'openai/gpt-4o',
+      model_name: 'openai/gpt-5-mini',
       ...config,
     };
 

@@ -16,7 +16,7 @@ const Store = require('electron-store');
 class AiApiService {
   constructor(config = {}) {
     this.config = {
-      model_name: 'models/gemini-2.5-pro', // default?
+      model_name: 'models/gemini-2.5-pro',
       ...config
     };
 

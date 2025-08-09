@@ -106,7 +106,7 @@ class ToolBase {
         // Gemini client uses manuscriptContent property
         this.apiService.manuscriptContent = manuscriptContent;
       } else {
-        // OpenAI and OpenRouter clients use prompt property
+        // other clients use prompt property
         this.apiService.prompt = manuscriptContent;
       }
       
@@ -142,9 +142,9 @@ class ToolBase {
         };
       }
       
-      const promptTokens = await this.apiService.countTokens(prompt);
+      // const promptTokens = await this.apiService.countTokens(prompt);
       
-      this.emitOutput(`\nSending request to AI API . . .\n`);
+      this.emitOutput(`\nSending request to AI API: ${this.apiService.config.model_name}  . . .\n`);
       this.emitOutput(`\n`);
       this.emitOutput(`\n****************************************************************************\n`);
       this.emitOutput(`*  Standby, running ${this.title} . . .\n`);
@@ -179,19 +179,19 @@ class ToolBase {
       const minutes = Math.floor(elapsed / 60);
       const seconds = elapsed % 60;
       
-      this.emitOutput(`\n ### \n`);
+      this.emitOutput(`\n###\n`);
       this.emitOutput(`\nCompleted in: ⏰ ${minutes}m ${seconds.toFixed(2)}s.\n`);
       
       const wordCount = this.countWords(fullResponse);
       this.emitOutput(`Report has approximately ${wordCount} words.\n`);
       
-      const responseTokens = await this.apiService.countTokens(fullResponse);
-      this.emitOutput(`Response token count: ${responseTokens}\n`);
+      // const responseTokens = await this.apiService.countTokens(fullResponse);
+      // this.emitOutput(`Response token count: ${responseTokens}\n`);
 
       const savedFiles = await this.saveReport(
         fullResponse,
-        promptTokens,
-        responseTokens,
+        // promptTokens,
+        // responseTokens,
         saveDir
       );
       
@@ -318,12 +318,8 @@ class ToolBase {
    * @param {string} saveDir - Directory to save to
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
-  async saveReport(
-    content,
-    promptTokens,
-    responseTokens,
-    saveDir
-  ) {
+  // async saveReport(content, promptTokens, responseTokens, saveDir) {
+  async saveReport(content, saveDir) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
         weekday: 'long',
@@ -343,6 +339,7 @@ class ToolBase {
 
       const reportWithStats = `=== ${this.title.toUpperCase()} REPORT ===
 Date: ${dateTimeStr}
+Model: ${this.apiService.config.model_name}
 
 ${content}\n`;
       

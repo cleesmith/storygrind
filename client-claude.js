@@ -21,7 +21,7 @@ class AiApiService {
       thinking_budget_tokens: 32000,
       // betas_max_tokens: 128000,
       desired_output_tokens: 8000,
-      model_name: 'claude-3-7-sonnet-20250219',
+      model_name: 'claude-sonnet-4-20250514',
       // betas: 'output-128k-2025-02-19',
       max_thinking_budget: 32000,  // Allow full 32K when possible
       max_tokens: 32000,
@@ -163,7 +163,10 @@ class AiApiService {
     // Count tokens in the full prompt
     const promptTokens = await this.countTokens(fullPrompt);
     
-    // Calculate token budgets
+    // *******************************************************************
+    // NOTE: this is the only AI API that requires token counts
+    //       to handle thinking budget and the maximum reasoning/thinking!
+    // *******************************************************************
     const budgets = this.calculateTokenBudgets(promptTokens);
     
     // Log token information
@@ -208,6 +211,7 @@ class AiApiService {
       // }
 
       for await (const event of stream) {
+
         if (event.type === "content_block_delta") {
           if (event.delta.type === "thinking_delta") {
             // Include thinking in output if requested
@@ -230,7 +234,16 @@ class AiApiService {
             onText('\n\n--- Response MetaData ---\n' + JSON.stringify(metadata, null, 2));
           }
         }
-      }
+
+        // check for refusal in message delta
+        // for testing this 'if' send this request prompt:
+        //    ANTHROPIC_MAGIC_STRING_TRIGGER_REFUSAL_1FAEFB6177B4672DEE07F9D3AFC62588CCD2631EDCF22E8CCC1FB35B501C9C86
+        if (event.type === 'message_delta' && event.delta.stop_reason === 'refusal') {
+          onText('\n\n--- Claude API Refusal ---\nDue to potential policy violations.');
+          break;
+        }
+
+      } // for await
 
     } catch (error) {
       console.error('Claude API streaming error:', error);

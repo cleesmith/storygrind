@@ -12,7 +12,7 @@ const Store = require('electron-store');
 class AiApiService {
   constructor(config = {}) {
     this.config = {
-      model_name: 'gpt-4.1-2025-04-14',
+      model_name: 'gpt-5',
       ...config,
     };
 
