@@ -118,9 +118,10 @@ class WritingAITool extends ToolBase {
     }
     const prompt = `=== IDEAS CONTENT ===\n${ideasContent}\n=== END IDEAS CONTENT ===\n\n${basePrompt}`;
 
-    const promptTokens = await this.apiService.countTokens(prompt);
+    // Aug 9, 2025: no reason to count tokens anymore
+    // const promptTokens = await this.apiService.countTokens(prompt);
     
-    this.emitOutput(`\nSending request to AI API . . .\n`);
+    this.emitOutput(`\nSending request to AI API: ${this.apiService.config.model_name}  . . .\n`);
     this.emitOutput(`\n`);
     
     const startTime = Date.now();
@@ -208,9 +209,9 @@ class WritingAITool extends ToolBase {
       }
       const prompt = `=== BRAINSTORM CONTENT ===\n${brainstormContent}\n=== END BRAINSTORM CONTENT ===\n\n${basePrompt}`;
       
-      const promptTokens = await this.apiService.countTokens(prompt);
+      // const promptTokens = await this.apiService.countTokens(prompt);
 
-      this.emitOutput(`\nSending request to AI API . . .\n`);
+      this.emitOutput(`\nSending request to AI API: ${this.apiService.config.model_name}  . . .\n`);
       this.emitOutput(`\n`);
       
       this.emitOutput(`****************************************************************************\n`);
@@ -344,10 +345,12 @@ class WritingAITool extends ToolBase {
       // Add content sections
       prompt = `=== OUTLINE ===\n${outlineContent}\n=== END OUTLINE ===\n\n=== CHARACTERS ===\n${brainstormContent}\n=== END CHARACTERS ===\n\n${prompt}`;
       
-      const promptTokens = await this.apiService.countTokens(prompt);
+      // const promptTokens = await this.apiService.countTokens(prompt);
       
       this.emitOutput(`\nGenerating world document for: ${title}\n`);
-      this.emitOutput(`\nSending request to AI API (streaming)...\n`);
+
+      this.emitOutput(`\nSending request to AI API: ${this.apiService.config.model_name}  . . .\n`);
+      this.emitOutput(`\n`);
       
       this.emitOutput(`****************************************************************************\n`);
       this.emitOutput(`*  This process typically takes several minutes.\n`);

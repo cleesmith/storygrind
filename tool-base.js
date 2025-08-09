@@ -142,10 +142,9 @@ class ToolBase {
         };
       }
       
-      // const promptTokens = await this.apiService.countTokens(prompt);
-      
       this.emitOutput(`\nSending request to AI API: ${this.apiService.config.model_name}  . . .\n`);
       this.emitOutput(`\n`);
+
       this.emitOutput(`\n****************************************************************************\n`);
       this.emitOutput(`*  Standby, running ${this.title} . . .\n`);
       this.emitOutput(`*\n`);
@@ -184,14 +183,9 @@ class ToolBase {
       
       const wordCount = this.countWords(fullResponse);
       this.emitOutput(`Report has approximately ${wordCount} words.\n`);
-      
-      // const responseTokens = await this.apiService.countTokens(fullResponse);
-      // this.emitOutput(`Response token count: ${responseTokens}\n`);
 
       const savedFiles = await this.saveReport(
         fullResponse,
-        // promptTokens,
-        // responseTokens,
         saveDir
       );
       
@@ -313,12 +307,10 @@ class ToolBase {
   /**
    * Save report to file
    * @param {string} content - Response content
-   * @param {number} promptTokens - Prompt token count
    * @param {number} responseTokens - Response token count
    * @param {string} saveDir - Directory to save to
    * @returns {Promise<string[]>} - Array of paths to saved files
    */
-  // async saveReport(content, promptTokens, responseTokens, saveDir) {
   async saveReport(content, saveDir) {
     try {
       const formatter = new Intl.DateTimeFormat('en-US', {
