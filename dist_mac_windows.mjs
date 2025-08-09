@@ -36,8 +36,6 @@
 // - Easy to delete (just delete the folder)
 // - No registry entries or system changes
 
-// This is how most free/open source Windows software distributes - simple zip with executable inside.
-
 
 // === MAC ===
 // node -v = v24.2.0
@@ -95,16 +93,27 @@ import { sign } from '@electron/osx-sign'
 const opts = {
   // silicon:
   app: 'out/StoryGrind-darwin-arm64/StoryGrind.app',
-  // rm -rf out/
-  // npm run package
-  // node dist_mac_windows.mjs
-  // ditto -c -k --keepParent "out/StoryGrind-darwin-arm64/StoryGrind.app" "StoryGrind.zip"
-  // xcrun notarytool submit "StoryGrind.zip" --keychain-profile "notarytool-profile" --wait
-  // xcrun stapler staple "out/StoryGrind-darwin-arm64/StoryGrind.app"
-  // create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Silicon_arm64_StoryGrind_v8.0.0_August_9_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
+/*
+rm -rf out/
+npm run package
+node dist_mac_windows.mjs
+ditto -c -k --keepParent "out/StoryGrind-darwin-arm64/StoryGrind.app" "StoryGrind.zip"
+xcrun notarytool submit "StoryGrind.zip" --keychain-profile "notarytool-profile" --wait
+xcrun stapler staple "out/StoryGrind-darwin-arm64/StoryGrind.app"
+create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Silicon_arm64_StoryGrind_v8.0.0_August_9_2025.dmg" "out/StoryGrind-darwin-arm64/StoryGrind.app"
+*/
 
   // intel:
   // app: 'out/storygrind-darwin-x64/storygrind.app',
+/*
+rm -rf out/
+npm run package
+node dist_mac_windows.mjs
+ditto -c -k --keepParent "out/StoryGrind-darwin-x64/StoryGrind.app" "StoryGrind.zip"
+xcrun notarytool submit "StoryGrind.zip" --keychain-profile "notarytool-profile" --wait
+xcrun stapler staple "out/StoryGrind-darwin-x64/StoryGrind.app"
+create-dmg --volname "StoryGrind" --window-size 600 400 --icon-size 100 --icon "StoryGrind.app" 175 200 --app-drop-link 425 200 "Apple_Intel_x64_StoryGrind_v8.0.0_August_9_2025.dmg" "out/StoryGrind-darwin-x64/StoryGrind.app"
+*/
 
   // Required for notarization
   optionsForFile: (filePath) => {
