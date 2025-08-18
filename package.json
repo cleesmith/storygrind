@@ -21,7 +21,7 @@
   "author": "Chris Smith",
   "license": "ISC",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.52.0",
+    "@anthropic-ai/sdk": "^0.59.0",
     "@google/genai": "^0.13.0",
     "@xmldom/xmldom": "^0.9.8",
     "adm-zip": "^0.5.4",
@@ -37,6 +37,7 @@
     "mime": "^4.0.7",
     "openai": "^5.12.1",
     "pdfkit": "^0.17.1",
+    "speaker": "^0.5.5",
     "strip-bom": "^2.0.0",
     "tmp": "^0.1.0",
     "uuid": "^11.1.0",

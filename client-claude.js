@@ -12,7 +12,6 @@ const Store = require('electron-store');
  */
 class AiApiService {
   constructor(config = {}) {
-    // WARNING: the May 2025 release of Claude 4 has this:
     // Store configuration with defaults
     this.config = {
       max_retries: 1,
@@ -23,7 +22,7 @@ class AiApiService {
       desired_output_tokens: 8000,
       model_name: 'claude-sonnet-4-20250514',
       // betas: 'output-128k-2025-02-19',
-      max_thinking_budget: 32000,  // Allow full 32K when possible
+      max_thinking_budget: 32000,
       max_tokens: 32000,
       ...config
     };
@@ -178,6 +177,17 @@ class AiApiService {
     if (budgets.isPromptTooLarge) {
       onText(`\nWARNING: Prompt is very large (${promptTokens} tokens). This may affect response quality.\n\n`);
     }
+
+    // const modelOptions = {
+    //   model: this.config.model_name,
+    //   max_tokens: 32000,
+    //   messages: [{ role: "user", content: fullPrompt }],
+    //   thinking: {
+    //     type: "enabled",
+    //     budget_tokens: 30000
+    //   },
+    //   betas: ['context-1m-2025-08-07']
+    // };
 
     const modelOptions = {
       model: this.config.model_name,
